@@ -1,14 +1,17 @@
 from fastapi import FastAPI
-from app.routers import auth
-from app.database import Base, engine
+from app.database import engine, Base
+from app.models import user, apartment  # Import models to create tables
+from app.routers import auth, apartments
 
-# Create tables
+# Create all tables
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title='Apartex API')
+app = FastAPI(title="Apartex API", version="1.0.0")
 
-app.include_router(auth.router, prefix='/auth', tags=['auth'])
+# Include routers
+app.include_router(auth.router, prefix="/auth", tags=["authentication"])
+app.include_router(apartments.router, prefix="/apartments", tags=["apartments"])
 
-@app.get('/health', tags=['health'])
-def health():
-    return {'status':'ok'}
+@app.get("/")
+def read_root():
+    return {"message": "Apartex API is running!"}

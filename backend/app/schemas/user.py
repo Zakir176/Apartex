@@ -1,20 +1,25 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 
-class UserCreate(BaseModel):
+class UserBase(BaseModel):
+    """Shared user fields used across multiple schema variants."""
     email: EmailStr
-    password: str
     full_name: Optional[str] = None
+    role: str = "renter"
 
-class UserRead(BaseModel):
+class UserCreate(UserBase):
+    """Payload for creating a new user (includes plaintext password)."""
+    password: str
+
+class UserRead(UserBase):
+    """Public representation of a user returned by the API."""
     id: int
-    email: EmailStr
-    full_name: Optional[str] = None
-    role: str
+    is_active: bool
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str = 'bearer'
+class UserLogin(BaseModel):
+    """Credentials for user login."""
+    email: EmailStr
+    password: str

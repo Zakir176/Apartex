@@ -4,14 +4,16 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "dev": "vue-cli-service serve --port 8080"
+    "dev": "vite",
+    "preview": "vite preview"
   },
   "dependencies": {
     "vue": "^3.3.0",
     "vue-router": "^4.2.0",
     "pinia": "^2.1.0",
     "axios": "^1.4.0",
-    "vue-toastification": "^2.0.0",
+    "primevue": "^3.39.0",
+    "primeicons": "^6.0.1",
     "date-fns": "^2.30.0"
   },
   "devDependencies": {

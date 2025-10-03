@@ -2,11 +2,13 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import authService from '@/services/auth'
+import { useAppToast } from '@/utils/toast'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
   const token = ref(localStorage.getItem('apartex_token'))
   const isLoading = ref(false)
+  const { showSuccess, showError } = useAppToast()
 
   const isAuthenticated = computed(() => !!token.value && !!user.value)
 
@@ -17,8 +19,10 @@ export const useAuthStore = defineStore('auth', () => {
       token.value = response.data.access_token
       user.value = response.data.user
       localStorage.setItem('apartex_token', token.value)
+      showSuccess('Login successful!')
       return response
     } catch (error) {
+      showError(error.response?.data?.detail || 'Login failed')
       throw error
     } finally {
       isLoading.value = false
@@ -29,8 +33,10 @@ export const useAuthStore = defineStore('auth', () => {
     isLoading.value = true
     try {
       const response = await authService.register(userData)
+      showSuccess('Registration successful! Please login.')
       return response
     } catch (error) {
+      showError(error.response?.data?.detail || 'Registration failed')
       throw error
     } finally {
       isLoading.value = false
@@ -41,6 +47,7 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null
     token.value = null
     localStorage.removeItem('apartex_token')
+    showSuccess('Logged out successfully')
   }
 
   const fetchUser = async () => {

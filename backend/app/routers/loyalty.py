@@ -11,13 +11,18 @@ from app.schemas.loyalty import (
     RewardType, RewardStatus
 )
 from app.services.loyalty_service import LoyaltyService
+from decimal import Decimal
+import logging
 
 router = APIRouter()
+
+# Set up logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 @router.get("/users/{user_id}/status", response_model=LoyaltyStatus)
 def get_loyalty_status(user_id: int, db: Session = Depends(get_db)):
     """Get loyalty status and rewards for a user."""
-    # Check if user exists
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -28,7 +33,6 @@ def get_loyalty_status(user_id: int, db: Session = Depends(get_db)):
 @router.get("/users/{user_id}/rewards", response_model=List[LoyaltyRewardRead])
 def get_user_rewards(user_id: int, db: Session = Depends(get_db)):
     """Get all rewards for a user."""
-    # Check if user exists
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -42,6 +46,8 @@ def get_user_rewards(user_id: int, db: Session = Depends(get_db)):
 @router.post("/rewards/redeem")
 def redeem_reward(redemption: RewardRedemption, db: Session = Depends(get_db)):
     """Redeem a reward for a booking."""
+    logger.info("🚀 Starting reward redemption...")
+
     # Check if reward exists and is available
     reward = db.query(LoyaltyReward).filter(
         LoyaltyReward.id == redemption.reward_id,
@@ -51,41 +57,58 @@ def redeem_reward(redemption: RewardRedemption, db: Session = Depends(get_db)):
     if not reward:
         raise HTTPException(status_code=404, detail="Reward not found or already used")
     
+    logger.info(f"✅ Reward found: {reward.reward_type} {reward.reward_value}%")
+
     # Check if booking exists
     booking = db.query(Booking).filter(Booking.id == redemption.booking_id).first()
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
     
+    logger.info(f"✅ Booking found: ${booking.total_price}")
+
     # Check if reward belongs to booking user
     if reward.user_id != booking.user_id:
         raise HTTPException(status_code=400, detail="Reward does not belong to booking user")
     
-    # Apply reward to booking
-    if reward.reward_type == RewardType.PERCENTAGE_DISCOUNT:
-        discount_multiplier = (100 - reward.reward_value) / 100
-        booking.total_price = float(booking.total_price) * discount_multiplier
-    elif reward.reward_type == RewardType.FREE_NIGHT:
-        # For free night, we'd need more complex logic based on night count
-        # For now, apply 100% discount
-        booking.total_price = 0.0
+    # Use Decimal for financial calculations
+    original_price = Decimal(str(booking.total_price))
+    discount_percent = Decimal(str(reward.reward_value))
     
-    # Mark reward as used
+    logger.info(f"💰 Original price: ${original_price}")
+    logger.info(f"🎯 Discount: {discount_percent}%")
+    
+    # Calculate new price
+    new_price = original_price * (1 - discount_percent / Decimal('100'))
+    
+    logger.info(f"💰 New price: ${new_price}")
+    
+    # Apply the discount to the booking
+    booking.total_price = new_price
+    booking.used_reward_id = reward.id
+    
+    # Mark the reward as used
     reward.status = "used"
     reward.used_at = datetime.utcnow()
-    booking.used_reward_id = reward.id
     
     # Update user's pending reward status
     user = db.query(User).filter(User.id == reward.user_id).first()
     if user:
         user.has_pending_reward = False
     
-    db.commit()
+    try:
+        db.commit()
+        logger.info("✅ Reward applied successfully!")
+    except Exception as e:
+        db.rollback()  # Rollback in case of error
+        logger.error(f"Error applying reward: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
     
     return {
-        "message": "Reward applied successfully",
+        "message": "Reward applied successfully!",
         "booking_id": booking.id,
-        "new_total_price": float(booking.total_price),
-        "reward_type": reward.reward_type
+        "original_price": float(original_price),
+        "new_total_price": float(new_price),
+        "savings": float(original_price - new_price)
     }
 
 @router.put("/bookings/{booking_id}/complete")
@@ -98,19 +121,30 @@ def complete_booking(booking_id: int, db: Session = Depends(get_db)):
     if booking.status == "completed":
         raise HTTPException(status_code=400, detail="Booking already completed")
     
-    # Update booking status
+    # Update booking status to 'completed'
     booking.status = "completed"
     
     # Process loyalty rewards
     LoyaltyService.process_booking_completion(booking, db)
     
-    db.commit()
+    # Refresh booking data after processing
+    db.refresh(booking)
+    
+    # Get the user separately to avoid relationship issues
+    user = db.query(User).filter(User.id == booking.user_id).first()
+    
+    try:
+        db.commit()
+    except Exception as e:
+        db.rollback()  # Rollback in case of error
+        logger.error(f"Error completing booking: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
     
     return {
         "message": "Booking marked as completed",
         "booking_id": booking.id,
         "points_earned": booking.earned_loyalty_points,
-        "user_total_bookings": booking.user.total_bookings
+        "user_total_bookings": user.total_bookings if user else 0
     }
 
 @router.get("/tiers")

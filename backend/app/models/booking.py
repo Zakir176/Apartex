@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Numeric, Date
+from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
 
@@ -20,3 +21,7 @@ class Booking(Base):
     
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Add relationships
+    user = relationship("User", back_populates="bookings")
+    apartment = relationship("Apartment")

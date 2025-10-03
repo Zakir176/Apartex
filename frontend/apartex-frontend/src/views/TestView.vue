@@ -1,152 +1,68 @@
 <!-- src/views/TestView.vue -->
 <template>
-  <div class="test-view">
-    <div class="container">
-      <h1>Debug Test Page</h1>
-      
-      <div class="debug-section">
-        <h2>Service Test</h2>
-        <Button @click="testService" label="Test Apartment Service" />
-        <div v-if="serviceResult">
-          <h3>Service Response:</h3>
-          <pre>{{ serviceResult }}</pre>
+  <div style="padding: 2rem;">
+    <h1>Simple Test</h1>
+    
+    <!-- Test 1: Direct data in template -->
+    <div style="background: #4caf50; color: white; padding: 1rem; margin: 1rem 0;">
+      <h3>Test 1: Hardcoded Data</h3>
+      <div v-for="apt in hardcodedApartments" :key="apt.id" style="background: white; color: black; padding: 0.5rem; margin: 0.5rem 0;">
+        {{ apt.title }} - {{ apt.location }}
+      </div>
+    </div>
+
+    <!-- Test 2: Data from ref -->
+    <div style="background: #2196f3; color: white; padding: 1rem; margin: 1rem 0;">
+      <h3>Test 2: Ref Data</h3>
+      <div v-if="refApartments.length > 0">
+        <div v-for="apt in refApartments" :key="apt.id" style="background: white; color: black; padding: 0.5rem; margin: 0.5rem 0;">
+          {{ apt.title }} - {{ apt.location }}
         </div>
       </div>
-
-      <div class="debug-section">
-        <h2>Manual Data Test</h2>
-        <Button @click="loadManualData" label="Load Manual Data" />
-        <div v-if="manualData.length > 0">
-          <h3>Manual Data Loaded ({{ manualData.length }} apartments)</h3>
-          <div v-for="apt in manualData" :key="apt.id" class="manual-apartment">
-            <strong>{{ apt.title }}</strong> - {{ apt.location }} - ${{ apt.price_per_night }}
-          </div>
-        </div>
+      <div v-else style="background: red; color: white; padding: 1rem;">
+        NO DATA IN refApartments!
       </div>
+    </div>
 
-      <div class="debug-section">
-        <h2>Component Test</h2>
-        <ApartmentList :apartments="testApartments" :loading="false" />
-      </div>
+    <!-- Test 3: ApartmentList component -->
+    <div style="background: #ff9800; color: white; padding: 1rem; margin: 1rem 0;">
+      <h3>Test 3: ApartmentList Component</h3>
+      <ApartmentList :apartments="refApartments" :loading="false" />
     </div>
   </div>
 </template>
 
 <script>
-import { ref } from 'vue'
-import Button from 'primevue/button'
+import { ref, onMounted } from 'vue'
 import ApartmentList from '@/components/apartments/ApartmentList.vue'
-import apartmentService from '@/services/apartments'
 
 export default {
   name: 'TestView',
   components: {
-    Button,
     ApartmentList
   },
   setup() {
-    const serviceResult = ref(null)
-    const manualData = ref([])
-    const testApartments = ref([
-      {
-        id: 99,
-        title: "TEST Apartment",
-        location: "Test City, TS",
-        price_per_night: 100,
-        max_guests: 2,
-        bedrooms: 1,
-        bathrooms: 1,
-        rating: 4.5,
-        review_count: 10,
-        image_url: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400",
-        is_featured: true
-      }
+    // Test 1: Hardcoded in template
+    const hardcodedApartments = [
+      { id: 1, title: "Hardcoded Apt 1", location: "Test City", price_per_night: 100 },
+      { id: 2, title: "Hardcoded Apt 2", location: "Test Town", price_per_night: 150 }
+    ]
+
+    // Test 2: Data in ref
+    const refApartments = ref([
+      { id: 3, title: "Ref Apt 1", location: "Ref City", price_per_night: 100, max_guests: 2, bedrooms: 1, bathrooms: 1, rating: 4.5, review_count: 10 },
+      { id: 4, title: "Ref Apt 2", location: "Ref Town", price_per_night: 150, max_guests: 4, bedrooms: 2, bathrooms: 1, rating: 4.8, review_count: 25 }
     ])
 
-    const testService = async () => {
-      try {
-        console.log('Testing service...')
-        const response = await apartmentService.getFeatured()
-        serviceResult.value = {
-          success: true,
-          data: response.data,
-          dataLength: response.data.length
-        }
-        console.log('Service test result:', serviceResult.value)
-      } catch (error) {
-        serviceResult.value = {
-          success: false,
-          error: error.message
-        }
-        console.error('Service test failed:', error)
-      }
-    }
-
-    const loadManualData = () => {
-      manualData.value = [
-        {
-          id: 100,
-          title: "Manual Apartment 1",
-          location: "Manual City, MC",
-          price_per_night: 150,
-          max_guests: 4,
-          bedrooms: 2,
-          bathrooms: 1,
-          rating: 4.8,
-          review_count: 25,
-          image_url: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400",
-          is_featured: true
-        },
-        {
-          id: 101,
-          title: "Manual Apartment 2", 
-          location: "Testville, TV",
-          price_per_night: 180,
-          max_guests: 6,
-          bedrooms: 3,
-          bathrooms: 2,
-          rating: 4.9,
-          review_count: 42,
-          image_url: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400",
-          is_featured: true
-        }
-      ]
-    }
+    onMounted(() => {
+      console.log('🔍 TestView mounted')
+      console.log('refApartments:', refApartments.value)
+    })
 
     return {
-      serviceResult,
-      manualData,
-      testApartments,
-      testService,
-      loadManualData
+      hardcodedApartments,
+      refApartments
     }
   }
 }
 </script>
-
-<style scoped>
-.test-view {
-  padding: 2rem;
-}
-
-.debug-section {
-  margin: 2rem 0;
-  padding: 1rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 0.5rem;
-}
-
-.manual-apartment {
-  padding: 0.5rem;
-  margin: 0.5rem 0;
-  background: #f7fafc;
-  border-radius: 0.25rem;
-}
-
-pre {
-  background: #f7fafc;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  overflow-x: auto;
-}
-</style>

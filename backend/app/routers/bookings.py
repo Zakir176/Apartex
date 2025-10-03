@@ -15,22 +15,46 @@ def check_apartment_availability(apartment_id: int, check_in: date, check_out: d
     Check if an apartment is available for the given dates.
     Returns True if available, False if booked.
     """
+    print(f"🔍 Checking availability for apartment {apartment_id}, dates {check_in} to {check_out}")
+    
     # Validate dates
     if check_in >= check_out:
+        print("❌ Invalid dates: check_in >= check_out")
         return False
     
-    if check_in < date.today():
+    # Check if apartment exists and is available
+    apartment = db.query(Apartment).filter(Apartment.id == apartment_id).first()
+    if not apartment:
+        print("❌ Apartment not found")
         return False
+    
+    if not apartment.is_available:
+        print("❌ Apartment is not available")
+        return False
+    
+    print(f"✅ Apartment {apartment_id} exists and is available")
 
-    # Check for overlapping bookings (only consider confirmed bookings)
-    overlapping_booking = db.query(Booking).filter(
+    # Check for overlapping bookings (only consider confirmed and completed bookings)
+    overlapping_bookings = db.query(Booking).filter(
         Booking.apartment_id == apartment_id,
-        Booking.status.in_(["confirmed", "pending"]),  # Both confirmed and pending count as occupied
+        Booking.status.in_(["confirmed", "completed"]),  # Only confirmed/completed bookings block availability
+        # Check for date overlap: 
+        # new_booking.check_in < existing_booking.check_out AND
+        # new_booking.check_out > existing_booking.check_in
         Booking.check_in < check_out,
         Booking.check_out > check_in
-    ).first()
+    ).all()
     
-    return overlapping_booking is None
+    print(f"📅 Found {len(overlapping_bookings)} overlapping bookings")
+    
+    for booking in overlapping_bookings:
+        print(f"   - Booking {booking.id}: {booking.check_in} to {booking.check_out}, status: {booking.status}")
+    
+    # If no overlapping booking found, apartment is available
+    is_available = len(overlapping_bookings) == 0
+    print(f"📊 Final availability: {is_available}")
+    
+    return is_available
 
 def calculate_booking_price(apartment_id: int, check_in: date, check_out: date, db: Session) -> float:
     """
@@ -51,6 +75,8 @@ def create_booking(booking: BookingCreate, db: Session = Depends(get_db)):
     """
     Create a new booking with availability checks and price calculation.
     """
+    print(f"🎯 Creating booking for apartment {booking.apartment_id}")
+    
     # Check if apartment exists
     apartment = db.query(Apartment).filter(Apartment.id == booking.apartment_id).first()
     if not apartment:
@@ -75,14 +101,7 @@ def create_booking(booking: BookingCreate, db: Session = Depends(get_db)):
         raise HTTPException(
             status_code=400, 
             detail="Check-out date must be after check-in date"
-        )
-    
-    if booking.check_in < date.today():
-        raise HTTPException(
-            status_code=400, 
-            detail="Check-in date cannot be in the past"
-        )
-    
+        )    
     # Check capacity
     if booking.guests > apartment.capacity:
         raise HTTPException(

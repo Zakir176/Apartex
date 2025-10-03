@@ -1,60 +1,46 @@
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
-from jose import jwt
+from jose import jwt, JWTError
 import os
-from typing import Optional  # Add this for type hints
+from typing import Optional
 
-# Config (use env vars in production)
-SECRET_KEY = os.getenv('SECRET_KEY', 'dev_secret_change_me')
+# Enhanced configuration
+SECRET_KEY = os.getenv('SECRET_KEY', 'your-super-secret-key-change-in-production')
 ALGORITHM = os.getenv('ALGORITHM', 'HS256')
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES', '60'))
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES', '30'))
+REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv('REFRESH_TOKEN_EXPIRE_DAYS', '7'))
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hash_password(password: str) -> str:
-    """Hash a plaintext password using bcrypt.
-
-    Notes:
-        bcrypt considers only the first 72 bytes; input is truncated to avoid
-        mismatches between hashing and verification for longer inputs.
-    """
-    # bcrypt max is 72 bytes, truncate if necessary
     if len(password) > 72:
         password = password[:72]
     return pwd_context.hash(password)
 
 def verify_password(password: str, hashed: str) -> bool:
-    """Verify a plaintext password against a bcrypt hash.
-
-    Returns:
-        bool: True if the password matches the hash, otherwise False.
-    """
     if len(password) > 72:
         password = password[:72]
     return pwd_context.verify(password, hashed)
 
-def create_access_token(subject: str) -> str:
-    """Create a signed JWT access token.
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    
+    to_encode.update({"exp": expire, "type": "access"})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-    Args:
-        subject: Unique identifier (e.g., user email) to set as the token subject.
+def create_refresh_token(data: dict) -> str:
+    expire = datetime.utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+    to_encode = data.copy()
+    to_encode.update({"exp": expire, "type": "refresh"})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-    Returns:
-        str: Encoded JWT with expiration configured by ACCESS_TOKEN_EXPIRE_MINUTES.
-    """
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    payload = {'sub': str(subject), 'exp': expire}
-    token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
-    return token
-
-def decode_token(token: str) -> Optional[dict]:
-    """Decode and validate a JWT token.
-
-    Returns:
-        Optional[dict]: Decoded payload if valid; None if invalid/expired.
-    """
+def verify_token(token: str) -> Optional[dict]:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return payload
-    except Exception as e:
+    except JWTError:
         return None

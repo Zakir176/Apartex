@@ -1,48 +1,21 @@
+<!-- src/App.vue -->
 <template>
   <div id="app">
-    <nav class="navbar">
-      <div class="nav-container">
-        <router-link to="/" class="logo">
-          🏠 Apartex
-        </router-link>
-        <div class="nav-links">
-          <router-link to="/" class="nav-link">Home</router-link>
-          <router-link to="/apartments" class="nav-link">Apartments</router-link>
-          <router-link to="/login" class="nav-link">Login</router-link>
-          <router-link to="/register" class="nav-link signup">Sign Up</router-link>
-        </div>
-      </div>
-    </nav>
-
-    <router-view />
-
-    <footer class="footer">
-      <div class="footer-content">
-        <div class="footer-section">
-          <h3>🏠 Apartex</h3>
-          <p>Your trusted platform for apartment bookings and management.</p>
-        </div>
-        <div class="footer-section">
-          <h4>Quick Links</h4>
-          <router-link to="/apartments">Browse Apartments</router-link>
-          <router-link to="/login">Login</router-link>
-        </div>
-        <div class="footer-section">
-          <h4>Contact</h4>
-          <p>Email: support@apartex.com</p>
-          <p>Phone: +1 (555) 123-4567</p>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>&copy; 2024 Apartex. All rights reserved.</p>
-      </div>
-    </footer>
+    <NavBar />
+    <main>
+      <RouterView />
+    </main>
   </div>
 </template>
 
 <script>
+import NavBar from '@/components/common/NavBar.vue'
+
 export default {
-  name: 'App'
+  name: 'App',
+  components: {
+    NavBar
+  }
 }
 </script>
 

@@ -114,6 +114,6 @@ def login(login_data: LoginRequest, db: Session = Depends(get_db)):
         )
 
     # Create access token
-    access_token = create_access_token(subject=user.email)
+    access_token = create_access_token(data={"sub": user.email})
 
     return {"access_token": access_token, "token_type": "bearer"}

@@ -1,67 +1,74 @@
-// src/stores/auth.js
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import authService from '@/services/auth'
+import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
+import { authApi } from '@/api/auth';
 
 export const useAuthStore = defineStore('auth', () => {
-  const user = ref(null)
-  const token = ref(localStorage.getItem('apartex_token'))
-  const isLoading = ref(false)
-
-  const isAuthenticated = computed(() => !!token.value)
-
-  const login = async (credentials) => {
-    isLoading.value = true
+  const user = ref(null);
+  const token = ref(localStorage.getItem('accessToken') || null);
+  
+  const isAuthenticated = computed(() => !!token.value);
+  const isOwner = computed(() => user.value?.role === 'owner');
+  
+  async function register(userData) {
     try {
-      const response = await authService.login(credentials)
-      token.value = response.data.access_token
-      user.value = response.data.user
-      localStorage.setItem('apartex_token', token.value)
-      return response
+      const response = await authApi.register(userData);
+      await handleAuthResponse(response);
+      return response;
     } catch (error) {
-      throw error
+      throw error;
+    }
+  }
+  
+  async function login(credentials) {
+    try {
+      const response = await authApi.login(credentials);
+      await handleAuthResponse(response);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+  
+  async function logout() {
+    try {
+      await authApi.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
     } finally {
-      isLoading.value = false
+      user.value = null;
+      token.value = null;
+      localStorage.removeItem('accessToken');
     }
   }
-
-  const register = async (userData) => {
-    isLoading.value = true
+  
+  async function fetchCurrentUser() {
     try {
-      const response = await authService.register(userData)
-      return response
+      const response = await authApi.getCurrentUser();
+      user.value = response.data;
+      return response;
     } catch (error) {
-      throw error
-    } finally {
-      isLoading.value = false
+      throw error;
     }
   }
-
-  const logout = () => {
-    user.value = null
-    token.value = null
-    localStorage.removeItem('apartex_token')
-  }
-
-  const fetchUser = async () => {
-    if (!token.value) return
-    
-    try {
-      const response = await authService.getCurrentUser()
-      user.value = response.data
-    } catch (error) {
-      logout()
+  
+  async function handleAuthResponse(response) {
+    // Adjust based on your API response structure
+    const accessToken = response.data.access_token || response.data.token;
+    if (accessToken) {
+      token.value = accessToken;
+      localStorage.setItem('accessToken', accessToken);
+      await fetchCurrentUser();
     }
   }
-
+  
   return {
     user,
     token,
-    isLoading,
     isAuthenticated,
-    login,
+    isOwner,
     register,
+    login,
     logout,
-    fetchUser
-  }
-})
+    fetchCurrentUser
+  };
+});

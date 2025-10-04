@@ -4,7 +4,7 @@
     <div class="footer-content">
       <div class="footer-section">
         <h3>🏠 Apartex</h3>
-        <p>Your trusted platform for apartment bookings and management.</p>
+        <p>Your trusted platform for Apartexs and management.</p>
       </div>
       <div class="footer-section">
         <h4>Quick Links</h4>

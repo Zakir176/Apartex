@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <nav v-if="authStore.isAuthenticated" class="navbar">
-      <div class="nav-brand">Apartment Booking</div>
+      <div class="nav-brand">Apartex</div>
       <div class="nav-links">
         <router-link to="/">Home</router-link>
         <router-link to="/apartments">Apartments</router-link>

@@ -36,11 +36,11 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
-    path: '/loyalty',
-    name: 'Loyalty',
-    component: () => import('@/views/LoyaltyView.vue'),
-    meta: { requiresAuth: true }
-  },
+  path: '/loyalty',
+  name: 'Loyalty',
+  component: () => import('../views/LoyaltyView.vue'),
+  meta: { requiresAuth: true }
+},
   {
     path: '/dashboard',
     name: 'Dashboard',

@@ -1,7 +1,7 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
-import pinia from './stores'; // This now imports from stores/index.js
+import { pinia } from './stores';
 
 const app = createApp(App);
 

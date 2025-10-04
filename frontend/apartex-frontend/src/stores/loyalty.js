@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { loyaltyApi } from '@/api/loyalty';
+import { loyaltyApi } from '../api/loyalty';
 
 export const useLoyaltyStore = defineStore('loyalty', () => {
   const loyaltyStatus = ref(null);

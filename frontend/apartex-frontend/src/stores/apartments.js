@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { apartmentsApi } from '@/api/apartments';
+import { apartmentsApi } from '../api/apartments';
 
 export const useApartmentsStore = defineStore('apartments', () => {
   const apartments = ref([]);

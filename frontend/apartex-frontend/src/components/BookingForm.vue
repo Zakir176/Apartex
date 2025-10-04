@@ -65,7 +65,7 @@
 import { ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useBookingsStore } from '@/stores/bookings';
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore } from '../stores/auth';
 
 const props = defineProps({
   apartment: {

@@ -64,7 +64,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useBookingsStore } from '@/stores/bookings';
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore } from '../stores/auth';
 import { useLoyaltyStore } from '@/stores/loyalty';
 
 const bookingsStore = useBookingsStore();

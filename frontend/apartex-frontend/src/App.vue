@@ -7,7 +7,7 @@
         <router-link to="/apartments">Apartments</router-link>
         <router-link to="/bookings">My Bookings</router-link>
         <router-link to="/loyalty">Loyalty</router-link>
-        <router-link v-if="authStore.isOwner" to="/dashboard">Dashboard</router-link>
+        <router-link to="/dashboard"class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">Dashboard</router-link>
         <span class="user-info">Hello, {{ authStore.user?.name }}</span>
         <button @click="handleLogout" class="logout-btn">Logout</button>
       </div>

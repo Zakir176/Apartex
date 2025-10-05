@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { dashboardApi } from '../api/dashboard';
+import { dashboardAPI } from '@/api/dashboard';
 
 export const useDashboardStore = defineStore('dashboard', () => {
   const ownerOverview = ref(null);

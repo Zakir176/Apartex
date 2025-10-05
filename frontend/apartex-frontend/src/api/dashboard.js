@@ -1,15 +1,19 @@
-import apiClient from './index';
+// src/api/dashboard.js
+import api from './index'
 
-export const dashboardApi = {
+export const dashboardAPI = {
+  // Owner endpoints
   getOwnerOverview(ownerId) {
-    return apiClient.get(`/dashboard/owners/${ownerId}/overview`);
+    return api.get(`/dashboard/owners/${ownerId}/overview`)
   },
-
+  
   getOwnerPayouts(ownerId) {
-    return apiClient.get(`/dashboard/owners/${ownerId}/payouts`);
+    return api.get(`/dashboard/owners/${ownerId}/payouts`)
   },
-
-  requestPayout(ownerId, payoutData) {
-    return apiClient.post(`/dashboard/owners/${ownerId}/payouts/request`, payoutData);
+  
+  requestPayout(ownerId) {
+    return api.post(`/dashboard/owners/${ownerId}/payouts/request`)
   }
-};
+}
+
+export default dashboardAPI

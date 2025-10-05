@@ -7,3 +7,4 @@ export { useAuthStore } from './auth';
 export { useApartmentsStore } from './apartments';
 export { useBookingsStore } from './bookings';
 export { useLoyaltyStore } from './loyalty';
+export { useDashboardStore } from './dashboard';

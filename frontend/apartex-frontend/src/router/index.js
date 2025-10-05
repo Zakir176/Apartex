@@ -41,12 +41,12 @@ const routes = [
   component: () => import('../views/LoyaltyView.vue'),
   meta: { requiresAuth: true }
 },
-  {
-    path: '/dashboard',
-    name: 'Dashboard',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true, requiresOwner: true }
-  }
+{
+  path: '/dashboard',
+  name: 'Dashboard',
+  component: () => import('../views/DashboardView.vue'),
+  meta: { requiresAuth: true, requiresOwner: true }
+}
 ];
 
 const router = createRouter({

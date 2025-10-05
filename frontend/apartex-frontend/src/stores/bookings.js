@@ -1,76 +1,98 @@
-// src/stores/bookings.js
-import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import bookingService from '@/services/bookings'
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
+import { bookingsApi } from '../api/bookings';
 
-export const useBookingStore = defineStore('bookings', () => {
-  const bookings = ref([])
-  const currentBooking = ref(null)
-  const isLoading = ref(false)
+export const useBookingsStore = defineStore('bookings', () => {
+  const bookings = ref([]);
+  const currentBooking = ref(null);
+  const availability = ref(null);
+  const loading = ref(false);
+  const error = ref(null);
 
-  const loadBookings = async () => {
-    isLoading.value = true
+  async function fetchBookings() {
+    loading.value = true;
+    error.value = null;
     try {
-      const response = await bookingService.getUserBookings()
-      bookings.value = response.data
-    } catch (error) {
-      console.error('Error loading bookings:', error)
-      throw error
+      const response = await bookingsApi.getBookings();
+      bookings.value = response.data;
+      return response.data;
+    } catch (err) {
+      error.value = err.response?.data?.detail || 'Failed to fetch bookings';
+      throw err;
     } finally {
-      isLoading.value = false
+      loading.value = false;
     }
   }
 
-  const createBooking = async (bookingData) => {
-    isLoading.value = true
+  async function fetchUserBookings(userId) {
+    loading.value = true;
+    error.value = null;
     try {
-      const response = await bookingService.create(bookingData)
-      bookings.value.push(response.data)
-      return response
-    } catch (error) {
-      console.error('Error creating booking:', error)
-      throw error
+      const response = await bookingsApi.getUserBookings(userId);
+      bookings.value = response.data;
+      return response.data;
+    } catch (err) {
+      error.value = err.response?.data?.detail || 'Failed to fetch user bookings';
+      throw err;
     } finally {
-      isLoading.value = false
+      loading.value = false;
     }
   }
 
-  const cancelBooking = async (bookingId) => {
-    isLoading.value = true
+  async function createBooking(bookingData) {
+    loading.value = true;
+    error.value = null;
     try {
-      await bookingService.cancel(bookingId)
-      const index = bookings.value.findIndex(b => b.id === bookingId)
-      if (index !== -1) {
-        bookings.value[index].status = 'cancelled'
-      }
-    } catch (error) {
-      console.error('Error cancelling booking:', error)
-      throw error
+      const response = await bookingsApi.createBooking(bookingData);
+      bookings.value.push(response.data);
+      return response.data;
+    } catch (err) {
+      error.value = err.response?.data?.detail || 'Failed to create booking';
+      throw err;
     } finally {
-      isLoading.value = false
+      loading.value = false;
     }
   }
 
-  const getBookingById = async (id) => {
-    isLoading.value = true
+  async function checkAvailability(apartmentId, dates) {
+    loading.value = true;
+    error.value = null;
     try {
-      const response = await bookingService.getById(id)
-      currentBooking.value = response.data
-    } catch (error) {
-      console.error('Error loading booking details:', error)
-      throw error
+      const response = await bookingsApi.checkAvailability(apartmentId, dates);
+      availability.value = response.data;
+      return response.data;
+    } catch (err) {
+      error.value = err.response?.data?.detail || 'Failed to check availability';
+      throw err;
     } finally {
-      isLoading.value = false
+      loading.value = false;
+    }
+  }
+
+  async function cancelBooking(bookingId) {
+    loading.value = true;
+    error.value = null;
+    try {
+      await bookingsApi.deleteBooking(bookingId);
+      bookings.value = bookings.value.filter(booking => booking.id !== bookingId);
+    } catch (err) {
+      error.value = err.response?.data?.detail || 'Failed to cancel booking';
+      throw err;
+    } finally {
+      loading.value = false;
     }
   }
 
   return {
     bookings,
     currentBooking,
-    isLoading,
-    loadBookings,
+    availability,
+    loading,
+    error,
+    fetchBookings,
+    fetchUserBookings,
     createBooking,
-    cancelBooking,
-    getBookingById
-  }
-})
+    checkAvailability,
+    cancelBooking
+  };
+});

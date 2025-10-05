@@ -1,6 +1,10 @@
-// src/stores/index.js
-import { createPinia } from 'pinia'
+import { createPinia } from 'pinia';
 
-const pinia = createPinia()
+export const pinia = createPinia();
 
-export default pinia
+// Re-export all stores for easy importing
+export { useAuthStore } from './auth';
+export { useApartmentsStore } from './apartments';
+export { useBookingsStore } from './bookings';
+export { useLoyaltyStore } from './loyalty';
+export { useDashboardStore } from './dashboard';

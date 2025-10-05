@@ -1,67 +1,77 @@
-<!-- src/views/HomeView.vue -->
 <template>
   <div class="home">
-    <header class="hero">
+    <section class="hero">
       <h1>Find Your Perfect Stay</h1>
-      <p>Book apartments with ease and earn loyalty rewards</p>
-    </header>
+      <p>Discover amazing apartments for your next trip</p>
+    </section>
 
-    <main class="main-content">
+    <section class="featured-apartments">
       <h2>Featured Apartments</h2>
-      
-      <div v-if="apartmentStore.isLoading" class="loading">
-        <p>Loading apartments...</p>
-      </div>
-      
+      <div v-if="apartmentsStore.loading" class="loading">Loading...</div>
       <div v-else class="apartments-grid">
-        <div 
-          v-for="apartment in apartmentStore.featuredApartments" 
+        <ApartmentCard 
+          v-for="apartment in apartmentsStore.featuredApartments" 
           :key="apartment.id" 
-          class="apartment-card"
-          @click="$router.push(`/apartments/${apartment.id}`)"
-        >
-          <img :src="apartment.image_url" :alt="apartment.title" class="apartment-image">
-          <div class="apartment-info">
-            <h3>{{ apartment.title }}</h3>
-            <p class="location">{{ apartment.location }}</p>
-            <p class="price">${{ apartment.price_per_night }}/night</p>
-            <div class="details">
-              <span class="detail-item">
-                <span class="icon">👥</span>
-                {{ apartment.max_guests }} guests
-              </span>
-              <span class="detail-item">
-                <span class="icon">🛏️</span>
-                {{ apartment.bedrooms }} bedrooms
-              </span>
-            </div>
-          </div>
-        </div>
+          :apartment="apartment" 
+        />
       </div>
-    </main>
+    </section>
   </div>
 </template>
 
-<script>
-import { onMounted } from 'vue'
-import { useApartmentStore } from '@/stores/apartments'
+<script setup>
+import { onMounted } from 'vue';
+import { useApartmentsStore } from '@/stores/apartments';
+import ApartmentCard from '@/components/ApartmentCard.vue';
 
-export default {
-  name: 'HomeView',
-  setup() {
-    const apartmentStore = useApartmentStore()
+const apartmentsStore = useApartmentsStore();
 
-    onMounted(async () => {
-      try {
-        await apartmentStore.loadFeaturedApartments()
-      } catch (error) {
-        console.error('Failed to load featured apartments:', error)
-      }
-    })
-
-    return {
-      apartmentStore
-    }
+onMounted(async () => {
+  if (apartmentsStore.apartments.length === 0) {
+    await apartmentsStore.fetchApartments();
   }
-}
+});
 </script>
+
+<style scoped>
+.hero {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.hero p {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+.featured-apartments {
+  padding: 4rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.featured-apartments h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+}
+
+.apartments-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.1rem;
+}
+</style>

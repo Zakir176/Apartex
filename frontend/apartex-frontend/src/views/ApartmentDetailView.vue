@@ -1,110 +1,163 @@
-<!-- src/views/ApartmentDetailView.vue -->
 <template>
-  <div class="apartment-detail-page">
-    <div class="container">
-      <div v-if="apartmentStore.isLoading" class="loading">
-        <p>Loading apartment details...</p>
+  <div class="apartment-detail">
+    <div v-if="apartmentsStore.loading" class="loading">Loading apartment details...</div>
+    <div v-else-if="apartmentsStore.error" class="error">
+      {{ apartmentsStore.error }}
+    </div>
+    <div v-else-if="apartment" class="apartment-content">
+      <div class="apartment-header">
+        <h1>{{ apartment.title }}</h1>
+        <p class="location">{{ apartment.location }}</p>
+        <div class="price">${{ apartment.price_per_night }} / night</div>
       </div>
-      
-      <div v-else-if="apartmentStore.currentApartment" class="apartment-detail">
-        <div class="apartment-header">
-          <h1>{{ apartmentStore.currentApartment.title }}</h1>
-          <p class="location">{{ apartmentStore.currentApartment.location }}</p>
+
+      <div class="apartment-grid">
+        <div class="apartment-images">
+          <img :src="apartment.image_url || '/placeholder-apartment.jpg'" :alt="apartment.title">
         </div>
 
-        <div class="apartment-gallery">
-          <img :src="apartmentStore.currentApartment.image_url" :alt="apartmentStore.currentApartment.title" class="main-image">
-        </div>
-
-        <div class="apartment-content">
-          <div class="apartment-info">
-            <h2>About this apartment</h2>
-            <p class="description">{{ apartmentStore.currentApartment.description }}</p>
-            
-            <div class="details-grid">
-              <div class="detail-item">
-                <span class="icon">👥</span>
-                <span class="label">Guests:</span>
-                <span class="value">{{ apartmentStore.currentApartment.max_guests }}</span>
-              </div>
-              <div class="detail-item">
-                <span class="icon">🛏️</span>
-                <span class="label">Bedrooms:</span>
-                <span class="value">{{ apartmentStore.currentApartment.bedrooms }}</span>
-              </div>
-              <div class="detail-item">
-                <span class="icon">🛁</span>
-                <span class="label">Bathrooms:</span>
-                <span class="value">{{ apartmentStore.currentApartment.bathrooms }}</span>
-              </div>
-            </div>
-
-            <div class="amenities">
-              <h3>Amenities</h3>
-              <div class="amenities-list">
-                <span v-for="amenity in apartmentStore.currentApartment.amenities" :key="amenity" class="amenity-item">
-                  {{ amenity }}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div class="booking-card">
-            <div class="price-section">
-              <span class="price">${{ apartmentStore.currentApartment.price_per_night }}</span>
-              <span class="period">per night</span>
-            </div>
-            <button @click="bookApartment" class="book-btn" :disabled="!authStore.isAuthenticated">
-              {{ authStore.isAuthenticated ? 'Book Now' : 'Login to Book' }}
-            </button>
-          </div>
+        <div class="booking-section">
+          <BookingForm :apartment="apartment" />
         </div>
       </div>
 
-      <div v-else class="not-found">
-        <h2>Apartment not found</h2>
-        <router-link to="/apartments" class="back-link">Back to Apartments</router-link>
+      <div class="apartment-details">
+        <div class="details-section">
+          <h3>Description</h3>
+          <p>{{ apartment.description }}</p>
+        </div>
+
+        <div class="details-section">
+          <h3>Amenities</h3>
+          <div class="amenities-grid">
+            <div class="amenity" v-if="apartment.bedrooms">
+              <span>🛏️</span>
+              <span>{{ apartment.bedrooms }} bedrooms</span>
+            </div>
+            <div class="amenity" v-if="apartment.bathrooms">
+              <span>🚿</span>
+              <span>{{ apartment.bathrooms }} bathrooms</span>
+            </div>
+            <div class="amenity" v-if="apartment.area">
+              <span>📏</span>
+              <span>{{ apartment.area }} sq ft</span>
+            </div>
+            <div class="amenity" v-if="apartment.wifi">
+              <span>📶</span>
+              <span>WiFi</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-import { onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useApartmentStore } from '@/stores/apartments'
-import { useAuthStore } from '@/stores/auth'
+<script setup>
+import { computed, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import { useApartmentsStore } from '@/stores/apartments';
+import BookingForm from '@/components/BookingForm.vue';
 
-export default {
-  name: 'ApartmentDetailView',
-  setup() {
-    const route = useRoute()
-    const router = useRouter()
-    const apartmentStore = useApartmentStore()
-    const authStore = useAuthStore()
+const route = useRoute();
+const apartmentsStore = useApartmentsStore();
 
-    onMounted(async () => {
-      try {
-        await apartmentStore.loadApartmentDetail(route.params.id)
-      } catch (error) {
-        console.error('Failed to load apartment details:', error)
-      }
-    })
+const apartment = computed(() => apartmentsStore.currentApartment);
 
-    const bookApartment = () => {
-      if (!authStore.isAuthenticated) {
-        router.push('/login')
-        return
-      }
-      // TODO: Implement booking flow
-      alert('Booking functionality to be implemented')
-    }
+onMounted(async () => {
+  await apartmentsStore.fetchApartmentById(route.params.id);
+});
+</script>
 
-    return {
-      apartmentStore,
-      authStore,
-      bookApartment
-    }
+<style scoped>
+.apartment-detail {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.loading, .error {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.1rem;
+}
+
+.error {
+  color: #dc3545;
+}
+
+.apartment-header {
+  margin-bottom: 2rem;
+}
+
+.apartment-header h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+}
+
+.location {
+  color: #666;
+  font-size: 1.1rem;
+  margin: 0 0 1rem 0;
+}
+
+.price {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #007bff;
+}
+
+.apartment-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.apartment-images img {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.apartment-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.details-section h3 {
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+.amenities-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.amenity {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  .apartment-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .apartment-details {
+    grid-template-columns: 1fr;
+  }
+  
+  .amenities-grid {
+    grid-template-columns: 1fr;
   }
 }
-</script>
+</style>

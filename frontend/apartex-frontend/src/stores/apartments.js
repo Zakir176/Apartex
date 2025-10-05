@@ -1,87 +1,70 @@
-// src/stores/apartments.js
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import apartmentService from '@/services/apartments'
+import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
+import { apartmentsApi } from '../api/apartments';
 
-export const useApartmentStore = defineStore('apartments', () => {
-  const apartments = ref([])
-  const featuredApartments = ref([])
-  const currentApartment = ref(null)
-  const isLoading = ref(false)
-  const filters = ref({
-    minPrice: '',
-    maxPrice: '',
-    guests: '',
-    bedrooms: '',
-    amenities: []
-  })
+export const useApartmentsStore = defineStore('apartments', () => {
+  const apartments = ref([]);
+  const currentApartment = ref(null);
+  const loading = ref(false);
+  const error = ref(null);
 
-  const getApartmentById = (id) => {
-    return apartments.value.find(apt => apt.id === parseInt(id))
-  }
+  const featuredApartments = computed(() => 
+    apartments.value.filter(apt => apt.featured).slice(0, 6)
+  );
 
-  const loadFeaturedApartments = async () => {
-    isLoading.value = true
+  async function fetchApartments(params = {}) {
+    loading.value = true;
+    error.value = null;
     try {
-      const response = await apartmentService.getFeatured()
-      featuredApartments.value = response.data
-    } catch (error) {
-      console.error('Error loading featured apartments:', error)
-      throw error
+      const response = await apartmentsApi.getApartments(params);
+      apartments.value = response.data;
+      return response.data;
+    } catch (err) {
+      error.value = err.response?.data?.detail || 'Failed to fetch apartments';
+      throw err;
     } finally {
-      isLoading.value = false
+      loading.value = false;
     }
   }
 
-  const loadAllApartments = async () => {
-    isLoading.value = true
+  async function fetchApartmentById(apartmentId) {
+    loading.value = true;
+    error.value = null;
     try {
-      const response = await apartmentService.getAll()
-      apartments.value = response.data
-    } catch (error) {
-      console.error('Error loading apartments:', error)
-      throw error
+      const response = await apartmentsApi.getApartmentById(apartmentId);
+      currentApartment.value = response.data;
+      return response.data;
+    } catch (err) {
+      error.value = err.response?.data?.detail || 'Failed to fetch apartment';
+      throw err;
     } finally {
-      isLoading.value = false
+      loading.value = false;
     }
   }
 
-  const loadApartmentDetail = async (id) => {
-    isLoading.value = true
+  async function createApartment(apartmentData) {
+    loading.value = true;
+    error.value = null;
     try {
-      const response = await apartmentService.getById(id)
-      currentApartment.value = response.data
-    } catch (error) {
-      console.error('Error loading apartment details:', error)
-      throw error
+      const response = await apartmentsApi.createApartment(apartmentData);
+      apartments.value.push(response.data);
+      return response.data;
+    } catch (err) {
+      error.value = err.response?.data?.detail || 'Failed to create apartment';
+      throw err;
     } finally {
-      isLoading.value = false
-    }
-  }
-
-  const searchApartments = async (searchParams) => {
-    isLoading.value = true
-    try {
-      const response = await apartmentService.search(searchParams)
-      apartments.value = response.data
-    } catch (error) {
-      console.error('Error searching apartments:', error)
-      throw error
-    } finally {
-      isLoading.value = false
+      loading.value = false;
     }
   }
 
   return {
     apartments,
-    featuredApartments,
     currentApartment,
-    isLoading,
-    filters,
-    getApartmentById,
-    loadFeaturedApartments,
-    loadAllApartments,
-    loadApartmentDetail,
-    searchApartments
-  }
-})
+    loading,
+    error,
+    featuredApartments,
+    fetchApartments,
+    fetchApartmentById,
+    createApartment
+  };
+});

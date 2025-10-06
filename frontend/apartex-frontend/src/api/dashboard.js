@@ -1,19 +1,18 @@
 // src/api/dashboard.js
-import api from './index'
+import api from './index'; // your axios instance
 
-export const dashboardAPI = {
-  // Owner endpoints
-  getOwnerOverview(ownerId) {
-    return api.get(`/dashboard/owners/${ownerId}/overview`)
-  },
-  
-  getOwnerPayouts(ownerId) {
-    return api.get(`/dashboard/owners/${ownerId}/payouts`)
-  },
-  
-  requestPayout(ownerId) {
-    return api.post(`/dashboard/owners/${ownerId}/payouts/request`)
-  }
+export async function fetchOwnerOverview(ownerId) {
+  const resp = await api.get(`/dashboard/owners/${ownerId}/overview`);
+  return resp.data;
 }
 
-export default dashboardAPI
+export async function fetchOwnerPayouts(ownerId) {
+  const resp = await api.get(`/dashboard/owners/${ownerId}/payouts`);
+  return resp.data;
+}
+
+export async function requestPayout(ownerId, payload) {
+  // payload: { amount: number, method: 'bank'|'momo', details: {...} }
+  const resp = await api.post(`/dashboard/owners/${ownerId}/payouts/request`, payload);
+  return resp.data;
+}

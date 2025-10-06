@@ -46,7 +46,7 @@ const routes = [
     path: '/dashboard',
     name: 'Dashboard',
     component: () => import('@/views/DashboardView.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, role: 'owner' } // adjust role guard logic to your auth store
   }
 ]
 

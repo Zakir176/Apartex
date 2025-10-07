@@ -1,23 +1,18 @@
-import apiClient from './index';
+// src/api/loyalty.js
+import api from './index'
 
-export const loyaltyApi = {
-  getUserLoyaltyStatus(userId) {
-    return apiClient.get(`/loyalty/users/${userId}/status`);
+export const loyaltyAPI = {
+  getLoyaltyStatus(userId) {
+    return api.get(`/loyalty/users/${userId}/status`)
   },
-
-  getUserRewards(userId) {
-    return apiClient.get(`/loyalty/users/${userId}/rewards`);
+  
+  getLoyaltyRewards(userId) {
+    return api.get(`/loyalty/users/${userId}/rewards`)
   },
-
-  redeemReward(rewardData) {
-    return apiClient.post('/loyalty/rewards/redeem', rewardData);
-  },
-
-  completeBooking(bookingId) {
-    return apiClient.put(`/loyalty/bookings/${bookingId}/complete`);
-  },
-
-  getLoyaltyTiers() {
-    return apiClient.get('/loyalty/tiers');
+  
+  redeemReward(rewardId) {
+    return api.post('/loyalty/rewards/redeem', { reward_id: rewardId })
   }
-};
+}
+
+export default loyaltyAPI

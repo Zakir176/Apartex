@@ -1,7 +1,13 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import { useAuthStore } from '../stores/auth';
+// src/router/index.js
+import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
 const routes = [
+  {
+    path: '/',
+    name: 'Home',
+    component: () => import('@/views/HomeView.vue')
+  },
   {
     path: '/login',
     name: 'Login',
@@ -13,11 +19,6 @@ const routes = [
     name: 'Register',
     component: () => import('@/views/RegisterView.vue'),
     meta: { requiresGuest: true }
-  },
-  {
-    path: '/',
-    name: 'Home',
-    component: () => import('@/views/HomeView.vue')
   },
   {
     path: '/apartments',
@@ -36,42 +37,35 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
-  path: '/loyalty',
-  name: 'Loyalty',
-  component: () => import('../views/LoyaltyView.vue'),
-  meta: { requiresAuth: true }
-},
-{
-  path: '/dashboard',
-  name: 'Dashboard',
-  component: () => import('../views/DashboardView.vue'),
-  meta: { requiresAuth: true, requiresOwner: true }
-}
-];
+    path: '/loyalty',
+    name: 'Loyalty',
+    component: () => import('@/views/LoyaltyView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: () => import('@/views/DashboardView.vue'),
+    meta: { requiresAuth: true, role: 'owner' } // adjust role guard logic to your auth store
+  }
+]
 
 const router = createRouter({
   history: createWebHistory(),
-  routes,
-});
+  routes
+})
 
-router.beforeEach(async (to, from, next) => {
-  const authStore = useAuthStore();
+// Navigation guards
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore()
   
-  // Check if the route requires authentication
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next('/login');
-  } 
-  // Check if the route requires owner role
-  else if (to.meta.requiresOwner && (!authStore.isAuthenticated || !authStore.isOwner)) {
-    next('/');
+    next('/login')
+  } else if (to.meta.requiresGuest && authStore.isAuthenticated) {
+    next('/')
+  } else {
+    next()
   }
-  // Check if the route requires guest (non-authenticated) status
-  else if (to.meta.requiresGuest && authStore.isAuthenticated) {
-    next('/');
-  } 
-  else {
-    next();
-  }
-});
+})
 
-export default router;
+export default router

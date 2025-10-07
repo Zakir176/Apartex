@@ -1,122 +1,58 @@
+// src/stores/dashboard.js
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { dashboardApi } from '../api/dashboard';
+import { fetchOwnerOverview, fetchOwnerPayouts, requestPayout } from '@/api/dashboard';
+import { useAuthStore } from './auth'; // assumes this exists
 
 export const useDashboardStore = defineStore('dashboard', () => {
-  const ownerOverview = ref(null);
+  const auth = useAuthStore();
+
+  const overview = ref(null);
   const payouts = ref([]);
   const loading = ref(false);
   const error = ref(null);
+  const lastFetched = ref(null);
 
-  // Mock data for development
-  const mockOwnerOverview = {
-    owner_id: 1,
-    total_revenue: 12500,
-    monthly_revenue: 3200,
-    total_bookings: 45,
-    occupancy_rate: 0.78,
-    average_rating: 4.5,
-    active_apartments: 3,
-    pending_bookings: 2,
-    upcoming_bookings: 5
-  };
-
-  const mockPayouts = [
-    {
-      id: 1,
-      amount: 1200,
-      status: 'completed',
-      date: '2024-01-15',
-      description: 'Payout for December bookings'
-    },
-    {
-      id: 2,
-      amount: 1500,
-      status: 'pending',
-      date: '2024-02-01',
-      description: 'Payout for January bookings'
-    },
-    {
-      id: 3,
-      amount: 1100,
-      status: 'completed',
-      date: '2023-12-01',
-      description: 'Payout for November bookings'
-    }
-  ];
-
-  async function fetchOwnerOverview(ownerId) {
-    console.log('🔄 Fetching owner overview for:', ownerId);
+  async function loadOverview() {
+    if (!auth.user || !auth.user.id) return;
     loading.value = true;
     error.value = null;
-    
     try {
-      // TODO: Replace with actual API call
-      // const response = await dashboardApi.getOwnerOverview(ownerId);
-      // ownerOverview.value = response.data;
-      
-      await new Promise(resolve => setTimeout(resolve, 800));
-      ownerOverview.value = mockOwnerOverview;
-      console.log('✅ Owner overview loaded:', ownerOverview.value);
-      return mockOwnerOverview;
+      const data = await fetchOwnerOverview(auth.user.id);
+      overview.value = data;
+      lastFetched.value = new Date();
     } catch (err) {
-      error.value = err.response?.data?.detail || 'Failed to fetch owner overview';
-      console.error('❌ Error fetching owner overview:', error.value);
-      throw err;
+      console.error('Failed to load overview', err);
+      error.value = err;
     } finally {
       loading.value = false;
     }
   }
 
-  async function fetchOwnerPayouts(ownerId) {
-    console.log('🔄 Fetching payouts for:', ownerId);
+  async function loadPayouts() {
+    if (!auth.user || !auth.user.id) return;
     loading.value = true;
     error.value = null;
-    
     try {
-      // TODO: Replace with actual API call
-      // const response = await dashboardApi.getOwnerPayouts(ownerId);
-      // payouts.value = response.data;
-      
-      await new Promise(resolve => setTimeout(resolve, 600));
-      payouts.value = mockPayouts;
-      console.log('✅ Payouts loaded:', payouts.value);
-      return mockPayouts;
+      payouts.value = await fetchOwnerPayouts(auth.user.id);
     } catch (err) {
-      error.value = err.response?.data?.detail || 'Failed to fetch payouts';
-      console.error('❌ Error fetching payouts:', error.value);
-      throw err;
+      console.error('Failed to load payouts', err);
+      error.value = err;
     } finally {
       loading.value = false;
     }
   }
 
-  async function requestPayout(ownerId, payoutData) {
-    console.log('🔄 Requesting payout for:', ownerId, payoutData);
+  async function submitPayoutRequest(payload) {
+    if (!auth.user || !auth.user.id) throw new Error('Not authenticated');
     loading.value = true;
-    error.value = null;
-    
     try {
-      // TODO: Replace with actual API call
-      // const response = await dashboardApi.requestPayout(ownerId, payoutData);
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Create new payout request
-      const newPayout = {
-        id: Date.now(),
-        amount: payoutData.amount,
-        status: 'pending',
-        date: new Date().toISOString().split('T')[0],
-        description: payoutData.description || 'Payout request'
-      };
-      
-      payouts.value.unshift(newPayout);
-      console.log('✅ Payout requested:', newPayout);
-      return newPayout;
+      const resp = await requestPayout(auth.user.id, payload);
+      // refresh payouts
+      await loadPayouts();
+      return resp;
     } catch (err) {
-      error.value = err.response?.data?.detail || 'Failed to request payout';
-      console.error('❌ Error requesting payout:', error.value);
+      console.error('Payout request failed', err);
       throw err;
     } finally {
       loading.value = false;
@@ -124,15 +60,13 @@ export const useDashboardStore = defineStore('dashboard', () => {
   }
 
   return {
-    // State
-    ownerOverview,
+    overview,
     payouts,
     loading,
     error,
-    
-    // Actions
-    fetchOwnerOverview,
-    fetchOwnerPayouts,
-    requestPayout
+    lastFetched,
+    loadOverview,
+    loadPayouts,
+    submitPayoutRequest,
   };
 });

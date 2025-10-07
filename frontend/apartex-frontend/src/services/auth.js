@@ -3,18 +3,18 @@ import api from './api'
 
 export default {
   login(credentials) {
-    return api.post('/auth/login', credentials)
+    return api.post('/auth-enhanced/simple-login', credentials)
   },
   
   register(userData) {
-    return api.post('/auth/register', userData)
+    return api.post('/auth-enhanced/register', userData)
   },
   
   getCurrentUser() {
-    return api.get('/auth/me')
+    return api.get('/auth-enhanced/me')
   },
   
   refreshToken() {
-    return api.post('/auth/refresh')
+    return api.post('/auth-enhanced/refresh')
   }
 }

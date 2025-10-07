@@ -3,11 +3,18 @@
     <nav v-if="authStore.isAuthenticated" class="navbar">
       <div class="nav-brand">Apartex</div>
       <div class="nav-links">
-        <router-link to="/">Home</router-link>
-        <router-link to="/apartments">Apartments</router-link>
-        <router-link to="/bookings">My Bookings</router-link>
-        <router-link to="/loyalty">Loyalty</router-link>
-        <router-link to="/dashboard"class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">Dashboard</router-link>
+        <!-- Renter nav -->
+        <template v-if="authStore.user?.role === 'renter'">
+          <router-link to="/">Home</router-link>
+          <router-link to="/apartments">Apartments</router-link>
+          <router-link to="/bookings">My Bookings</router-link>
+          <router-link to="/loyalty">Loyalty</router-link>
+        </template>
+        <!-- Owner nav -->
+        <template v-else-if="authStore.user?.role === 'owner'">
+          <router-link to="/owner">Owner Home</router-link>
+          <router-link to="/dashboard">Dashboard</router-link>
+        </template>
         <span class="user-info">Hello, {{ authStore.user?.name }}</span>
         <button @click="handleLogout" class="logout-btn">Logout</button>
       </div>

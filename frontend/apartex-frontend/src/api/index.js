@@ -28,7 +28,9 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       // Token expired or invalid
       localStorage.removeItem('accessToken');
-      window.location.href = '/login';
+      // Redirect based on current path
+      const isOwnerPath = window.location.pathname.startsWith('/owner') || window.location.pathname.startsWith('/dashboard')
+      window.location.href = isOwnerPath ? '/owner/login' : '/login';
     }
     return Promise.reject(error);
   }

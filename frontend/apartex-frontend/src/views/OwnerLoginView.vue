@@ -1,42 +1,23 @@
 <template>
   <div class="login-container">
     <div class="login-form">
-      <h2>Renter Login</h2>
+      <h2>Owner Login</h2>
       <form @submit.prevent="handleLogin">
         <div class="form-group">
           <label for="email">Email</label>
-          <input
-            id="email"
-            v-model="form.email"
-            type="email"
-            required
-            placeholder="Enter your email"
-          />
+          <input id="email" v-model="form.email" type="email" required placeholder="Enter your email" />
         </div>
-        
         <div class="form-group">
           <label for="password">Password</label>
-          <input
-            id="password"
-            v-model="form.password"
-            type="password"
-            required
-            placeholder="Enter your password"
-          />
+          <input id="password" v-model="form.password" type="password" required placeholder="Enter your password" />
         </div>
-        
         <button type="submit" :disabled="loading" class="btn-primary">
           {{ loading ? 'Logging in...' : 'Login' }}
         </button>
-        
         <p v-if="error" class="error-message">{{ error }}</p>
       </form>
-      
       <p class="register-link">
-        Don't have a renter account? <router-link to="/register">Register here</router-link>
-      </p>
-      <p class="register-link">
-        Are you an owner? <router-link to="/owner/login">Owner login</router-link>
+        Don't have an owner account? <router-link to="/owner/register">Register here</router-link>
       </p>
     </div>
   </div>
@@ -45,30 +26,25 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '../stores/auth';
+import { useAuthStore } from '@/stores/auth';
 
 const router = useRouter();
 const authStore = useAuthStore();
 
-const form = ref({
-  email: '',
-  password: ''
-});
-
+const form = ref({ email: '', password: '' });
 const loading = ref(false);
 const error = ref('');
 
 const handleLogin = async () => {
   loading.value = true;
   error.value = '';
-  
   try {
     await authStore.login(form.value);
-    if (authStore.user?.role === 'owner') {
-      router.push('/owner');
-    } else {
-      router.push('/');
+    if (authStore.user?.role !== 'owner') {
+      error.value = 'This account is not an owner account.';
+      return;
     }
+    router.push('/owner');
   } catch (err) {
     error.value = err.response?.data?.detail || 'Login failed';
   } finally {

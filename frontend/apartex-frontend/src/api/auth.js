@@ -2,11 +2,11 @@ import apiClient from './index';
 
 export const authApi = {
   register(userData) {
-    return apiClient.post('/auth/register', userData);
+    return apiClient.post('/auth-enhanced/register', userData);
   },
   
   login(credentials) {
-    return apiClient.post('/auth/login', credentials);
+    return apiClient.post('/auth-enhanced/simple-login', credentials);
   },
   
   getCurrentUser() {

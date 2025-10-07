@@ -22,6 +22,9 @@ class SimpleLoginRequest(BaseModel):
     email: str
     password: str
 
+class ProfileUpdateRequest(BaseModel):
+    full_name: str
+
 # Dependency functions
 async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     credentials_exception = HTTPException(
@@ -228,3 +231,16 @@ def logout():
     """Logout user (client should discard tokens)."""
     print("🚪 Logout request received")
     return {"message": "Successfully logged out"}
+
+@router.put("/me", response_model=UserRead)
+def update_profile(
+    payload: ProfileUpdateRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Update current user's profile (currently supports full_name only)."""
+    current_user.full_name = payload.full_name
+    db.add(current_user)
+    db.commit()
+    db.refresh(current_user)
+    return current_user

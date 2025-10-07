@@ -26,9 +26,12 @@
 <script setup>
 import { useAuthStore } from './stores/auth';
 import { useRouter } from 'vue-router';
+import { useThemeStore } from './stores/theme';
 
 const authStore = useAuthStore();
 const router = useRouter();
+// Initialize theme store so it applies the saved theme on app load
+useThemeStore();
 
 const handleLogout = async () => {
   await authStore.logout();
@@ -37,6 +40,23 @@ const handleLogout = async () => {
 </script>
 
 <style>
+:root {
+  --bg: #ffffff;
+  --text: #111827;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --primary: #2563eb;
+  --primary-contrast: #ffffff;
+}
+
+.dark {
+  --bg: #0b1220;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --border: #1f2937;
+  --primary: #3b82f6;
+  --primary-contrast: #0b1220;
+}
 * {
   margin: 0;
   padding: 0;
@@ -46,7 +66,8 @@ const handleLogout = async () => {
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.6;
-  color: #333;
+  background: var(--bg);
+  color: var(--text);
 }
 
 .navbar {
@@ -54,14 +75,14 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #dee2e6;
+  background-color: var(--bg);
+  border-bottom: 1px solid var(--border);
 }
 
 .nav-brand {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #007bff;
+  color: var(--primary);
 }
 
 .nav-links {
@@ -72,7 +93,7 @@ body {
 
 .nav-links a {
   text-decoration: none;
-  color: #495057;
+  color: var(--text);
   padding: 0.5rem 1rem;
   border-radius: 4px;
   transition: background-color 0.2s;
@@ -80,25 +101,23 @@ body {
 
 .nav-links a:hover,
 .nav-links a.router-link-active {
-  background-color: #e9ecef;
-  color: #007bff;
+  background-color: var(--border);
+  color: var(--primary);
 }
 
 .user-info {
-  color: #495057;
+  color: var(--muted);
   padding: 0.5rem 1rem;
 }
 
 .logout-btn {
   padding: 0.5rem 1rem;
-  background-color: #dc3545;
-  color: white;
+  background-color: #ef4444;
+  color: var(--primary-contrast);
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
 
-.logout-btn:hover {
-  background-color: #c82333;
-}
+.logout-btn:hover { opacity: 0.9; }
 </style>

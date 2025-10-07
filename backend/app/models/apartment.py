@@ -15,6 +15,7 @@ class Apartment(Base):
     bedrooms = Column(Integer, nullable=False)
     bathrooms = Column(Integer, nullable=False)
     amenities = Column(Text)  # JSON string of amenities
+    image_url = Column(String(500))  # Optional primary image URL
     is_available = Column(Boolean, default=True)
     owner_id = Column(Integer, nullable=False)  # Simple foreign key for now
     

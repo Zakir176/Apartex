@@ -13,7 +13,8 @@
           <router-link to="/bookings" class="nav-link">My Bookings</router-link>
           <router-link to="/loyalty" class="nav-link">Loyalty</router-link>
           <div class="user-menu">
-            <span class="user-name">Hi, {{ authStore.user?.first_name }}</span>
+            <button class="nav-link" @click="toggleTheme">{{ theme.isDark ? 'Light' : 'Dark' }} Mode</button>
+            <span class="user-name">Hi, {{ authStore.user?.full_name || authStore.user?.email }}</span>
             <button @click="logout" class="nav-link logout-btn">Logout</button>
           </div>
         </template>
@@ -28,20 +29,26 @@
 
 <script>
 import { useAuthStore } from '@/stores/auth'
+import { useThemeStore } from '@/stores/theme'
 
 export default {
   name: 'NavBar',
   setup() {
     const authStore = useAuthStore()
+    const theme = useThemeStore()
     
     const logout = () => {
       authStore.logout()
       window.location.href = '/'
     }
+
+    const toggleTheme = () => theme.toggle()
     
     return {
       authStore,
-      logout
+      logout,
+      theme,
+      toggleTheme
     }
   }
 }
@@ -54,10 +61,7 @@ export default {
   gap: 1rem;
 }
 
-.user-name {
-  color: #4a5568;
-  font-weight: 500;
-}
+.user-name { color: var(--muted); font-weight: 500; }
 
 .logout-btn {
   background: none;

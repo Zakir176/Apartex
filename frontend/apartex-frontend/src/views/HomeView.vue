@@ -1,77 +1,94 @@
 <template>
-  <div class="home">
-    <section class="hero">
-      <h1>Find Your Perfect Stay</h1>
-      <p>Discover amazing apartments for your next trip</p>
+  <div class="home flex flex-col items-center w-full">
+    <!-- 🌆 HERO SECTION -->
+    <section
+      class="relative w-full h-[70vh] flex flex-col justify-center items-center text-center bg-gradient-to-br from-indigo-500 via-purple-500 to-fuchsia-500 text-white overflow-hidden"
+    >
+      <!-- Optional background pattern -->
+      <div class="absolute inset-0 opacity-20 bg-[url('/grid-pattern.svg')] bg-cover bg-center"></div>
+
+      <div class="relative z-10 max-w-3xl px-6">
+        <h1 class="text-5xl md:text-6xl font-bold mb-4 leading-tight drop-shadow-lg">
+          Find Your Perfect Stay
+        </h1>
+        <p class="text-lg md:text-xl opacity-90 mb-8">
+          Discover amazing apartments for your next trip
+        </p>
+
+        <!-- Optional search bar (visual only) -->
+        <div
+          class="flex bg-white/10 backdrop-blur-md rounded-2xl overflow-hidden shadow-md max-w-xl mx-auto border border-white/20"
+        >
+          <input
+            type="text"
+            placeholder="Search destination..."
+            class="flex-1 px-4 py-3 bg-transparent text-white placeholder-white/60 focus:outline-none"
+          />
+          <button
+            class="px-6 py-3 bg-white text-indigo-600 font-semibold hover:bg-gray-100 transition"
+          >
+            Search
+          </button>
+        </div>
+      </div>
     </section>
 
-    <section class="featured-apartments">
-      <h2>Featured Apartments</h2>
-      <div v-if="apartmentsStore.loading" class="loading">Loading...</div>
-      <div v-else class="apartments-grid">
-        <ApartmentCard 
-          v-for="apartment in apartmentsStore.featuredApartments" 
-          :key="apartment.id" 
-          :apartment="apartment" 
+    <!-- 🏢 FEATURED APARTMENTS -->
+    <section class="w-full max-w-7xl px-6 py-16">
+      <h2 class="text-3xl font-semibold text-center mb-12 text-gray-800">
+        Featured Apartments
+      </h2>
+
+      <div v-if="apartmentsStore.loading" class="flex justify-center py-16">
+        <div
+          class="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-indigo-500"
+        ></div>
+      </div>
+
+      <div
+        v-else
+        class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+      >
+        <ApartmentCard
+          v-for="apartment in apartmentsStore.featuredApartments"
+          :key="apartment.id"
+          :apartment="apartment"
+          class="hover:scale-[1.02] transition-transform duration-300"
         />
+      </div>
+
+      <div
+        v-if="!apartmentsStore.loading && apartmentsStore.featuredApartments.length === 0"
+        class="text-center text-gray-500 mt-10"
+      >
+        <p>No featured apartments available right now.</p>
       </div>
     </section>
   </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
-import { useApartmentsStore } from '@/stores/apartments';
-import ApartmentCard from '@/components/ApartmentCard.vue';
+import { onMounted } from 'vue'
+import { useApartmentsStore } from '@/stores/apartments'
+import ApartmentCard from '@/components/ApartmentCard.vue'
 
-const apartmentsStore = useApartmentsStore();
+const apartmentsStore = useApartmentsStore()
 
 onMounted(async () => {
   if (apartmentsStore.apartments.length === 0) {
-    await apartmentsStore.fetchApartments();
+    await apartmentsStore.fetchApartments()
   }
-});
+})
 </script>
 
 <style scoped>
-.hero {
-  text-align: center;
-  padding: 4rem 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+/* Optional smooth fade for hero text */
+.hero-enter-active,
+.hero-leave-active {
+  transition: opacity 0.8s ease;
 }
-
-.hero h1 {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.hero p {
-  font-size: 1.2rem;
-  opacity: 0.9;
-}
-
-.featured-apartments {
-  padding: 4rem 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.featured-apartments h2 {
-  text-align: center;
-  margin-bottom: 2rem;
-  font-size: 2rem;
-}
-
-.apartments-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-}
-
-.loading {
-  text-align: center;
-  padding: 2rem;
-  font-size: 1.1rem;
+.hero-enter-from,
+.hero-leave-to {
+  opacity: 0;
 }
 </style>

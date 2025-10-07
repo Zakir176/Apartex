@@ -7,6 +7,7 @@ from app.models.booking import Booking
 from app.models.apartment import Apartment
 from app.models.user import User
 from app.schemas.booking import BookingCreate, BookingRead, BookingUpdate
+from app.routers.auth_enhanced import get_current_active_user
 
 router = APIRouter()
 
@@ -286,4 +287,21 @@ def get_user_bookings(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     
     bookings = db.query(Booking).filter(Booking.user_id == user_id).all()
+    return bookings
+
+@router.get("/owner/{owner_id}/bookings", response_model=List[BookingRead])
+def get_owner_bookings(
+    owner_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """
+    Get all bookings for apartments owned by the specified owner.
+    Only the owner (or admin in future) can access their bookings.
+    """
+    if current_user.id != owner_id and current_user.role != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You can only access your own bookings")
+    bookings = db.query(Booking).join(Apartment, Booking.apartment_id == Apartment.id).filter(
+        Apartment.owner_id == owner_id
+    ).all()
     return bookings

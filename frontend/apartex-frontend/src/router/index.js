@@ -46,6 +46,18 @@ const routes = [
     component: () => import('@/views/LoyaltyView.vue'),
     meta: { requiresAuth: true, role: 'renter' }
   },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: () => import('@/views/ProfileView.vue'),
+    meta: { requiresAuth: true, role: 'renter' }
+  },
+  {
+    path: '/wishlist',
+    name: 'Wishlist',
+    component: () => import('@/views/WishlistView.vue'),
+    meta: { requiresAuth: true, role: 'renter' }
+  },
 
   // Owner-facing routes
   {
@@ -70,6 +82,24 @@ const routes = [
     path: '/dashboard',
     name: 'Dashboard',
     component: () => import('@/views/DashboardView.vue'),
+    meta: { requiresAuth: true, role: 'owner' }
+  },
+  {
+    path: '/owner/apartments',
+    name: 'OwnerApartments',
+    component: () => import('@/views/OwnerApartmentsView.vue'),
+    meta: { requiresAuth: true, role: 'owner' }
+  },
+  {
+    path: '/owner/bookings',
+    name: 'OwnerBookings',
+    component: () => import('@/views/OwnerBookingsView.vue'),
+    meta: { requiresAuth: true, role: 'owner' }
+  },
+  {
+    path: '/owner/payouts',
+    name: 'OwnerPayouts',
+    component: () => import('@/views/OwnerPayoutsView.vue'),
     meta: { requiresAuth: true, role: 'owner' }
   }
 ]

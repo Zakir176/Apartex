@@ -11,9 +11,19 @@ export const useAuthStore = defineStore('auth', () => {
   
   async function register(userData) {
     try {
-      const response = await authApi.register(userData);
-      await handleAuthResponse(response);
-      return response;
+      // Map UI fields to API expectations and ensure role is included
+      const payload = {
+        email: userData.email,
+        password: userData.password,
+        full_name: userData.full_name || userData.name || '',
+        role: userData.role || 'renter'
+      };
+
+      await authApi.register(payload);
+      // Auto-login after successful registration to populate token and user state
+      const loginResponse = await authApi.login({ email: payload.email, password: payload.password });
+      await handleAuthResponse(loginResponse);
+      return loginResponse;
     } catch (error) {
       throw error;
     }

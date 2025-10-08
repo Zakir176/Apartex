@@ -27,13 +27,7 @@ app = FastAPI(title="Apartex API", version="1.0.0")
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",  # Vite default port
-        "http://localhost:8080",  # Vue CLI default port  
-        "http://127.0.0.1:5173",
-        "http://127.0.0.1:8080",
-        "https://apartex.vercel.app"
-    ],
+    allow_origins=["http://localhost:8080", "https://apartex.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

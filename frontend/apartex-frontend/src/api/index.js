@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://apartex-7tp6.onrender.com';
+
 
 const apiClient = axios.create({
   baseURL: apiBaseUrl,

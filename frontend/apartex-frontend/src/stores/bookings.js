@@ -39,6 +39,21 @@ export const useBookingsStore = defineStore('bookings', () => {
     }
   }
 
+  async function fetchOwnerBookings(ownerId) {
+    loading.value = true;
+    error.value = null;
+    try {
+      const response = await bookingsApi.getOwnerBookings(ownerId);
+      bookings.value = response.data;
+      return response.data;
+    } catch (err) {
+      error.value = err.response?.data?.detail || 'Failed to fetch owner bookings';
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  }
+
   async function createBooking(bookingData) {
     loading.value = true;
     error.value = null;
@@ -83,6 +98,24 @@ export const useBookingsStore = defineStore('bookings', () => {
     }
   }
 
+  async function completeBooking(bookingId) {
+    loading.value = true;
+    error.value = null;
+    try {
+      const response = await bookingsApi.completeBooking(bookingId);
+      const idx = bookings.value.findIndex(b => b.id === bookingId);
+      if (idx !== -1) {
+        bookings.value[idx].status = 'completed';
+      }
+      return response.data;
+    } catch (err) {
+      error.value = err.response?.data?.detail || 'Failed to complete booking';
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  }
+
   return {
     bookings,
     currentBooking,
@@ -91,8 +124,10 @@ export const useBookingsStore = defineStore('bookings', () => {
     error,
     fetchBookings,
     fetchUserBookings,
+    fetchOwnerBookings,
     createBooking,
     checkAvailability,
-    cancelBooking
+    cancelBooking,
+    completeBooking
   };
 });

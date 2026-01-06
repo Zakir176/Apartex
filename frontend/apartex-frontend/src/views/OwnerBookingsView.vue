@@ -27,6 +27,7 @@
             <th>Guests</th>
             <th>Total</th>
             <th>Status</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -38,6 +39,15 @@
             <td>{{ b.guests }}</td>
             <td>${{ Number(b.total_price).toFixed(2) }}</td>
             <td><span :class="['badge', b.status]">{{ b.status }}</span></td>
+            <td>
+              <button
+                v-if="b.status === 'confirmed'"
+                @click="bookingsStore.completeBooking(b.id)"
+                class="btn small"
+              >
+                Complete
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -49,12 +59,12 @@
 
 <script setup>
 import { onMounted, ref, computed } from 'vue';
-import api from '@/api/index';
+import { useBookingsStore } from '@/stores/bookings';
 import { useAuthStore } from '@/stores/auth';
 
 const auth = useAuthStore();
-const bookings = ref([]);
-const loading = ref(false);
+const bookingsStore = useBookingsStore();
+const { bookings, loading } = bookingsStore;
 const status = ref('');
 
 const filteredBookings = computed(() => {
@@ -64,13 +74,7 @@ const filteredBookings = computed(() => {
 
 async function loadBookings() {
   if (!auth.user?.id) return;
-  loading.value = true;
-  try {
-    const resp = await api.get(`/bookings/owner/${auth.user.id}/bookings`);
-    bookings.value = resp.data;
-  } finally {
-    loading.value = false;
-  }
+  await bookingsStore.fetchOwnerBookings(auth.user.id);
 }
 
 onMounted(loadBookings);
@@ -87,5 +91,8 @@ h2 { margin-bottom: 12px; }
 .badge.pending { background: #fef9c3; color: #854d0e; }
 .badge.completed { background: #dbeafe; color: #1e40af; }
 .badge.cancelled { background: #fee2e2; color: #991b1b; }
+.btn.small {
+  padding: 4px 8px;
+  font-size: 12px;
+}
 </style>
-

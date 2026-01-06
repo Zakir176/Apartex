@@ -29,5 +29,13 @@ export const bookingsApi = {
 
   getUserBookings(userId) {
     return apiClient.get(`/bookings/user/${userId}/bookings`);
+  },
+
+  getOwnerBookings(ownerId) {
+    return apiClient.get(`/bookings/owner/${ownerId}/bookings`);
+  },
+
+  completeBooking(bookingId) {
+    return apiClient.put(`/loyalty/bookings/${bookingId}/complete`);
   }
 };

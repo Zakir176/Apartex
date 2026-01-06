@@ -101,7 +101,7 @@ const error = apartmentsStore.error;
 const apartments = apartmentsStore.apartments;
 
 onMounted(async () => {
-  await apartmentsStore.fetchApartments({ owner_id: auth.user?.id });
+  await apartmentsStore.fetchMyApartments();
 });
 
 async function onSelectCreateImage(e) {
@@ -121,7 +121,7 @@ async function onSelectEditImage(e) {
 async function handleCreate() {
   const payload = { ...form, amenities: form.amenities };
   await apartmentsStore.createApartment(payload);
-  await apartmentsStore.fetchApartments({ owner_id: auth.user?.id });
+  await apartmentsStore.fetchMyApartments();
   Object.assign(form, { title: '', description: '', address: '', city: '', price_per_night: 0, capacity: 1, bedrooms: 1, bathrooms: 1, amenities: '', image_url: '' });
 }
 
@@ -141,6 +141,7 @@ function startEdit(apt) {
     capacity: apt.capacity,
     bedrooms: apt.bedrooms,
     bathrooms: apt.bathrooms,
+. // <--- This line is still present in the replace string
     amenities: apt.amenities || '',
     image_url: apt.image_url || ''
   });
@@ -151,13 +152,13 @@ function cancelEdit() { editing.value = false; editingId.value = null; }
 async function handleUpdate() {
   if (!editingId.value) return;
   await apartmentsStore.updateApartment(editingId.value, { ...editForm });
-  await apartmentsStore.fetchApartments({ owner_id: auth.user?.id });
+  await apartmentsStore.fetchMyApartments();
   cancelEdit();
 }
 
 async function removeApartment(id) {
   await apartmentsStore.deleteApartment(id);
-  await apartmentsStore.fetchApartments({ owner_id: auth.user?.id });
+  await apartmentsStore.fetchMyApartments();
 }
 </script>
 

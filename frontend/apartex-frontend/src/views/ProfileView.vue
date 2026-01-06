@@ -18,7 +18,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import api from '@/api/index';
+import { authApi } from '@/api/auth';
 import { useAuthStore } from '@/stores/auth';
 
 const auth = useAuthStore();
@@ -35,7 +35,7 @@ onMounted(async () => {
 async function save() {
   saving.value = true;
   try {
-    const resp = await api.put('/auth-enhanced/me', { full_name: fullName.value });
+    const resp = await authApi.updateProfile({ full_name: fullName.value });
     await auth.fetchCurrentUser();
     return resp;
   } finally {
@@ -53,4 +53,3 @@ input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px
 .row { display: flex; gap: 24px; align-items: center; color: var(--muted); }
 .btn { padding: 0.75rem 1rem; background: var(--primary); color: var(--primary-contrast); border: none; border-radius: 8px; cursor: pointer; width: fit-content; }
 </style>
-

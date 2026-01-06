@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { loyaltyAPI } from '@/api/loyalty';
 
 export const useLoyaltyStore = defineStore('loyalty', () => {
   const loyaltyStatus = ref(null);
@@ -10,14 +11,6 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
   const error = ref(null);
 
   // Enhanced mock data - ensure these are properly defined
-  const mockLoyaltyStatus = {
-    user_id: 1,
-    current_tier: 'Gold',
-    points: 1250,
-    next_tier: 'Platinum',
-    points_required: 2000
-  };
-
   const mockUserRewards = [
     {
       id: 1,
@@ -68,65 +61,22 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     }
   ];
 
-  const mockLoyaltyTiers = [
-    {
-      name: 'Bronze',
-      required_points: 0,
-      benefits: [
-        'Earn 1 point per $1 spent',
-        'Basic customer support',
-        'Standard booking options'
-      ]
-    },
-    {
-      name: 'Silver',
-      required_points: 500,
-      benefits: [
-        'Earn 1.25 points per $1 spent',
-        'Priority customer support',
-        'Early check-in/late checkout',
-        'Free cancellation up to 48 hours'
-      ]
-    },
-    {
-      name: 'Gold',
-      required_points: 1000,
-      benefits: [
-        'Earn 1.5 points per $1 spent',
-        '24/7 VIP support',
-        'Free room upgrades when available',
-        'Welcome gift on arrival',
-        'Dedicated booking specialist'
-      ]
-    },
-    {
-      name: 'Platinum',
-      required_points: 2000,
-      benefits: [
-        'Earn 2 points per $1 spent',
-        'Dedicated concierge service',
-        'Complimentary airport transfer',
-        'Exclusive member events',
-        'Suite upgrades when available',
-        'Late checkout until 4 PM'
-      ]
-    }
-  ];
-
   // Simple mock functions that always work
   async function fetchLoyaltyStatus(userId) {
     console.log('🔄 Fetching loyalty status for user:', userId);
     loading.value = true;
     error.value = null;
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    // Always return mock data
-    loyaltyStatus.value = mockLoyaltyStatus;
-    console.log('✅ Loyalty status set:', loyaltyStatus.value);
-    loading.value = false;
-    return mockLoyaltyStatus;
+    try {
+      const response = await loyaltyAPI.getLoyaltyStatus(userId);
+      loyaltyStatus.value = response.data;
+      console.log('✅ Loyalty status set:', loyaltyStatus.value);
+      return response.data;
+    } catch (err) {
+      error.value = err.response?.data?.detail || 'Failed to fetch loyalty status';
+      throw err;
+    } finally {
+      loading.value = false;
+    }
   }
 
   async function fetchUserRewards(userId) {
@@ -146,13 +96,17 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     console.log('🔄 Fetching loyalty tiers');
     loading.value = true;
     error.value = null;
-    
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    loyaltyTiers.value = mockLoyaltyTiers;
-    console.log('✅ Loyalty tiers set:', loyaltyTiers.value);
-    loading.value = false;
-    return mockLoyaltyTiers;
+    try {
+      const response = await loyaltyAPI.getLoyaltyTiers();
+      loyaltyTiers.value = response.data.tiers;
+      console.log('✅ Loyalty tiers set:', loyaltyTiers.value);
+      return response.data;
+    } catch (err) {
+      error.value = err.response?.data?.detail || 'Failed to fetch loyalty tiers';
+      throw err;
+    } finally {
+      loading.value = false;
+    }
   }
 
   async function fetchAvailableRewards() {

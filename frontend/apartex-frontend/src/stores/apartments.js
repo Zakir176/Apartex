@@ -27,6 +27,21 @@ export const useApartmentsStore = defineStore('apartments', () => {
     }
   }
 
+  async function fetchMyApartments() {
+    loading.value = true;
+    error.value = null;
+    try {
+      const response = await apartmentsApi.getMyApartments();
+      apartments.value = response.data;
+      return response.data;
+    } catch (err) {
+      error.value = err.response?.data?.detail || 'Failed to fetch apartments';
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  }
+
   async function fetchApartmentById(apartmentId) {
     loading.value = true;
     error.value = null;
@@ -94,6 +109,7 @@ export const useApartmentsStore = defineStore('apartments', () => {
     error,
     featuredApartments,
     fetchApartments,
+    fetchMyApartments,
     fetchApartmentById,
     createApartment,
     updateApartment,

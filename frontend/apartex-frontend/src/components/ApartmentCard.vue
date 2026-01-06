@@ -4,11 +4,11 @@
       <img :src="apartment.image_url || '/placeholder-apartment.jpg'" :alt="apartment.title">
       <div class="image-overlay"></div>
       <div class="price-tag">${{ apartment.price_per_night }}<span class="price-period">/night</span></div>
-      <div class="favorite-btn">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <button class="favorite-btn" @click.stop="toggleWishlist">
+        <svg width="20" height="20" viewBox="0 0 24 24" :fill="isWishlisted ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
         </svg>
-      </div>
+      </button>
     </div>
     <div class="apartment-info">
       <h3 class="apartment-title">{{ apartment.title }}</h3>
@@ -17,7 +17,7 @@
           <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
           <circle cx="12" cy="10" r="3"></circle>
         </svg>
-        {{ apartment.location }}
+        {{ apartment.city }}
       </p>
       <p class="description">{{ apartment.description }}</p>
       <div class="amenities">
@@ -50,18 +50,43 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
+import { useWishlistStore } from '@/stores/wishlist';
+import { useAuthStore } from '@/stores/auth';
 
 const props = defineProps({
   apartment: {
     type: Object,
     required: true
+  },
+  isWishlisted: {
+    type: Boolean,
+    default: false
   }
 });
 
+const emit = defineEmits(['toggle-wishlist']);
+
 const router = useRouter();
+const wishlistStore = useWishlistStore();
+const authStore = useAuthStore();
 
 const viewApartment = () => {
   router.push(`/apartments/${props.apartment.id}`);
+};
+
+const toggleWishlist = async () => {
+  if (!authStore.user) {
+    alert('Please log in to manage your wishlist.');
+    router.push('/login');
+    return;
+  }
+
+  if (props.isWishlisted) {
+    await wishlistStore.removeFromWishlist(props.apartment.id);
+  } else {
+    await wishlistStore.addToWishlist(props.apartment.id);
+  }
+  emit('toggle-wishlist', props.apartment.id, !props.isWishlisted);
 };
 </script>
 

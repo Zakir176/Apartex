@@ -25,29 +25,47 @@
         v-for="apartment in apartmentsStore.apartments" 
         :key="apartment.id" 
         :apartment="apartment" 
+        :is-wishlisted="isApartmentWishlisted(apartment.id)"
+        @toggle-wishlist="handleToggleWishlist"
       />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useApartmentsStore } from '@/stores/apartments';
+import { useWishlistStore } from '@/stores/wishlist';
 import ApartmentCard from '@/components/ApartmentCard.vue';
 
 const apartmentsStore = useApartmentsStore();
+const wishlistStore = useWishlistStore();
 
 const filters = ref({
   search: '',
   price_range: ''
 });
 
+const isApartmentWishlisted = computed(() => (apartmentId) => {
+  return wishlistStore.wishlistItems.some(item => item.apartment_id === apartmentId);
+});
+
 const applyFilters = async () => {
   await apartmentsStore.fetchApartments(filters.value);
+  await wishlistStore.fetchWishlist();
+};
+
+const handleToggleWishlist = async (apartmentId, isWishlisted) => {
+  // The wishlist store already handles adding/removing.
+  // We just need to ensure the local view is refreshed or the state is reacted to.
+  // Pinia's reactivity should handle the icon change automatically.
+  // Re-fetching the full wishlist to ensure consistency.
+  await wishlistStore.fetchWishlist();
 };
 
 onMounted(async () => {
   await apartmentsStore.fetchApartments();
+  await wishlistStore.fetchWishlist();
 });
 </script>
 

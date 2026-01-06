@@ -15,5 +15,9 @@ export const authApi = {
   
   logout() {
     return apiClient.post('/auth-enhanced/logout');
+  },
+
+  updateProfile(profileData) {
+    return apiClient.put('/auth-enhanced/me', profileData);
   }
 };

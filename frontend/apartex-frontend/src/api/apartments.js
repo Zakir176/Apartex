@@ -19,5 +19,9 @@ export const apartmentsApi = {
 
   deleteApartment(apartmentId) {
     return apiClient.delete(`/apartments/${apartmentId}`);
+  },
+
+  getMyApartments() {
+    return apiClient.get('/apartments/me');
   }
 };

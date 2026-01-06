@@ -7,8 +7,14 @@
     <div v-else-if="apartment" class="apartment-content">
       <div class="apartment-header">
         <h1>{{ apartment.title }}</h1>
-        <p class="location">{{ apartment.location }}</p>
+        <p class="location">{{ apartment.city }}</p>
         <div class="price">${{ apartment.price_per_night }} / night</div>
+        <button class="wishlist-btn" @click="toggleWishlist">
+          <svg width="24" height="24" viewBox="0 0 24 24" :fill="isApartmentWishlisted ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+          {{ isApartmentWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist' }}
+        </button>
       </div>
 
       <div class="apartment-grid">
@@ -55,18 +61,41 @@
 
 <script setup>
 import { computed, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useApartmentsStore } from '@/stores/apartments';
+import { useWishlistStore } from '@/stores/wishlist';
+import { useAuthStore } from '@/stores/auth';
 import BookingForm from '@/components/BookingForm.vue';
 
 const route = useRoute();
+const router = useRouter();
 const apartmentsStore = useApartmentsStore();
+const wishlistStore = useWishlistStore();
+const authStore = useAuthStore();
 
 const apartment = computed(() => apartmentsStore.currentApartment);
+const isApartmentWishlisted = computed(() => {
+  return wishlistStore.wishlistItems.some(item => item.apartment_id === apartment.value?.id);
+});
 
 onMounted(async () => {
   await apartmentsStore.fetchApartmentById(route.params.id);
+  await wishlistStore.fetchWishlist();
 });
+
+const toggleWishlist = async () => {
+  if (!authStore.user) {
+    alert('Please log in to manage your wishlist.');
+    router.push('/login');
+    return;
+  }
+
+  if (isApartmentWishlisted.value) {
+    await wishlistStore.removeFromWishlist(apartment.value.id);
+  } else {
+    await wishlistStore.addToWishlist(apartment.value.id);
+  }
+};
 </script>
 
 <style scoped>
@@ -88,6 +117,7 @@ onMounted(async () => {
 
 .apartment-header {
   margin-bottom: 2rem;
+  position: relative;
 }
 
 .apartment-header h1 {
@@ -107,6 +137,32 @@ onMounted(async () => {
   color: #007bff;
 }
 
+.wishlist-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.wishlist-btn:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.wishlist-btn svg {
+  transition: fill 0.2s ease;
+}
+
 .apartment-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -119,6 +175,10 @@ onMounted(async () => {
   height: 400px;
   object-fit: cover;
   border-radius: 8px;
+}
+
+.booking-section {
+  /* Style as needed */
 }
 
 .apartment-details {
@@ -158,6 +218,13 @@ onMounted(async () => {
   
   .amenities-grid {
     grid-template-columns: 1fr;
+  }
+
+  .wishlist-btn {
+    position: static;
+    margin-top: 1rem;
+    width: 100%;
+    justify-content: center;
   }
 }
 </style>

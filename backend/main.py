@@ -3,8 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.database import engine, Base
 from sqlalchemy import inspect, Column, String
-from app.models import user, apartment, booking, loyalty, payout
-from app.routers import auth, apartments, bookings, loyalty as loyalty_router, dashboard, auth_enhanced
+from app.models import user, apartment, booking, loyalty, payout, wishlist
+from app.routers import apartments, bookings, loyalty as loyalty_router, dashboard, auth_enhanced, wishlist as wishlist_router
 from app.routers import uploads
 
 # Create all tables
@@ -34,13 +34,13 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(auth.router, prefix="/auth", tags=["authentication"])
 app.include_router(auth_enhanced.router, prefix="/auth-enhanced", tags=["authentication-enhanced"])
 app.include_router(apartments.router, prefix="/apartments", tags=["apartments"])
 app.include_router(bookings.router, prefix="/bookings", tags=["bookings"])
 app.include_router(loyalty_router.router, prefix="/loyalty", tags=["loyalty"])
 app.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
 app.include_router(uploads.router, prefix="/upload", tags=["uploads"])
+app.include_router(wishlist_router.router, prefix="/wishlist", tags=["wishlist"])
 
 # Static files for uploads
 app.mount("/static", StaticFiles(directory="."), name="static")

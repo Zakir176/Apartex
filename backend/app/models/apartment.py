@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, Numeric
+from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
 
@@ -21,3 +22,5 @@ class Apartment(Base):
     
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    wishlists = relationship("Wishlist", back_populates="apartment")

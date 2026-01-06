@@ -72,7 +72,11 @@ def calculate_booking_price(apartment_id: int, check_in: date, check_out: date, 
     return nights * float(apartment.price_per_night)
 
 @router.post("/", response_model=BookingRead, status_code=status.HTTP_201_CREATED)
-def create_booking(booking: BookingCreate, db: Session = Depends(get_db)):
+def create_booking(
+    booking: BookingCreate, 
+    db: Session = Depends(get_db), 
+    current_user: User = Depends(get_current_active_user)
+):
     """
     Create a new booking with availability checks and price calculation.
     """
@@ -132,7 +136,7 @@ def create_booking(booking: BookingCreate, db: Session = Depends(get_db)):
     # Create booking
     db_booking = Booking(
         apartment_id=booking.apartment_id,
-        user_id=1,  # TODO: Replace with actual user ID from authentication
+        user_id=current_user.id,
         check_in=booking.check_in,
         check_out=booking.check_out,
         guests=booking.guests,

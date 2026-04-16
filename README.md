@@ -1,178 +1,91 @@
-# Apartex
+# 🏨 Apartex
 
-Apartex is a modern apartment booking platform that connects property owners with guests. The platform enables owners to list their apartments, manage bookings, track revenue, and receive payouts, while guests can search, book apartments, and earn loyalty rewards.
-
-## 🏗️ Project Structure
-
-```
-Apartex/
-├── backend/              # FastAPI backend application
-│   ├── app/             # Main application code
-│   │   ├── core/        # Core configuration and security
-│   │   ├── models/      # SQLAlchemy database models
-│   │   ├── routers/     # API route handlers
-│   │   ├── schemas/     # Pydantic schemas
-│   │   ├── services/    # Business logic services
-│   │   └── scripts/     # Utility scripts (seed data, etc.)
-│   ├── tests/           # Test files
-│   ├── uploads/         # Uploaded files directory
-│   ├── main.py          # FastAPI application entry point
-│   └── requirements.txt # Python dependencies
-│
-├── frontend/
-│   └── apartex-frontend/  # Vue.js frontend application
-│       ├── src/
-│       │   ├── api/        # API client functions
-│       │   ├── components/ # Vue components
-│       │   ├── router/     # Vue Router configuration
-│       │   ├── services/   # Service layer
-│       │   ├── stores/     # Pinia state management
-│       │   ├── utils/      # Utility functions
-│       │   └── views/      # Page views
-│       ├── package.json    # Node.js dependencies
-│       └── vite.config.js  # Vite configuration
-│
-└── LICENSE               # MIT License
-```
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- **Python 3.8+** (for backend)
-- **Node.js 16+** and **npm** (for frontend)
-- **PostgreSQL** (optional, SQLite is used by default)
-
-### Backend Setup
-
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
-
-2. Create a virtual environment (recommended):
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Create a `.env` file in the backend directory (optional):
-   ```env
-   DATABASE_URL=sqlite:///./apartex.db
-   SECRET_KEY=your-secret-key-change-in-production
-   ALGORITHM=HS256
-   ACCESS_TOKEN_EXPIRE_MINUTES=30
-   ```
-
-5. Run the server:
-   ```bash
-   uvicorn main:app --reload
-   ```
-
-   The API will be available at `http://localhost:8000`
-   API documentation: `http://localhost:8000/docs`
-
-### Frontend Setup
-
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend/apartex-frontend
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-   The frontend will be available at `http://localhost:8080` (or the port specified by Vite)
-
-## 🛠️ Tech Stack
-
-### Backend
-- **FastAPI** - Modern, fast web framework for building APIs
-- **SQLAlchemy** - SQL toolkit and ORM
-- **Pydantic** - Data validation using Python type annotations
-- **JWT** - JSON Web Tokens for authentication
-- **bcrypt** - Password hashing
-- **Uvicorn** - ASGI server
-
-### Frontend
-- **Vue.js 3** - Progressive JavaScript framework
-- **Vite** - Next generation frontend tooling
-- **Vue Router** - Official router for Vue.js
-- **Pinia** - State management for Vue
-- **PrimeVue** - UI component library
-- **Axios** - HTTP client
-- **date-fns** - Date utility library
-
-## 📋 Features
-
-### For Guests
-- 🔍 Search and browse apartments
-- 📅 Book apartments with date selection
-- 💎 Loyalty rewards program
-- 👤 User profiles and wishlists
-- 📱 Responsive design
-
-### For Property Owners
-- 🏠 Manage apartment listings
-- 📊 Dashboard with revenue analytics
-- 💰 Payout history and management
-- 📈 Booking statistics
-- 🖼️ Image uploads for apartments
-
-## 🔐 Authentication
-
-The application supports two types of users:
-- **Guests** - Can browse and book apartments
-- **Owners** - Can manage properties and view analytics
-
-Authentication is handled via JWT tokens with secure password hashing using bcrypt.
-
-## 📚 API Documentation
-
-Once the backend server is running, you can access:
-- **Swagger UI**: `http://localhost:8000/docs`
-- **ReDoc**: `http://localhost:8000/redoc`
-
-## 🧪 Testing
-
-Backend tests are located in the `backend/tests/` directory. Run tests using your preferred Python testing framework.
-
-## 📝 Environment Variables
-
-### Backend (.env)
-- `DATABASE_URL` - Database connection string (default: SQLite)
-- `SECRET_KEY` - Secret key for JWT token signing
-- `ALGORITHM` - JWT algorithm (default: HS256)
-- `ACCESS_TOKEN_EXPIRE_MINUTES` - Token expiration time
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👤 Author
-
-**Zakir Motala**
+**Apartex** is a premium apartment booking ecosystem designed to bridge the gap between luxury property owners and globetrotting guests. Built with a high-performance FastAPI backend and a reactive Vue.js 3 frontend, it offers a seamless experience for both property management and vacation discovery.
 
 ---
 
-For more detailed information, please refer to:
-- [Backend README](backend/README.md)
-- [Frontend README](frontend/apartex-frontend/README.md)
+## ✨ Project Showcase
+
+![Hero Section](docs/screenshots/hero.png)
+*Modern search and discovery interface featuring glassmorphism elements.*
+
+<div align="center">
+  <img src="docs/screenshots/apartments.png" width="48%" />
+  <img src="docs/screenshots/dashboard.png" width="48%" />
+</div>
+
+*Left: Premium apartment listing grid. Right: Comprehensive owner analytics dashboard.*
+
+---
+
+## 🚀 Vision & Key Features
+
+### 💎 For Guests
+- **🔍 Smart Search**: Find the perfect stay using advanced filtering and location-based discovery.
+- **📅 Real-time Booking**: Instant confirmation with checking-in/out date validation.
+- **🏆 Loyalty Rewards**: Earn points on every stay to unlock exclusive tiers and rewards.
+- **💖 Wishlist**: Curate your dream vacation list with a single click.
+
+### 📊 For Property Owners
+- **🏠 Listing Management**: Create and manage detailed property profiles with image support.
+- **📈 Advanced Analytics**: Track revenue, occupancy rates, and booking trends at a glance.
+- **💰 Payout Tracking**: Transparent history of earnings and payout statuses.
+- **🛡️ Secure Access**: Role-based authentication ensuring data privacy.
+
+---
+
+## 🛠️ Tech Stack & Architecture
+
+### Backend (FastAPI)
+- **FastAPI**: Asynchronous Python framework for high-throughput APIs.
+- **SQLAlchemy 2.0**: Modern ORM for flexible database modeling.
+- **JWT Auth**: Secure token-based authentication with refresh cycles.
+- **Pydantic**: Robust data validation and serialization.
+
+### Frontend (Vue 3)
+- **Vue.js 3 + Vite**: Lightning-fast development and optimized build pipeline.
+- **Pinia**: Centralized state management for complex reactive data.
+- **PrimeVue**: High-quality UI component library.
+- **Vanilla CSS**: Bespoke premium styling with glassmorphism and smooth transitions.
+
+---
+
+## 📈 Project Health & Development
+We maintain high standards for code quality and security. For a detailed breakdown of current technical debt, security audits, and UI/UX recommendations, please refer to:
+
+👉 **[View Project Audit Report](C:\Users\zakir\.gemini\antigravity\brain\6ff79adf-a3cc-4176-a870-ba2d422d47d4\project_audit_report.md)**
+
+---
+
+## 🏗️ Getting Started
+
+### Prerequisites
+- **Python 3.10+**
+- **Node.js 18+**
+- **SQLite** (Default) or PostgreSQL
+
+### Quick Setup
+
+1. **Backend**:
+   ```bash
+   cd backend
+   python -m venv venv
+   source venv/bin/activate # or venv\Scripts\activate
+   pip install -r requirements.txt
+   uvicorn main:app --reload
+   ```
+
+2. **Frontend**:
+   ```bash
+   cd frontend/apartex-frontend
+   npm install
+   npm run dev
+   ```
+
+---
+
+## 🤝 Contributing & License
+Contributions are welcome! Please feel free to submit a Pull Request.  
+Distributed under the **MIT License**. Created by **Zakir Motala**.
 
 

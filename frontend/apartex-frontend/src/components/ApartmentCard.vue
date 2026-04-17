@@ -1,7 +1,7 @@
 <template>
   <div class="apartment-card" @click="viewApartment">
     <div class="apartment-image">
-      <img :src="apartment.image_url || '/placeholder-apartment.jpg'" :alt="apartment.title">
+      <img :src="apartment.image_url || '/placeholder-apartment.png'" :alt="apartment.title">
       <div class="image-overlay"></div>
       <div class="price-tag">${{ apartment.price_per_night }}<span class="price-period">/night</span></div>
       <button class="favorite-btn" @click.stop="toggleWishlist">

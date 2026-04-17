@@ -1,71 +1,152 @@
 <template>
-  <div class="apartment-detail">
-    <div v-if="apartmentsStore.loading" class="loading">Loading apartment details...</div>
-    <div v-else-if="apartmentsStore.error" class="error">
-      {{ apartmentsStore.error }}
+  <div class="apartment-detail-container">
+    <div v-if="apartmentsStore.loading" class="flex justify-content-center align-items-center min-h-screen">
+      <ProgressSpinner />
     </div>
-    <div v-else-if="apartment" class="apartment-content">
-      <div class="apartment-header">
-        <h1>{{ apartment.title }}</h1>
-        <p class="location">{{ apartment.city }}</p>
-        <div class="price">${{ apartment.price_per_night }} / night</div>
-        <button class="wishlist-btn" @click="toggleWishlist">
-          <svg width="24" height="24" viewBox="0 0 24 24" :fill="isApartmentWishlisted ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-          </svg>
-          {{ isApartmentWishlisted ? 'Remove from Wishlist' : 'Add to Wishlist' }}
-        </button>
-      </div>
+    
+    <div v-else-if="apartmentsStore.error" class="error-wrapper p-6">
+      <Message severity="error" :closable="false">{{ apartmentsStore.error }}</Message>
+      <Button label="Back to Search" icon="pi pi-arrow-left" @click="router.push('/apartments')" class="p-button-text mt-3" />
+    </div>
 
-      <div class="apartment-grid">
-        <div class="apartment-images">
-          <img :src="apartment.image_url || '/placeholder-apartment.jpg'" :alt="apartment.title">
+    <div v-else-if="apartment" class="detail-content fadein animation-duration-500">
+      <!-- Breadcrumbs / Top Actions -->
+      <nav class="breadcrumb-nav mb-4">
+        <Button icon="pi pi-arrow-left" label="Back to listings" @click="router.back()" class="p-button-text p-button-sm mr-auto" />
+        <div class="flex gap-2">
+          <Button icon="pi pi-share-alt" class="p-button-rounded p-button-outlined p-button-secondary" />
+          <Button 
+            :icon="isApartmentWishlisted ? 'pi pi-heart-fill' : 'pi pi-heart'" 
+            class="p-button-rounded p-button-outlined" 
+            :class="{'p-button-danger': isApartmentWishlisted}" 
+            @click="toggleWishlist" 
+          />
+        </div>
+      </nav>
+
+      <!-- Main Header -->
+      <header class="header-section mb-5">
+        <h1 class="text-4xl font-bold mb-2">{{ apartment.title }}</h1>
+        <div class="flex align-items-center gap-3 text-gray-600">
+          <div class="location">
+            <i class="pi pi-map-marker mr-1"></i>
+            {{ apartment.city }}, Zambia
+          </div>
+          <span>•</span>
+          <div class="rating flex align-items-center">
+            <i class="pi pi-star-fill text-yellow-500 mr-1"></i>
+            <span class="font-bold">4.95</span>
+            <span class="ml-1 opacity-70">(128 reviews)</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Image Gallery -->
+      <section class="gallery-section mb-6">
+        <Galleria 
+          :value="galleryImages" 
+          :responsiveOptions="responsiveOptions" 
+          :numVisible="5" 
+          containerStyle="max-width: 100%"
+          :showThumbnails="true"
+          :showItemNavigators="true"
+          class="custom-galleria"
+        >
+          <template #item="slotProps">
+            <img :src="slotProps.item.itemImageSrc" :alt="slotProps.item.alt" style="width: 100%; display: block; border-radius: 16px; height: 500px; object-fit: cover;" />
+          </template>
+          <template #thumbnail="slotProps">
+            <img :src="slotProps.item.thumbnailImageSrc" :alt="slotProps.item.alt" style="display: block; border-radius: 8px; width: 100px; height: 75px; object-fit: cover;" />
+          </template>
+        </Galleria>
+      </section>
+
+      <!-- Main Grid (Description & Booking) -->
+      <div class="main-grid">
+        <div class="info-column">
+          <section class="host-intro flex align-items-center justify-content-between mb-5 p-4 border-1 border-round-xl border-gray-200">
+            <div>
+              <h2 class="text-xl font-bold mb-1">Entire stay hosted by Sarah</h2>
+              <p class="text-gray-600">{{ apartment.bedrooms }} bedrooms • {{ apartment.bathrooms }} bathrooms</p>
+            </div>
+            <Avatar icon="pi pi-user" size="xlarge" shape="circle" class="bg-primary text-white" />
+          </section>
+
+          <Divider />
+
+          <section class="description-section py-4">
+            <h3 class="text-2xl font-bold mb-3">About this place</h3>
+            <p class="line-height-3 text-gray-700">{{ apartment.description }}</p>
+            <Button label="Read more" class="p-button-link p-0 mt-2 font-bold" />
+          </section>
+
+          <Divider />
+
+          <section class="amenities-section py-4">
+            <h3 class="text-2xl font-bold mb-4">What this place offers</h3>
+            <div class="amenities-chips">
+              <Tag v-if="apartment.wifi" value="Fast WiFi" icon="pi pi-wifi" class="p-tag-secondary p-tag-rounded px-4 py-2 text-base font-semibold mr-3 mb-3" />
+              <Tag value="Free Parking" icon="pi pi-car" class="p-tag-secondary p-tag-rounded px-4 py-2 text-base font-semibold mr-3 mb-3" />
+              <Tag value="Air Conditioning" icon="pi pi-sun" class="p-tag-secondary p-tag-rounded px-4 py-2 text-base font-semibold mr-3 mb-3" />
+              <Tag value="Kitchen" icon="pi pi-briefcase" class="p-tag-secondary p-tag-rounded px-4 py-2 text-base font-semibold mr-3 mb-3" />
+              <Tag value="Pool Access" icon="pi pi-check" class="p-tag-secondary p-tag-rounded px-4 py-2 text-base font-semibold mr-3 mb-3" />
+            </div>
+            <Button label="Show all 24 amenities" class="p-button-outlined p-button-secondary mt-3 px-4 font-bold" />
+          </section>
         </div>
 
-        <div class="booking-section">
-          <BookingForm :apartment="apartment" />
-        </div>
-      </div>
-
-      <div class="apartment-details">
-        <div class="details-section">
-          <h3>Description</h3>
-          <p>{{ apartment.description }}</p>
-        </div>
-
-        <div class="details-section">
-          <h3>Amenities</h3>
-          <div class="amenities-grid">
-            <div class="amenity" v-if="apartment.bedrooms">
-              <span>🛏️</span>
-              <span>{{ apartment.bedrooms }} bedrooms</span>
-            </div>
-            <div class="amenity" v-if="apartment.bathrooms">
-              <span>🚿</span>
-              <span>{{ apartment.bathrooms }} bathrooms</span>
-            </div>
-            <div class="amenity" v-if="apartment.area">
-              <span>📏</span>
-              <span>{{ apartment.area }} sq ft</span>
-            </div>
-            <div class="amenity" v-if="apartment.wifi">
-              <span>📶</span>
-              <span>WiFi</span>
-            </div>
+        <div class="booking-column">
+          <div class="sticky-sidebar">
+            <BookingForm :apartment="apartment" />
           </div>
         </div>
       </div>
+
+      <Divider class="my-6" />
+
+      <!-- Reviews Section (Mocked) -->
+      <section class="reviews-section pb-6">
+        <header class="flex align-items-center gap-2 mb-5">
+           <i class="pi pi-star-fill text-2xl text-yellow-500"></i>
+           <h3 class="text-2xl font-bold m-0">4.95 • 128 reviews</h3>
+        </header>
+
+        <div class="reviews-grid">
+          <div v-for="i in 4" :key="i" class="review-card mb-5">
+            <div class="flex align-items-center mb-3">
+              <Avatar icon="pi pi-user" shape="circle" class="mr-3" />
+              <div>
+                <div class="font-bold">Guest User {{ i }}</div>
+                <div class="text-xs text-gray-500">October 2025</div>
+              </div>
+            </div>
+            <p class="text-gray-700 line-height-3">
+              This was an amazing stay! The apartment is exactly like the photos, and Sarah was a fantastic host. Very clean and great location!
+            </p>
+          </div>
+        </div>
+        <Button label="Show all reviews" class="p-button-outlined p-button-secondary px-5 font-bold" />
+      </section>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useApartmentsStore } from '@/stores/apartments';
 import { useWishlistStore } from '@/stores/wishlist';
 import { useAuthStore } from '@/stores/auth';
 import BookingForm from '@/components/BookingForm.vue';
+
+// PrimeVue components
+import Galleria from 'primevue/galleria';
+import ProgressSpinner from 'primevue/progressspinner';
+import Message from 'primevue/message';
+import Button from 'primevue/button';
+import Tag from 'primevue/tag';
+import Divider from 'primevue/divider';
+import Avatar from 'primevue/avatar';
 
 const route = useRoute();
 const router = useRouter();
@@ -74,9 +155,27 @@ const wishlistStore = useWishlistStore();
 const authStore = useAuthStore();
 
 const apartment = computed(() => apartmentsStore.currentApartment);
+
 const isApartmentWishlisted = computed(() => {
   return wishlistStore.wishlistItems.some(item => item.apartment_id === apartment.value?.id);
 });
+
+// Mocked gallery images using our placeholder
+const galleryImages = computed(() => {
+  const mainImg = apartment.value?.image_url || '/placeholder-apartment.png';
+  return [
+    { itemImageSrc: mainImg, thumbnailImageSrc: mainImg, alt: 'Main view' },
+    { itemImageSrc: mainImg, thumbnailImageSrc: mainImg, alt: 'Living area' },
+    { itemImageSrc: mainImg, thumbnailImageSrc: mainImg, alt: 'Bedroom' },
+    { itemImageSrc: mainImg, thumbnailImageSrc: mainImg, alt: 'Kitchen' }
+  ];
+});
+
+const responsiveOptions = [
+  { breakpoint: '1024px', numVisible: 5 },
+  { breakpoint: '768px', numVisible: 3 },
+  { breakpoint: '560px', numVisible: 1 }
+];
 
 onMounted(async () => {
   await apartmentsStore.fetchApartmentById(route.params.id);
@@ -85,7 +184,6 @@ onMounted(async () => {
 
 const toggleWishlist = async () => {
   if (!authStore.user) {
-    alert('Please log in to manage your wishlist.');
     router.push('/login');
     return;
   }
@@ -99,132 +197,50 @@ const toggleWishlist = async () => {
 </script>
 
 <style scoped>
-.apartment-detail {
-  max-width: 1200px;
+.apartment-detail-container {
+  max-width: 1100px;
   margin: 0 auto;
   padding: 2rem;
 }
 
-.loading, .error {
-  text-align: center;
-  padding: 2rem;
-  font-size: 1.1rem;
-}
-
-.error {
-  color: #dc3545;
-}
-
-.apartment-header {
-  margin-bottom: 2rem;
-  position: relative;
-}
-
-.apartment-header h1 {
-  margin: 0 0 0.5rem 0;
-  font-size: 2rem;
-}
-
-.location {
-  color: #666;
-  font-size: 1.1rem;
-  margin: 0 0 1rem 0;
-}
-
-.price {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #007bff;
-}
-
-.wishlist-btn {
-  position: absolute;
-  top: 0;
-  right: 0;
-  background: none;
-  border: 1px solid var(--primary);
-  color: var(--primary);
-  padding: 8px 16px;
-  border-radius: 8px;
-  cursor: pointer;
+.breadcrumb-nav {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 1rem;
-  transition: all 0.2s ease;
 }
 
-.wishlist-btn:hover {
-  background: var(--primary);
-  color: white;
-}
-
-.wishlist-btn svg {
-  transition: fill 0.2s ease;
-}
-
-.apartment-grid {
+.main-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 2rem;
-  margin-bottom: 3rem;
+  gap: 4rem;
 }
 
-.apartment-images img {
-  width: 100%;
-  height: 400px;
-  object-fit: cover;
-  border-radius: 8px;
+.sticky-sidebar {
+  position: sticky;
+  top: 100px;
 }
 
-.booking-section {
-  /* Style as needed */
+.custom-galleria :deep(.p-galleria-item-wrapper) {
+  border-radius: 16px;
 }
 
-.apartment-details {
+.reviews-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
 }
 
-.details-section h3 {
-  margin-bottom: 1rem;
-  font-size: 1.3rem;
-}
-
-.amenities-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.amenity {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  background: #f8f9fa;
-  border-radius: 4px;
-}
-
-@media (max-width: 768px) {
-  .apartment-grid {
+@media (max-width: 960px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .reviews-grid {
     grid-template-columns: 1fr;
   }
   
-  .apartment-details {
-    grid-template-columns: 1fr;
-  }
-  
-  .amenities-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .wishlist-btn {
-    position: static;
-    margin-top: 1rem;
-    width: 100%;
-    justify-content: center;
+  .apartment-detail-container {
+    padding: 1rem;
   }
 }
 </style>

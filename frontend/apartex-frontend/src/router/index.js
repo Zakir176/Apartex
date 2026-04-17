@@ -69,13 +69,13 @@ const routes = [
   {
     path: '/owner/login',
     name: 'OwnerLogin',
-    component: () => import('@/views/OwnerLoginView.vue'),
+    component: () => import('@/views/LoginView.vue'),
     meta: { requiresGuest: true, targetRole: 'owner' }
   },
   {
     path: '/owner/register',
     name: 'OwnerRegister',
-    component: () => import('@/views/OwnerRegisterView.vue'),
+    component: () => import('@/views/RegisterView.vue'),
     meta: { requiresGuest: true, targetRole: 'owner' }
   },
   {

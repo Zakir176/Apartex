@@ -31,20 +31,40 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="apartmentsStore.loading && apartmentsStore.apartments.length === 0" class="loading-state flex flex-column align-items-center py-8">
-      <ProgressSpinner style="width: 60px; height: 60px" strokeWidth="4" />
-      <p class="mt-4 text-xl font-bold text-muted">Curating top-tier stays...</p>
+    <div v-if="apartmentsStore.loading && apartmentsStore.apartments.length === 0" class="apartments-grid grid mt-2 px-2">
+        <div v-for="i in 8" :key="i" class="col-12 md:col-6 lg:col-4 xl:col-3 p-3">
+            <div class="border-round overflow-hidden shadow-2 bg-white h-full mb-3">
+                <Skeleton width="100%" height="240px" class="mb-3 border-noround"></Skeleton>
+                <div class="p-3">
+                    <Skeleton width="80%" height="1.5rem" class="mb-2"></Skeleton>
+                    <Skeleton width="40%" class="mb-3"></Skeleton>
+                    <Skeleton width="60%" class="mb-2"></Skeleton>
+                    <Skeleton width="100%" height="3rem" class="mb-4"></Skeleton>
+                    <div class="flex gap-2">
+                        <Skeleton width="5rem" height="2rem" class="border-round-2xl"></Skeleton>
+                        <Skeleton width="5rem" height="2rem" class="border-round-2xl"></Skeleton>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     
     <!-- Content Section -->
     <div v-else class="content-section">
-      <div v-if="apartmentsStore.apartments.length === 0" class="empty-state text-center py-8">
-        <div class="text-6xl mb-4 text-primary opacity-20">
-          <i class="pi pi-map"></i>
+      <div v-if="apartmentsStore.apartments.length === 0" class="empty-state text-center py-8 px-4 border-round-xl border-1 border-gray-200 mt-5 bg-gray-50 flex flex-column align-items-center">
+        <div class="empty-state-illustration mb-4 relative" style="width: 150px; height: 150px;">
+             <!-- Placeholder for a nicer graphic. Using icons grouped creatively for now -->
+             <div class="absolute bg-white shadow-3 p-3 border-round-3xl" style="top: 10px; left: 10px; z-index: 2; transform: rotate(-10deg);">
+                 <i class="pi pi-home text-4xl text-primary"></i>
+             </div>
+             <div class="absolute bg-white shadow-3 p-3 border-round-3xl" style="bottom: 10px; right: 10px; z-index: 1; transform: rotate(15deg);">
+                 <i class="pi pi-search text-3xl text-gray-500"></i>
+             </div>
+             <div class="absolute bg-primary-100 border-round-circle" style="width: 100px; height: 100px; top: 25px; left: 25px; z-index: 0;"></div>
         </div>
-        <h3 class="text-3xl font-bold">No results found</h3>
-        <p class="text-muted text-lg mt-2">Adjust your filters to see more incredible properties.</p>
-        <Button label="Clear Filters" icon="pi pi-times" @click="clearFilters" class="mt-5 p-button-outlined" />
+        <h3 class="text-3xl font-bold text-900 mb-2">No exactly matches</h3>
+        <p class="text-gray-600 text-lg mt-0 mb-4 max-w-20rem line-height-3">We couldn't find properties fitting your exact criteria. Try removing some filters to discover more hidden gems.</p>
+        <Button label="Clear All Filters" icon="pi pi-filter-slash" @click="clearFilters" class="p-button-outlined p-button-lg shadow-1" />
       </div>
       
       <div v-else class="apartments-grid grid mt-2 px-2">
@@ -128,7 +148,13 @@
       <template #footer>
         <div class="flex gap-2 pt-4 border-top-1 border-gray-100">
           <Button label="Clear All" @click="clearFilters" class="p-button-text p-button-secondary flex-1 font-bold" />
-          <Button label="Show Results" @click="applyFilters" class="p-button-primary flex-2 font-bold" />
+          <Button
+            :label="pendingCountLabel"
+            @click="applyFilters"
+            class="p-button-primary flex-2 font-bold"
+            icon="pi pi-arrow-right"
+            iconPos="right"
+          />
         </div>
       </template>
     </Sidebar>
@@ -151,6 +177,7 @@ import Sidebar from 'primevue/sidebar';
 import Tag from 'primevue/tag';
 import ProgressSpinner from 'primevue/progressspinner';
 import Checkbox from 'primevue/checkbox';
+import Skeleton from 'primevue/skeleton';
 
 const route = useRoute();
 const apartmentsStore = useApartmentsStore();
@@ -180,6 +207,24 @@ const hasActiveFilters = computed(() => {
 
 const isApartmentWishlisted = computed(() => (apartmentId) => {
   return wishlistStore.wishlistItems.some(item => item.apartment_id === apartmentId);
+});
+
+// Compute a pending preview count from in-memory data (instant, no API call)
+const pendingCount = computed(() => {
+  return apartmentsStore.apartments.filter(apt => {
+    const [min, max] = filters.value.price_range;
+    const cityOk = !filters.value.city || apt.city.toLowerCase().includes(filters.value.city.toLowerCase());
+    const priceOk = apt.price_per_night >= min && (max === 1000 || apt.price_per_night <= max);
+    const capacityOk = apt.capacity >= filters.value.min_capacity;
+    const bedroomsOk = apt.bedrooms >= filters.value.min_bedrooms;
+    return cityOk && priceOk && capacityOk && bedroomsOk;
+  }).length;
+});
+
+const pendingCountLabel = computed(() => {
+  if (apartmentsStore.loading) return 'Loading...';
+  const n = pendingCount.value;
+  return n === 0 ? 'No matches' : `Show ${n} ${n === 1 ? 'property' : 'properties'}`;
 });
 
 const applyFilters = async () => {

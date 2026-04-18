@@ -35,6 +35,12 @@ const routes = [
     meta: { requiresAuth: true, role: 'renter' }
   },
   {
+    path: '/checkout',
+    name: 'Checkout',
+    component: () => import('@/views/CheckoutView.vue'),
+    meta: { requiresAuth: true, role: 'renter' }
+  },
+  {
     path: '/bookings',
     name: 'Bookings',
     component: () => import('@/views/BookingsView.vue'),

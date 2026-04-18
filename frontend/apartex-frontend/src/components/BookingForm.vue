@@ -34,14 +34,15 @@
         </div>
 
         <Button 
-          label="Reserve" 
+          label="Reserve — Proceed to Checkout" 
+          icon="pi pi-lock"
           :loading="loading" 
           @click="handleBooking" 
-          class="p-button-primary p-button-lg w-full font-bold py-3 text-xl"
-          :disabled="!isValidRange"
+          class="p-button-primary p-button-lg w-full font-bold py-3"
+          :disabled="!isValidRange || !form.guests"
         />
         
-        <p class="text-center text-sm text-gray-500 mt-3">You won't be charged yet</p>
+        <p class="text-center text-sm text-gray-500 mt-3"><i class="pi pi-shield mr-1"></i>Secure checkout — You won't be charged yet</p>
       </div>
 
       <!-- Price Breakdown -->
@@ -131,7 +132,7 @@ const total = computed(() => {
   return (parseFloat(subtotal.value) + cleaningFee + parseFloat(serviceFee.value)).toFixed(2);
 });
 
-const handleBooking = async () => {
+const handleBooking = () => {
   if (!authStore.isAuthenticated) {
     router.push('/login');
     return;
@@ -139,24 +140,19 @@ const handleBooking = async () => {
 
   if (!isValidRange.value) return;
 
-  loading.value = true;
-  error.value = '';
-
-  try {
-    const bookingData = {
+  // Navigate to checkout with booking details as query params instead of directly creating
+  router.push({
+    path: '/checkout',
+    query: {
       apartment_id: props.apartment.id,
       check_in: dates.value[0].toISOString().split('T')[0],
       check_out: dates.value[1].toISOString().split('T')[0],
-      guests: form.value.guests
-    };
-
-    await bookingsStore.createBooking(bookingData);
-    router.push('/bookings');
-  } catch (err) {
-    error.value = err.response?.data?.detail || 'Booking failed. Try different dates.';
-  } finally {
-    loading.value = false;
-  }
+      guests: form.value.guests?.value || form.value.guests,
+      total: total.value,
+      nights: nights.value,
+      title: props.apartment.title
+    }
+  });
 };
 </script>
 

@@ -1,7 +1,20 @@
 <template>
   <div class="apartment-detail-container">
-    <div v-if="apartmentsStore.loading" class="flex justify-content-center align-items-center min-h-screen">
-      <ProgressSpinner />
+    <div v-if="apartmentsStore.loading" class="flex flex-column gap-5 min-h-screen pt-4">
+      <Skeleton width="15rem" height="2rem" class="mb-4" />
+      <Skeleton width="60%" height="3rem" class="mb-2" />
+      <Skeleton width="40%" height="2rem" class="mb-5" />
+      <Skeleton width="100%" height="500px" class="border-round-2xl mb-6" />
+      
+      <div class="main-grid">
+        <div class="info-column">
+           <Skeleton width="100%" height="100px" class="border-round-xl mb-4" />
+           <Skeleton width="100%" height="250px" class="border-round-xl mb-4" />
+        </div>
+        <div class="booking-column">
+           <Skeleton width="100%" height="400px" class="border-round-xl" />
+        </div>
+      </div>
     </div>
     
     <div v-else-if="apartmentsStore.error" class="error-wrapper p-6">
@@ -82,6 +95,17 @@
 
           <Divider />
 
+          <section class="location-section py-4">
+            <h3 class="text-2xl font-bold mb-3">Where you'll be</h3>
+            <p class="text-gray-600 mb-4">{{ apartment.address }}, {{ apartment.city }}</p>
+            <div style="height: 400px;" class="border-round-xl overflow-hidden relative">
+                 <Skeleton v-if="!apartment" width="100%" height="100%" class="absolute top-0 left-0" />
+                 <MapComponent v-else :city="apartment.city" :title="apartment.title" />
+            </div>
+          </section>
+
+          <Divider />
+
           <section class="amenities-section py-4">
             <h3 class="text-2xl font-bold mb-4">What this place offers</h3>
             <div class="amenities-chips">
@@ -104,29 +128,78 @@
 
       <Divider class="my-6" />
 
-      <!-- Reviews Section (Mocked) -->
+      <!-- Reviews Section (Live) -->
       <section class="reviews-section pb-6">
-        <header class="flex align-items-center gap-2 mb-5">
-           <i class="pi pi-star-fill text-2xl text-yellow-500"></i>
-           <h3 class="text-2xl font-bold m-0">4.95 • 128 reviews</h3>
+        <header class="flex align-items-center justify-content-between mb-5">
+          <div class="flex align-items-center gap-2">
+            <i class="pi pi-star-fill text-2xl text-yellow-500"></i>
+            <h3 class="text-2xl font-bold m-0">{{ avgRating.toFixed(2) }} • {{ reviews.length }} reviews</h3>
+          </div>
+          <Button
+            v-if="authStore.user && hasUserBooked"
+            label="Write a Review"
+            icon="pi pi-pencil"
+            @click="showReviewDialog = true"
+            class="p-button-outlined p-button-sm font-bold"
+          />
         </header>
 
-        <div class="reviews-grid">
+        <!-- Review Loading Skeletons -->
+        <div v-if="reviewsLoading" class="reviews-grid">
           <div v-for="i in 4" :key="i" class="review-card mb-5">
-            <div class="flex align-items-center mb-3">
-              <Avatar icon="pi pi-user" shape="circle" class="mr-3" />
-              <div>
-                <div class="font-bold">Guest User {{ i }}</div>
-                <div class="text-xs text-gray-500">October 2025</div>
+            <div class="flex align-items-center mb-3 gap-3">
+              <Skeleton shape="circle" size="2.5rem" />
+              <div class="flex flex-column gap-1">
+                <Skeleton width="8rem" height="1rem" />
+                <Skeleton width="5rem" height="0.75rem" />
               </div>
             </div>
-            <p class="text-gray-700 line-height-3">
-              This was an amazing stay! The apartment is exactly like the photos, and Sarah was a fantastic host. Very clean and great location!
-            </p>
+            <Skeleton width="100%" height="3.5rem" />
           </div>
         </div>
-        <Button label="Show all reviews" class="p-button-outlined p-button-secondary px-5 font-bold" />
+
+        <!-- No Reviews Empty State -->
+        <div v-else-if="reviews.length === 0" class="text-center py-5 border-round-xl border-1 border-gray-100 bg-gray-50">
+          <i class="pi pi-comments text-5xl text-gray-300 mb-3" style="display: block"></i>
+          <h4 class="text-lg font-bold text-gray-600 mb-1">No reviews yet</h4>
+          <p class="text-gray-500 text-sm">Be the first to share your experience!</p>
+        </div>
+
+        <!-- Actual Reviews Grid -->
+        <div v-else class="reviews-grid">
+          <div v-for="review in reviews" :key="review.id" class="review-card mb-5">
+            <div class="flex align-items-center mb-3">
+              <Avatar icon="pi pi-user" shape="circle" class="mr-3 bg-primary text-white" />
+              <div>
+                <div class="font-bold">Guest #{{ review.user_id }}</div>
+                <div class="text-xs text-gray-500">{{ formatDate(review.created_at) }}</div>
+              </div>
+              <div class="ml-auto flex gap-1">
+                <i v-for="s in 5" :key="s" :class="['pi', s <= review.rating ? 'pi-star-fill text-yellow-500' : 'pi-star text-gray-300']" style="font-size: 0.8rem;"></i>
+              </div>
+            </div>
+            <p class="text-gray-700 line-height-3 m-0">{{ review.comment || 'No comment provided.' }}</p>
+          </div>
+        </div>
       </section>
+
+      <!-- Write Review Dialog -->
+      <Dialog v-model:visible="showReviewDialog" modal header="Write a Review" :style="{ width: '450px' }">
+        <div class="p-fluid pt-2">
+          <div class="field mb-4">
+            <label class="font-bold block mb-2">Your Rating</label>
+            <Rating v-model="newReview.rating" :stars="5" />
+          </div>
+          <div class="field mb-4">
+            <label class="font-bold block mb-2">Your Review</label>
+            <Textarea v-model="newReview.comment" rows="4" placeholder="Tell others about your stay..." autoResize />
+          </div>
+        </div>
+        <template #footer>
+          <Button label="Cancel" class="p-button-text" @click="showReviewDialog = false" />
+          <Button label="Submit Review" icon="pi pi-check" :loading="submittingReview" @click="submitReview" class="font-bold" />
+        </template>
+      </Dialog>
     </div>
   </div>
 </template>
@@ -138,6 +211,8 @@ import { useApartmentsStore } from '@/stores/apartments';
 import { useWishlistStore } from '@/stores/wishlist';
 import { useAuthStore } from '@/stores/auth';
 import BookingForm from '@/components/BookingForm.vue';
+import MapComponent from '@/components/MapComponent.vue';
+import { reviewsApi } from '@/api/reviews.js';
 
 // PrimeVue components
 import Galleria from 'primevue/galleria';
@@ -147,6 +222,10 @@ import Button from 'primevue/button';
 import Tag from 'primevue/tag';
 import Divider from 'primevue/divider';
 import Avatar from 'primevue/avatar';
+import Skeleton from 'primevue/skeleton';
+import Dialog from 'primevue/dialog';
+import Rating from 'primevue/rating';
+import Textarea from 'primevue/textarea';
 
 const route = useRoute();
 const router = useRouter();
@@ -177,9 +256,62 @@ const responsiveOptions = [
   { breakpoint: '560px', numVisible: 1 }
 ];
 
+// Reviews state
+const reviews = ref([]);
+const reviewsLoading = ref(false);
+const showReviewDialog = ref(false);
+const submittingReview = ref(false);
+const hasUserBooked = ref(false);
+const newReview = ref({ rating: 0, comment: '' });
+
+const avgRating = computed(() => {
+  if (reviews.value.length === 0) return 0;
+  return reviews.value.reduce((sum, r) => sum + r.rating, 0) / reviews.value.length;
+});
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return '';
+  return new Date(dateStr).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+};
+
+const fetchReviews = async (id) => {
+  reviewsLoading.value = true;
+  try {
+    const response = await reviewsApi.getApartmentReviews(id);
+    reviews.value = response.data;
+  } catch (e) {
+    console.error('Failed to load reviews', e);
+  } finally {
+    reviewsLoading.value = false;
+  }
+};
+
+const submitReview = async () => {
+  if (!newReview.value.rating) return;
+  submittingReview.value = true;
+  try {
+    await reviewsApi.createReview({
+      apartment_id: apartment.value.id,
+      rating: newReview.value.rating,
+      comment: newReview.value.comment
+    });
+    showReviewDialog.value = false;
+    newReview.value = { rating: 0, comment: '' };
+    // Refresh reviews list
+    await fetchReviews(apartment.value.id);
+  } catch (e) {
+    console.error('Failed to submit review', e);
+  } finally {
+    submittingReview.value = false;
+  }
+};
+
 onMounted(async () => {
   await apartmentsStore.fetchApartmentById(route.params.id);
   await wishlistStore.fetchWishlist();
+  if (apartment.value?.id) {
+    await fetchReviews(apartment.value.id);
+  }
 });
 
 const toggleWishlist = async () => {

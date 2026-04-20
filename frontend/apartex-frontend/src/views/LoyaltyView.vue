@@ -204,9 +204,7 @@ const formatDate = (dateString) => {
 // Data loading functions
 const loadLoyaltyData = async () => {
   if (!authStore.user) {
-    console.log('⚠️ No user logged in, using default user ID');
-    // Use a default user ID for development
-    await loyaltyStore.fetchLoyaltyStatus(1);
+    console.warn('⚠️ No user logged in, loyalty status cannot be fetched');
     return;
   }
 
@@ -219,17 +217,14 @@ const loadLoyaltyData = async () => {
 };
 
 const loadUserRewards = async () => {
-  userRewardsLoading.value = true;
-  userRewardsError.value = '';
-  
   if (!authStore.user) {
-    console.log('⚠️ No user logged in, using default user ID for rewards');
-    // Use a default user ID for development
-    await loyaltyStore.fetchUserRewards(1);
-    userRewardsLoading.value = false;
+    console.warn('⚠️ No user logged in, user rewards cannot be fetched');
     return;
   }
 
+  userRewardsLoading.value = true;
+  userRewardsError.value = '';
+  
   try {
     console.log('🔄 Loading user rewards for user:', authStore.user.id);
     await loyaltyStore.fetchUserRewards(authStore.user.id);
@@ -277,7 +272,7 @@ const redeemReward = async (reward) => {
   try {
     await loyaltyStore.redeemReward({
       reward_id: reward.id,
-      user_id: authStore.user?.id || 1
+      user_id: authStore.user.id
     });
     
     // Refresh data after redemption

@@ -17,11 +17,13 @@
         <!-- Search bar -->
         <div class="search-bar">
           <input
+            v-model="searchQuery"
             type="text"
-            placeholder="Search destination..."
+            placeholder="Search destination (city)..."
             class="search-input"
+            @keyup.enter="handleSearch"
           />
-          <button class="search-button">
+          <button class="search-button" @click="handleSearch">
             Search
           </button>
         </div>
@@ -67,11 +69,25 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useApartmentsStore } from '@/stores/apartments'
 import ApartmentCard from '@/components/ApartmentCard.vue'
 
+const router = useRouter()
 const apartmentsStore = useApartmentsStore()
+const searchQuery = ref('')
+
+const handleSearch = () => {
+  if (searchQuery.value.trim()) {
+    router.push({
+      path: '/apartments',
+      query: { city: searchQuery.value.trim() }
+    })
+  } else {
+    router.push('/apartments')
+  }
+}
 
 onMounted(async () => {
   if (apartmentsStore.apartments.length === 0) {

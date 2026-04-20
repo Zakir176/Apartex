@@ -1,76 +1,142 @@
 <template>
-  <div class="page-container">
-    <h2>Owner Bookings</h2>
-
-    <div class="filters">
-      <label>
-        Status
-        <select v-model="status">
-          <option value="">All</option>
-          <option value="pending">Pending</option>
-          <option value="confirmed">Confirmed</option>
-          <option value="completed">Completed</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
-      </label>
+  <div class="owner-bookings-container">
+    <div class="header-section">
+      <div class="title-area">
+        <h1>Guest Bookings</h1>
+        <p class="subtitle">Monitor and manage guest reservations across all properties</p>
+      </div>
+      <div class="action-area">
+        <Button 
+          icon="pi pi-refresh" 
+          @click="loadBookings" 
+          class="p-button-text p-button-secondary" 
+          :loading="bookingsStore.loading"
+        />
+      </div>
     </div>
 
-    <div v-if="loading">Loading...</div>
-    <div v-else>
-      <table class="table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Apartment</th>
-            <th>Check-in</th>
-            <th>Check-out</th>
-            <th>Guests</th>
-            <th>Total</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="b in filteredBookings" :key="b.id">
-            <td>{{ b.id }}</td>
-            <td>{{ b.apartment_id }}</td>
-            <td>{{ b.check_in }}</td>
-            <td>{{ b.check_out }}</td>
-            <td>{{ b.guests }}</td>
-            <td>${{ Number(b.total_price).toFixed(2) }}</td>
-            <td><span :class="['badge', b.status]">{{ b.status }}</span></td>
-            <td>
-              <button
-                v-if="b.status === 'confirmed'"
-                @click="bookingsStore.completeBooking(b.id)"
-                class="btn small"
-              >
-                Complete
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <div v-if="bookings.length === 0">No bookings found.</div>
-    </div>
+    <!-- Bookings Table -->
+    <Card class="table-card">
+      <template #content>
+        <DataTable 
+          v-model:filters="filters"
+          :value="bookingsStore.bookings" 
+          paginator 
+          :rows="10" 
+          dataKey="id"
+          filterDisplay="menu"
+          :loading="bookingsStore.loading"
+          :globalFilterFields="['id', 'apartment_id', 'status']"
+          responsiveLayout="scroll"
+          class="p-datatable-sm"
+        >
+          <template #header>
+            <div class="flex justify-content-between align-items-center">
+              <span class="p-input-icon-left">
+                <i class="pi pi-search" />
+                <InputText v-model="filters['global'].value" placeholder="Search bookings..." />
+              </span>
+              <div class="flex gap-2">
+                <Dropdown 
+                  v-model="filters['status'].value" 
+                  :options="statuses" 
+                  placeholder="Filter by Status" 
+                  class="p-column-filter"
+                  style="min-width: 12rem"
+                  :showClear="true"
+                />
+              </div>
+            </div>
+          </template>
+
+          <template #empty>No bookings found.</template>
+          
+          <Column field="id" header="ID" sortable style="min-width: 5rem"></Column>
+          
+          <Column field="apartment_id" header="Apartment" sortable>
+            <template #body="slotProps">
+              <div class="flex align-items-center">
+                <i class="pi pi-home mr-2 text-primary"></i>
+                <span>Listing #{{ slotProps.data.apartment_id }}</span>
+              </div>
+            </template>
+          </Column>
+
+          <Column field="check_in" header="Check-in" sortable>
+            <template #body="slotProps">
+              {{ formatDate(slotProps.data.check_in) }}
+            </template>
+          </Column>
+
+          <Column field="check_out" header="Check-out" sortable>
+            <template #body="slotProps">
+              {{ formatDate(slotProps.data.check_out) }}
+            </template>
+          </Column>
+
+          <Column field="guests" header="Guests" sortable style="text-align: center">
+            <template #body="slotProps">
+              <i class="pi pi-users mr-1"></i>
+              {{ slotProps.data.guests }}
+            </template>
+          </Column>
+
+          <Column field="total_price" header="Total" sortable>
+            <template #body="slotProps">
+              <span class="font-bold text-lg">{{ formatCurrency(slotProps.data.total_price) }}</span>
+            </template>
+          </Column>
+
+          <Column field="status" header="Status" sortable>
+            <template #body="slotProps">
+              <Tag :value="slotProps.data.status" :severity="getStatusSeverity(slotProps.data.status)" />
+            </template>
+          </Column>
+
+          <Column header="Actions" style="min-width: 8rem">
+            <template #body="slotProps">
+              <Button 
+                v-if="slotProps.data.status === 'confirmed'"
+                icon="pi pi-check" 
+                label="Complete" 
+                class="p-button-success p-button-sm p-button-text" 
+                @click="bookingsStore.completeBooking(slotProps.data.id)"
+              />
+              <span v-else class="text-gray-400 text-xs italic">No actions available</span>
+            </template>
+          </Column>
+        </DataTable>
+      </template>
+    </Card>
   </div>
-  
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useBookingsStore } from '@/stores/bookings';
 import { useAuthStore } from '@/stores/auth';
+import { FilterMatchMode } from 'primevue/api';
+
+// PrimeVue components
+import Button from 'primevue/button';
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+import Tag from 'primevue/tag';
+import InputText from 'primevue/inputtext';
+import Card from 'primevue/card';
+import Dropdown from 'primevue/dropdown';
 
 const auth = useAuthStore();
 const bookingsStore = useBookingsStore();
-const { bookings, loading } = bookingsStore;
-const status = ref('');
 
-const filteredBookings = computed(() => {
-  if (!status.value) return bookings.value;
-  return bookings.value.filter(b => b.status === status.value);
+const filters = ref({
+  global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  status: { value: null, matchMode: FilterMatchMode.EQUALS }
 });
+
+const statuses = [
+  'pending', 'confirmed', 'completed', 'cancelled'
+];
 
 async function loadBookings() {
   if (!auth.user?.id) return;
@@ -78,21 +144,63 @@ async function loadBookings() {
 }
 
 onMounted(loadBookings);
+
+const formatDate = (dateString) => {
+  if (!dateString) return '-';
+  return new Date(dateString).toLocaleDateString();
+};
+
+const formatCurrency = (v) => {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(v);
+};
+
+const getStatusSeverity = (status) => {
+  switch (status?.toLowerCase()) {
+    case 'confirmed': return 'success';
+    case 'pending': return 'warning';
+    case 'completed': return 'info';
+    case 'cancelled': return 'danger';
+    default: return 'secondary';
+  }
+};
 </script>
 
 <style scoped>
-.page-container { padding: 24px; }
-h2 { margin-bottom: 12px; }
-.filters { margin-bottom: 12px; }
-.table { width: 100%; border-collapse: collapse; }
-.table th, .table td { border: 1px solid #e5e7eb; padding: 8px; text-align: left; }
-.badge { padding: 2px 8px; border-radius: 9999px; text-transform: capitalize; }
-.badge.confirmed { background: #dcfce7; color: #166534; }
-.badge.pending { background: #fef9c3; color: #854d0e; }
-.badge.completed { background: #dbeafe; color: #1e40af; }
-.badge.cancelled { background: #fee2e2; color: #991b1b; }
-.btn.small {
-  padding: 4px 8px;
-  font-size: 12px;
+.owner-bookings-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+}
+
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
+
+.title-area h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.subtitle {
+  color: #718096;
+}
+
+.table-card {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+:deep(.p-datatable .p-datatable-header) {
+  background: white;
+  padding: 1rem;
+}
+
+:deep(.p-inputtext) {
+  border-radius: 8px;
 }
 </style>

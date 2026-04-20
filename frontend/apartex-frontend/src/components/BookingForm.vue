@@ -20,7 +20,11 @@
             showIcon
             class="custom-calendar"
             :manualInput="false"
+            :disabledDates="disabledDates"
           />
+          <Message v-if="isOverlapping" severity="warn" icon="pi pi-exclamation-triangle" class="mt-2 text-xs">
+            Some dates in your selection are unavailable (Maintenance/Rented).
+          </Message>
         </div>
 
         <div class="field mb-5">
@@ -39,7 +43,7 @@
           :loading="loading" 
           @click="handleBooking" 
           class="p-button-primary p-button-lg w-full font-bold py-3"
-          :disabled="!isValidRange || !form.guests"
+          :disabled="!isValidRange || !form.guests || isOverlapping"
         />
         
         <p class="text-center text-sm text-gray-500 mt-3"><i class="pi pi-shield mr-1"></i>Secure checkout — You won't be charged yet</p>
@@ -74,10 +78,11 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useBookingsStore } from '@/stores/bookings';
 import { useAuthStore } from '../stores/auth';
+import { availabilityApi } from '@/api/availability.js';
 
 // PrimeVue components
 import Card from 'primevue/card';
@@ -114,6 +119,34 @@ const guestOptions = computed(() => {
 
 const loading = ref(false);
 const error = ref('');
+const blockedDatesRes = ref([]);
+
+const disabledDates = computed(() => {
+  return blockedDatesRes.value.map(bd => new Date(bd.blocked_date + 'T00:00:00'));
+});
+
+const isOverlapping = computed(() => {
+  if (!isValidRange.value) return false;
+  const start = dates.value[0];
+  const end = dates.value[1];
+  // Simple check: iterate through days in range and see if any are in disabledDates
+  let current = new Date(start);
+  while (current <= end) {
+    const curStr = current.toISOString().split('T')[0];
+    if (blockedDatesRes.value.some(bd => bd.blocked_date === curStr)) return true;
+    current.setDate(current.getDate() + 1);
+  }
+  return false;
+});
+
+onMounted(async () => {
+  try {
+    const res = await availabilityApi.getBlockedDates(props.apartment.id);
+    blockedDatesRes.value = res.data;
+  } catch (e) {
+    console.error('Failed to load blocked dates', e);
+  }
+});
 
 const isValidRange = computed(() => {
   return dates.value && dates.value[0] && dates.value[1];

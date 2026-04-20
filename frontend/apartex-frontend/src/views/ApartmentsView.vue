@@ -217,7 +217,8 @@ const pendingCount = computed(() => {
     const priceOk = apt.price_per_night >= min && (max === 1000 || apt.price_per_night <= max);
     const capacityOk = apt.capacity >= filters.value.min_capacity;
     const bedroomsOk = apt.bedrooms >= filters.value.min_bedrooms;
-    return cityOk && priceOk && capacityOk && bedroomsOk;
+    const amenitiesOk = filters.value.amenities.length === 0 || (Array.isArray(apt.amenities) && filters.value.amenities.every(a => apt.amenities.includes(a)));
+    return cityOk && priceOk && capacityOk && bedroomsOk && amenitiesOk;
   }).length;
 });
 
@@ -234,7 +235,8 @@ const applyFilters = async () => {
     min_price: min,
     max_price: max === 1000 ? 999999 : max,
     capacity: filters.value.min_capacity,
-    bedrooms: filters.value.min_bedrooms
+    bedrooms: filters.value.min_bedrooms,
+    amenities: filters.value.amenities.length > 0 ? filters.value.amenities : undefined
   };
   
   await apartmentsStore.fetchApartments(params);

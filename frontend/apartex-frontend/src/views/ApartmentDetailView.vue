@@ -108,14 +108,17 @@
 
           <section class="amenities-section py-4">
             <h3 class="text-2xl font-bold mb-4">What this place offers</h3>
-            <div class="amenities-chips">
-              <Tag v-if="apartment.wifi" value="Fast WiFi" icon="pi pi-wifi" class="p-tag-secondary p-tag-rounded px-4 py-2 text-base font-semibold mr-3 mb-3" />
-              <Tag value="Free Parking" icon="pi pi-car" class="p-tag-secondary p-tag-rounded px-4 py-2 text-base font-semibold mr-3 mb-3" />
-              <Tag value="Air Conditioning" icon="pi pi-sun" class="p-tag-secondary p-tag-rounded px-4 py-2 text-base font-semibold mr-3 mb-3" />
-              <Tag value="Kitchen" icon="pi pi-briefcase" class="p-tag-secondary p-tag-rounded px-4 py-2 text-base font-semibold mr-3 mb-3" />
-              <Tag value="Pool Access" icon="pi pi-check" class="p-tag-secondary p-tag-rounded px-4 py-2 text-base font-semibold mr-3 mb-3" />
+            <div class="amenities-chips" v-if="apartment.amenities && apartment.amenities.length > 0">
+              <Tag 
+                v-for="amenity in apartment.amenities" 
+                :key="amenity" 
+                :value="amenity" 
+                :icon="getAmenityIcon(amenity)" 
+                class="p-tag-secondary p-tag-rounded px-4 py-2 text-base font-semibold mr-3 mb-3" 
+              />
             </div>
-            <Button label="Show all 24 amenities" class="p-button-outlined p-button-secondary mt-3 px-4 font-bold" />
+            <div v-else class="text-gray-500 italic mb-3">No specific amenities listed.</div>
+            <Button v-if="apartment.amenities && apartment.amenities.length > 8" label="Show all amenities" class="p-button-outlined p-button-secondary mt-3 px-4 font-bold" />
           </section>
         </div>
 
@@ -325,6 +328,22 @@ const toggleWishlist = async () => {
   } else {
     await wishlistStore.addToWishlist(apartment.value.id);
   }
+};
+
+const getAmenityIcon = (label) => {
+  const icons = {
+    'WiFi': 'pi pi-wifi',
+    'Parking': 'pi pi-car',
+    'Kitchen': 'pi pi-apple',
+    'TV': 'pi pi-desktop',
+    'Air Con': 'pi pi-box',
+    'Pool': 'pi pi-water',
+    'Gym': 'pi pi-user',
+    'Laundry': 'pi pi-refresh',
+    'Workspace': 'pi pi-briefcase',
+    'Backyard': 'pi pi-sun'
+  };
+  return icons[label] || 'pi pi-check';
 };
 </script>
 

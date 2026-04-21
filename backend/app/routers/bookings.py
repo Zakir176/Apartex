@@ -6,6 +6,7 @@ from app.database import get_db
 from app.models.booking import Booking
 from app.models.apartment import Apartment
 from app.models.user import User
+from app.models.blocked_date import BlockedDate
 from app.schemas.booking import BookingCreate, BookingRead, BookingUpdate
 from app.routers.auth_enhanced import get_current_active_user
 
@@ -38,10 +39,7 @@ def check_apartment_availability(apartment_id: int, check_in: date, check_out: d
     # Check for overlapping bookings (only consider confirmed and completed bookings)
     overlapping_bookings = db.query(Booking).filter(
         Booking.apartment_id == apartment_id,
-        Booking.status.in_(["confirmed", "completed"]),  # Only confirmed/completed bookings block availability
-        # Check for date overlap: 
-        # new_booking.check_in < existing_booking.check_out AND
-        # new_booking.check_out > existing_booking.check_in
+        Booking.status.in_(["confirmed", "completed"]),
         Booking.check_in < check_out,
         Booking.check_out > check_in
     ).all()
@@ -51,11 +49,23 @@ def check_apartment_availability(apartment_id: int, check_in: date, check_out: d
     for booking in overlapping_bookings:
         print(f"   - Booking {booking.id}: {booking.check_in} to {booking.check_out}, status: {booking.status}")
     
-    # If no overlapping booking found, apartment is available
-    is_available = len(overlapping_bookings) == 0
-    print(f"📊 Final availability: {is_available}")
-    
-    return is_available
+    if overlapping_bookings:
+        return False
+
+    # Also check owner-blocked dates
+    current = check_in
+    while current < check_out:
+        blocked = db.query(BlockedDate).filter(
+            BlockedDate.apartment_id == apartment_id,
+            BlockedDate.blocked_date == current
+        ).first()
+        if blocked:
+            print(f"🚫 Date {current} is owner-blocked ({blocked.reason})")
+            return False
+        current += timedelta(days=1)
+
+    print("📊 Final availability: True")
+    return True
 
 def calculate_booking_price(apartment_id: int, check_in: date, check_out: date, db: Session) -> float:
     """

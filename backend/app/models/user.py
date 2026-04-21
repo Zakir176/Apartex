@@ -25,3 +25,4 @@ class User(Base):
     # Fix relationships - use strings to avoid circular imports
     bookings = relationship("Booking", back_populates="user")
     wishlists = relationship("Wishlist", back_populates="user")
+    reviews = relationship("Review", back_populates="user", cascade="all, delete-orphan")

@@ -91,7 +91,7 @@ import Message from 'primevue/message';
 import SelectButton from 'primevue/selectbutton';
 
 // Assets
-import bgImage from '/C:/Users/zakir/.gemini/antigravity/brain/6ff79adf-a3cc-4176-a870-ba2d422d47d4/luxury_auth_background_1776372436472.png';
+const bgImage = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=1920';
 
 const router = useRouter();
 const route = useRoute();

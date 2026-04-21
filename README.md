@@ -53,7 +53,7 @@
 ## 📈 Project Health & Development
 We maintain high standards for code quality and security. For a detailed breakdown of current technical debt, security audits, and UI/UX recommendations, please refer to:
 
-👉 **[View Project Audit Report](C:\Users\zakir\.gemini\antigravity\brain\6ff79adf-a3cc-4176-a870-ba2d422d47d4\project_audit_report.md)**
+👉 **[View Project Roadmap](./docs/ROADMAP.md)**
 
 ---
 

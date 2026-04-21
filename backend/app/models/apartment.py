@@ -24,3 +24,6 @@ class Apartment(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     wishlists = relationship("Wishlist", back_populates="apartment")
+    reviews = relationship("Review", back_populates="apartment", cascade="all, delete-orphan")
+    apartment_images = relationship("ApartmentImage", back_populates="apartment", cascade="all, delete-orphan")
+    blocked_dates = relationship("BlockedDate", back_populates="apartment", cascade="all, delete-orphan")

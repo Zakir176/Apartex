@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 class ApartmentBase(BaseModel):
@@ -11,7 +11,7 @@ class ApartmentBase(BaseModel):
     capacity: int
     bedrooms: int
     bathrooms: int
-    amenities: Optional[str] = None
+    amenities: Optional[List[str]] = None
     image_url: Optional[str] = None
 
 class ApartmentCreate(ApartmentBase):
@@ -26,7 +26,7 @@ class ApartmentUpdate(BaseModel):
     capacity: Optional[int] = None
     bedrooms: Optional[int] = None
     bathrooms: Optional[int] = None
-    amenities: Optional[str] = None
+    amenities: Optional[List[str]] = None
     image_url: Optional[str] = None
 
 class ApartmentRead(ApartmentBase):

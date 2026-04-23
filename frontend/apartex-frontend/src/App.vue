@@ -1,46 +1,103 @@
 <template>
-  <div id="app">
-    <nav v-if="authStore.isAuthenticated" class="navbar shadow-sm">
-      <div class="nav-brand" @click="goHome">
-        <span class="text-primary font-bold text-2xl cursor-pointer">Apartex</span>
-      </div>
-      
-      <div class="nav-links">
-        <!-- Renter nav -->
-        <template v-if="authStore.user?.role === 'renter'">
-          <router-link to="/" class="nav-item">Home</router-link>
-          <router-link to="/apartments" class="nav-item">Apartments</router-link>
-          <router-link to="/bookings" class="nav-item">My Bookings</router-link>
-          <router-link to="/loyalty" class="nav-item">Loyalty</router-link>
-        </template>
-        
-        <!-- Owner nav -->
-        <template v-else-if="authStore.user?.role === 'owner'">
-          <router-link to="/owner" class="nav-item">Home</router-link>
-          <router-link to="/dashboard" class="nav-item">Dashboard</router-link>
-          <router-link to="/owner/apartments" class="nav-item">My Apartments</router-link>
-          <router-link to="/owner/bookings" class="nav-item">Bookings</router-link>
-          <router-link to="/owner/payouts" class="nav-item">Payouts</router-link>
-        </template>
+  <div id="app" :class="{ 'dark': themeStore.isDark }">
+    <header v-if="authStore.isAuthenticated" class="surface-0 border-bottom-1 border-200 sticky top-0 z-5">
+      <div class="ax-container flex align-items-center justify-content-between h-5rem">
+        <div class="flex align-items-center gap-4">
+          <!-- Mobile Menu Toggle -->
+          <Button 
+            icon="pi pi-bars" 
+            @click="mobileMenuVisible = true" 
+            class="p-button-text p-button-secondary lg:hidden" 
+          />
 
-        <div class="divider mx-3"></div>
+          <div class="cursor-pointer" @click="goHome">
+            <h1 class="text-2xl font-bold tracking-tight text-900">Apartex</h1>
+          </div>
+          
+          <nav class="hidden lg:flex align-items-center gap-2">
+            <!-- Renter nav -->
+            <template v-if="authStore.user?.role === 'renter'">
+              <router-link to="/" class="nav-link">Home</router-link>
+              <router-link to="/apartments" class="nav-link">Explore</router-link>
+              <router-link to="/bookings" class="nav-link">Bookings</router-link>
+              <router-link to="/loyalty" class="nav-link">Loyalty Rewards</router-link>
+            </template>
+            
+            <!-- Owner nav -->
+            <template v-else-if="authStore.user?.role === 'owner'">
+              <router-link to="/owner" class="nav-link">Overview</router-link>
+              <router-link to="/dashboard" class="nav-link">Analytics</router-link>
+              <router-link to="/owner/apartments" class="nav-link">Properties</router-link>
+              <router-link to="/owner/bookings" class="nav-link">Reservations</router-link>
+              <router-link to="/owner/payouts" class="nav-link">Payouts</router-link>
+            </template>
+          </nav>
+        </div>
 
-        <div class="user-section">
-          <!-- Theme Toggle -->
+        <div class="flex align-items-center gap-2 sm:gap-3">
           <Button 
             :icon="themeStore.isDark ? 'pi pi-sun' : 'pi pi-moon'" 
             @click="themeStore.toggle" 
-            class="p-button-rounded p-button-text p-button-secondary mr-2" 
+            class="p-button-text p-button-secondary p-button-sm" 
           />
           
-          <Avatar icon="pi pi-user" shape="circle" class="mr-2" />
-          <span class="user-name">{{ authStore.user?.name }}</span>
-          <Button icon="pi pi-sign-out" @click="handleLogout" class="p-button-text p-button-danger p-button-sm ml-2" />
+          <div class="flex align-items-center gap-2 px-2 sm:px-3 py-2 border-round-xl bg-slate-50 border-1 border-200">
+            <Avatar icon="pi pi-user" shape="circle" class="bg-primary text-white" size="small" />
+            <span class="font-bold text-xs text-900 hidden sm:block">{{ authStore.user?.name }}</span>
+          </div>
+          
+          <Button icon="pi pi-sign-out" @click="handleLogout" class="p-button-text p-button-danger p-button-sm" v-tooltip.bottom="'Sign Out'" />
         </div>
       </div>
-    </nav>
+    </header>
+
+    <!-- Professional Mobile Sidebar -->
+    <Sidebar v-model:visible="mobileMenuVisible" class="w-full sm:w-20rem">
+      <template #header>
+        <div class="flex align-items-center gap-2">
+          <h1 class="text-xl font-bold tracking-tight text-900">Apartex</h1>
+        </div>
+      </template>
+      
+      <div class="flex flex-column h-full">
+        <div class="flex-grow-1">
+          <ul class="list-none p-0 m-0">
+            <!-- Renter links -->
+            <template v-if="authStore.user?.role === 'renter'">
+              <li v-for="item in renterLinks" :key="item.to">
+                <router-link :to="item.to" class="mobile-nav-link" @click="mobileMenuVisible = false">
+                  <i :class="[item.icon, 'mr-3 text-xl']"></i>
+                  <span>{{ item.label }}</span>
+                </router-link>
+              </li>
+            </template>
+
+            <!-- Owner links -->
+            <template v-else-if="authStore.user?.role === 'owner'">
+              <li v-for="item in ownerLinks" :key="item.to">
+                <router-link :to="item.to" class="mobile-nav-link" @click="mobileMenuVisible = false">
+                  <i :class="[item.icon, 'mr-3 text-xl']"></i>
+                  <span>{{ item.label }}</span>
+                </router-link>
+              </li>
+            </template>
+          </ul>
+        </div>
+
+        <div class="mt-auto border-top-1 border-100 pt-4 pb-2">
+          <div class="flex align-items-center gap-3 px-3 mb-4">
+            <Avatar icon="pi pi-user" shape="circle" class="bg-primary text-white" />
+            <div>
+              <div class="font-bold text-900">{{ authStore.user?.name }}</div>
+              <div class="text-xs text-500 uppercase font-bold tracking-wider">{{ authStore.user?.role }} Account</div>
+            </div>
+          </div>
+          <Button label="Sign Out" icon="pi pi-sign-out" class="p-button-outlined p-button-danger w-full font-bold" @click="handleLogout" />
+        </div>
+      </div>
+    </Sidebar>
     
-    <main class="main-content">
+    <main class="min-h-screen">
       <router-view />
     </main>
 
@@ -50,6 +107,7 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import { useAuthStore } from './stores/auth';
 import { useRouter } from 'vue-router';
 import { useThemeStore } from './stores/theme';
@@ -57,6 +115,7 @@ import { useThemeStore } from './stores/theme';
 // PrimeVue components
 import Button from 'primevue/button';
 import Avatar from 'primevue/avatar';
+import Sidebar from 'primevue/sidebar';
 import Toast from 'primevue/toast';
 import ConfirmDialog from 'primevue/confirmdialog';
 
@@ -64,184 +123,67 @@ const authStore = useAuthStore();
 const themeStore = useThemeStore();
 const router = useRouter();
 
+const mobileMenuVisible = ref(false);
+
+const renterLinks = [
+  { label: 'Home', to: '/', icon: 'pi pi-home' },
+  { label: 'Explore', to: '/apartments', icon: 'pi pi-search' },
+  { label: 'My Bookings', to: '/bookings', icon: 'pi pi-calendar' },
+  { label: 'Loyalty Rewards', to: '/loyalty', icon: 'pi pi-star' },
+];
+
+const ownerLinks = [
+  { label: 'Overview', to: '/owner', icon: 'pi pi-home' },
+  { label: 'Analytics', to: '/dashboard', icon: 'pi pi-chart-bar' },
+  { label: 'My Properties', to: '/owner/apartments', icon: 'pi pi-building' },
+  { label: 'Reservations', to: '/owner/bookings', icon: 'pi pi-book' },
+  { label: 'Payouts', to: '/owner/payouts', icon: 'pi pi-wallet' },
+];
+
 const goHome = () => {
   if (authStore.user?.role === 'owner') router.push('/owner');
   else router.push('/');
 };
 
 const handleLogout = async () => {
+  mobileMenuVisible.value = false;
   await authStore.logout();
   router.push('/login');
 };
 </script>
 
-<style>
-/* Modern CSS Variable System */
-:root {
-  --primary-color: #3b82f6;
-  --primary-light: #eff6ff;
-  --surface-ground: #f8fafc;
-  --surface-section: #ffffff;
-  --surface-card: #ffffff;
-  --surface-border: #e2e8f0;
-  --text-color: #1e293b;
-  --text-muted: #64748b;
-  --nav-bg: #ffffff;
-  --transition-speed: 0.3s;
-}
-
-/* Dark Mode Overrides */
-.dark {
-  --surface-ground: #0f172a;/* slate-900 */
-  --surface-section: #1e293b;/* slate-800 */
-  --surface-card: #1e293b;
-  --surface-border: #334155;/* slate-700 */
-  --text-color: #f1f5f9;/* slate-100 */
-  --text-muted: #94a3b8;/* slate-400 */
-  --nav-bg: #1e293b;
-  --primary-light: #1e293b;
-}
-
-* {
-  transition: background-color var(--transition-speed), border-color var(--transition-speed), color var(--transition-speed);
-}
-
-body {
-  margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: var(--surface-ground);
-  color: var(--text-color);
-  min-h: 100vh;
-}
-
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 2rem;
-  background-color: var(--nav-bg);
-  border-bottom: 1px solid var(--surface-border);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
-
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.nav-item {
-  text-decoration: none;
-  color: var(--text-color);
-  padding: 0.5rem 1rem;
+<style scoped>
+.nav-link {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--surface-500);
+  transition: 0.2s;
+  padding: 0.5rem 0.75rem;
   border-radius: 8px;
-  font-weight: 500;
-  transition: all 0.2s;
-  font-size: 0.95rem;
 }
 
-.nav-item:hover,
-.nav-item.router-link-active {
-  background-color: var(--primary-light);
-  color: var(--primary-color);
+.nav-link:hover, .nav-link.router-link-active {
+  color: var(--surface-900);
+  background-color: var(--surface-100);
 }
 
-.divider {
-  width: 1px;
-  height: 24px;
-  background-color: var(--surface-border);
-}
-
-.user-section {
+.mobile-nav-link {
   display: flex;
   align-items: center;
-}
-
-.user-name {
+  padding: 1rem;
+  color: var(--surface-600);
   font-weight: 600;
-  font-size: 0.9rem;
-  color: var(--text-color);
-}
-
-.main-content {
-  min-height: calc(100vh - 64px);
-}
-
-/* Global Premium Theme Overrides */
-:root {
-  /* Core Palette */
-  --primary: #6366f1;
-  --primary-gradient: linear-gradient(135deg, #06b6d4 0%, #6366f1 100%);
-  --surface-glass: rgba(255, 255, 255, 0.7);
-  --surface-border-glass: rgba(255, 255, 255, 0.3);
-  
-  /* Aura Shadows */
-  --shadow-premium: 0 10px 30px -5px rgba(0, 0, 0, 0.1), 0 4px 12px -4px rgba(0, 0, 0, 0.05);
-  --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.3);
-}
-
-.dark {
-  --surface-glass: rgba(15, 23, 42, 0.6);
-  --surface-border-glass: rgba(255, 255, 255, 0.1);
-}
-
-/* Global Button Overhaul */
-:deep(.p-button.p-button-primary) {
-  background: var(--primary-gradient) !important;
-  border: none !important;
-  padding: 0.75rem 1.5rem;
-  border-radius: 14px;
-  font-weight: 700;
-  letter-spacing: -0.2px;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: var(--shadow-premium);
-}
-
-:deep(.p-button.p-button-primary:hover) {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: var(--shadow-glow);
-}
-
-:deep(.p-button.p-button-primary:active) {
-  transform: scale(0.98);
-}
-
-:deep(.p-button.p-button-text) {
   border-radius: 12px;
-  font-weight: 600;
-  transition: all 0.2s;
+  transition: 0.2s;
+  margin-bottom: 0.5rem;
 }
 
-:deep(.p-button.p-button-outlined) {
-  border: 1px solid var(--surface-border-glass) !important;
-  background: var(--surface-glass) !important;
-  backdrop-filter: blur(8px);
-  border-radius: 12px;
+.mobile-nav-link:hover, .mobile-nav-link.router-link-active {
+  background-color: var(--surface-100);
+  color: var(--surface-900);
 }
 
-/* Card & Glassmorphism */
-:deep(.p-card) {
-  border-radius: 24px;
-  border: 1px solid var(--surface-border-glass) !important;
-  background: var(--surface-card) !important;
-  box-shadow: var(--shadow-premium);
-  overflow: hidden;
-}
-
-/* Form Polish */
-:deep(.p-inputtext), :deep(.p-inputnumber-input) {
-  border-radius: 12px !important;
-  color: var(--text-color) !important;
-}
-
-.p-button.p-button-text.p-button-secondary {
-  color: var(--text-muted) !important;
-}
-
-.p-button.p-button-text.p-button-secondary:hover {
-  background: var(--primary-light) !important;
-  color: var(--primary-color) !important;
+.mobile-nav-link.router-link-active i {
+  color: var(--primary-color);
 }
 </style>

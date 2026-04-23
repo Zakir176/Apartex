@@ -1,78 +1,87 @@
 <template>
-  <div class="auth-container">
-    <!-- Left: Immersive Visual -->
-    <div class="auth-visual" :style="{ backgroundImage: `url(${bgImage})` }">
-      <div class="visual-overlay">
-        <div class="visual-content">
-          <h1 class="text-white font-bold text-5xl mb-3">Welcome to Apartex</h1>
-          <p class="text-white opacity-80 text-xl font-medium">Experience the future of premium living.</p>
-        </div>
+  <div class="grid grid-nogutter min-h-screen">
+    <!-- Left: Immersive Visual Panel -->
+    <div class="hidden lg:block lg:col-6 relative overflow-hidden">
+      <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=1920');"></div>
+      <div class="absolute inset-0 bg-black-alpha-40 flex flex-column justify-content-end p-8">
+        <h1 class="text-white text-7xl font-bold mb-3 line-height-1">Elegance <br/>in Every Stay.</h1>
+        <p class="text-white opacity-70 text-xl max-w-28rem font-medium">Bespoke living experiences curated for the world's most discerning travelers.</p>
       </div>
     </div>
 
-    <!-- Right: Auth Form -->
-    <div class="auth-form-wrapper flex align-items-center justify-content-center">
-      <Card class="auth-card glass border-none shadow-none">
-        <template #content>
-          <div class="text-center mb-5">
-            <h2 class="text-3xl font-bold mb-2">Member Login</h2>
-            <p class="text-muted">Enter your credentials to access your account</p>
-          </div>
+    <!-- Right: Login Form Panel -->
+    <div class="col-12 lg:col-6 flex align-items-center justify-content-center bg-white p-6">
+      <div class="w-full max-w-26rem">
+        <div class="mb-6">
+          <h2 class="text-4xl font-bold text-900 mb-2">Member Login</h2>
+          <p class="text-500 font-medium">Enter your credentials to access your account</p>
+        </div>
 
-          <!-- Role Toggle -->
-          <div class="flex justify-content-center mb-5">
-            <SelectButton 
-              v-model="targetRole" 
-              :options="roleOptions" 
-              optionLabel="label" 
-              optionValue="value" 
-              aria-labelledby="basic"
-              class="premium-toggle"
+        <div class="flex justify-content-center mb-6">
+          <SelectButton 
+            v-model="targetRole" 
+            :options="roleOptions" 
+            optionLabel="label" 
+            optionValue="value" 
+            class="w-full"
+          />
+        </div>
+
+        <form @submit.prevent="handleLogin">
+          <div class="mb-4">
+            <label for="email" class="ax-label">Email Address</label>
+            <input 
+              id="email" 
+              v-model="form.email" 
+              type="email" 
+              required 
+              placeholder="name@example.com" 
+              class="ax-input" 
             />
           </div>
-
-          <form @submit.prevent="handleLogin" class="p-fluid">
-            <div class="field mb-4">
-              <label for="email" class="font-bold block mb-2 text-sm uppercase tracking-wider text-gray-500">Email Address</label>
-              <span class="p-input-icon-left">
-                <i class="pi pi-envelope" />
-                <InputText id="email" v-model="form.email" type="email" required placeholder="name@example.com" class="p-inputtext-lg" />
-              </span>
-            </div>
-            
-            <div class="field mb-5">
-              <label for="password" class="font-bold block mb-2 text-sm uppercase tracking-wider text-gray-500">Password</label>
-              <Password 
-                id="password" 
-                v-model="form.password" 
-                :feedback="false" 
-                toggleMask 
-                required 
-                placeholder="••••••••" 
-                inputClass="p-inputtext-lg w-full" 
-              />
-            </div>
-            
-            <Button 
-              type="submit" 
-              :label="loading ? 'Authenticating...' : 'Sign In'" 
-              :loading="loading" 
-              class="p-button-lg p-button-primary font-bold py-3 text-xl border-round-xl" 
-            />
-            
-            <Message v-if="error" severity="error" class="mt-4" :closable="false">{{ error }}</Message>
-          </form>
           
-          <div class="mt-5 text-center">
-            <p class="text-gray-500">
-              Don't have an account? 
-              <router-link :to="registerPath" class="text-primary font-bold no-underline hover:underline ml-1">
-                Create one now
-              </router-link>
-            </p>
+          <div class="mb-2">
+            <div class="flex justify-content-between align-items-center mb-1">
+              <label for="password" class="ax-label mb-0">Password</label>
+              <a href="#" class="text-xs font-bold text-900 no-underline hover:underline uppercase tracking-wider">Forgot?</a>
+            </div>
+            <Password 
+              id="password" 
+              v-model="form.password" 
+              :feedback="false" 
+              toggleMask 
+              required 
+              placeholder="••••••••" 
+              inputClass="ax-input w-full" 
+            />
           </div>
-        </template>
-      </Card>
+
+          <div class="flex align-items-center mb-6">
+            <Checkbox id="remember" v-model="rememberMe" :binary="true" class="mr-2" />
+            <label for="remember" class="text-600 text-sm font-medium cursor-pointer">Remember me</label>
+          </div>
+          
+          <button type="submit" :disabled="loading" class="ax-button w-full shadow-lg">
+            {{ loading ? 'Verifying...' : 'Sign In' }}
+          </button>
+          
+          <Transition name="fade">
+            <div v-if="error" class="mt-4 p-3 border-round-xl bg-red-50 text-red-600 text-sm font-bold flex align-items-center gap-2">
+              <i class="pi pi-exclamation-circle"></i>
+              <span>{{ error }}</span>
+            </div>
+          </Transition>
+        </form>
+        
+        <div class="mt-8 pt-6 border-top-1 border-100 text-center">
+          <p class="text-500 font-medium">
+            New to Apartex? 
+            <router-link :to="registerPath" class="text-900 font-bold no-underline hover:underline ml-1">
+              Create Account
+            </router-link>
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -83,31 +92,22 @@ import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 
 // PrimeVue components
-import Card from 'primevue/card';
-import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
-import Button from 'primevue/button';
-import Message from 'primevue/message';
 import SelectButton from 'primevue/selectbutton';
-
-// Assets
-const bgImage = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=1920';
+import Checkbox from 'primevue/checkbox';
 
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 
 const targetRole = ref(route.meta.targetRole || 'renter');
+const rememberMe = ref(false);
 const roleOptions = [
   { label: 'Guest', value: 'renter' },
   { label: 'Host', value: 'owner' }
 ];
 
-const form = ref({
-  email: '',
-  password: ''
-});
-
+const form = ref({ email: '', password: '' });
 const loading = ref(false);
 const error = ref('');
 
@@ -116,24 +116,16 @@ const registerPath = computed(() => targetRole.value === 'owner' ? '/register?ro
 const handleLogin = async () => {
   loading.value = true;
   error.value = '';
-  
   try {
     await authStore.login(form.value);
-    
-    // Validate role match
     if (authStore.user?.role !== targetRole.value) {
-      error.value = `This account is not registered as a ${targetRole.value === 'owner' ? 'Host' : 'Guest'}.`;
+      error.value = `Unauthorized access to ${targetRole.value === 'owner' ? 'Host' : 'Guest'} portal.`;
       await authStore.logout();
       return;
     }
-
-    if (authStore.user?.role === 'owner') {
-      router.push('/owner');
-    } else {
-      router.push('/');
-    }
+    router.push(authStore.user?.role === 'owner' ? '/owner' : '/');
   } catch (err) {
-    error.value = err.response?.data?.detail || 'Invalid email or password. Please try again.';
+    error.value = err.response?.data?.detail || 'Identity verification failed.';
   } finally {
     loading.value = false;
   }
@@ -141,64 +133,6 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-.auth-container {
-  display: flex;
-  min-height: 100vh;
-  width: 100%;
-}
-
-.auth-visual {
-  flex: 1.2;
-  background-size: cover;
-  background-position: center;
-  position: relative;
-  display: flex;
-  align-items: flex-end;
-  padding: 4rem;
-}
-
-.auth-visual::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(to top, rgba(15, 23, 42, 0.8) 0%, rgba(15, 23, 42, 0) 100%);
-}
-
-.visual-content {
-  position: relative;
-  z-index: 10;
-}
-
-.auth-form-wrapper {
-  flex: 1;
-  background-color: var(--surface-section);
-  padding: 3rem;
-}
-
-.auth-card {
-  width: 100%;
-  max-width: 480px;
-}
-
-.premium-toggle :deep(.p-highlight) {
-  background: var(--primary-color) !important;
-  color: white !important;
-  border-color: var(--primary-color) !important;
-}
-
-.premium-toggle :deep(.p-button) {
-  padding: 0.75rem 2rem;
-  font-weight: 700;
-}
-
-/* Glass effect for light/dark modes */
-.glass {
-  background: transparent !important;
-}
-
-@media (max-width: 1024px) {
-  .auth-visual {
-    display: none;
-  }
-}
+.fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>

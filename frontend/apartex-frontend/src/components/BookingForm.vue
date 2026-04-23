@@ -1,80 +1,83 @@
 <template>
-  <Card class="booking-card shadow-lg border-round-xl overflow-hidden">
-    <template #content>
-      <!-- Price Header -->
-      <div class="price-header mb-4">
-        <span class="text-3xl font-bold">${{ apartment.price_per_night }}</span>
-        <span class="text-gray-600 ml-1">/ night</span>
-      </div>
+  <div class="surface-0 p-4 border-round-xl border-1 border-200 shadow-4">
+    <!-- Pricing -->
+    <div class="flex align-items-baseline gap-2 mb-4">
+      <span class="text-3xl font-bold text-900">${{ apartment.price_per_night }}</span>
+      <span class="text-500 font-medium">/ night</span>
+    </div>
 
-      <!-- Form Inputs -->
-      <div class="booking-inputs p-fluid">
-        <div class="field mb-4">
-          <label class="font-bold text-sm block mb-2 uppercase text-gray-500">Dates</label>
-          <Calendar 
-            v-model="dates" 
-            selectionMode="range" 
-            :minDate="minDate" 
-            placeholder="Select date range"
-            iconDisplay="input"
-            showIcon
-            class="custom-calendar"
-            :manualInput="false"
-            :disabledDates="disabledDates"
-          />
-          <Message v-if="isOverlapping" severity="warn" icon="pi pi-exclamation-triangle" class="mt-2 text-xs">
-            Some dates in your selection are unavailable (Maintenance/Rented).
-          </Message>
-        </div>
-
-        <div class="field mb-5">
-          <label class="font-bold text-sm block mb-2 uppercase text-gray-500">Guests</label>
-          <Dropdown 
-            v-model="form.guests" 
-            :options="guestOptions" 
-            placeholder="Select guests"
-            class="w-full"
-          />
-        </div>
-
-        <Button 
-          label="Reserve — Proceed to Checkout" 
-          icon="pi pi-lock"
-          :loading="loading" 
-          @click="handleBooking" 
-          class="p-button-primary p-button-lg w-full font-bold py-3"
-          :disabled="!isValidRange || !form.guests || isOverlapping"
+    <!-- Controls Stack -->
+    <div class="flex flex-column gap-3 mb-4">
+      <div class="ax-field-group mb-0">
+        <label class="ax-label">Dates</label>
+        <Calendar 
+          v-model="dates" 
+          selectionMode="range" 
+          :minDate="minDate" 
+          placeholder="Check-in — Check-out"
+          iconDisplay="input"
+          inputClass="ax-input"
+          :manualInput="false"
+          :disabledDates="disabledDates"
         />
-        
-        <p class="text-center text-sm text-gray-500 mt-3"><i class="pi pi-shield mr-1"></i>Secure checkout — You won't be charged yet</p>
       </div>
 
-      <!-- Price Breakdown -->
-      <div v-if="isValidRange" class="price-breakdown mt-5 fadein animation-duration-300">
-        <div class="flex justify-content-between mb-3 text-gray-700">
-          <span>${{ apartment.price_per_night }} x {{ nights }} nights</span>
-          <span>${{ subtotal }}</span>
+      <div class="ax-field-group mb-0">
+        <label class="ax-label">Guests</label>
+        <Dropdown 
+          v-model="form.guests" 
+          :options="guestOptions" 
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Number of guests"
+          class="w-full"
+          inputClass="font-medium"
+        />
+      </div>
+    </div>
+
+    <!-- Action -->
+    <button 
+      class="ax-button w-full mb-3 shadow-lg" 
+      :disabled="isOverlapping || loading"
+      @click="handleBooking"
+    >
+      <i class="pi pi-bolt mr-2"></i>
+      {{ isValidRange ? 'Reserve Property' : 'Check Availability' }}
+    </button>
+
+    <p class="text-center text-xs text-500 font-medium mb-4">Secure hold — you won't be charged yet</p>
+
+    <!-- Price Breakdown -->
+    <Transition name="fade">
+      <div v-if="isValidRange" class="pt-4 border-top-1 border-100 flex flex-column gap-3">
+        <div class="flex justify-content-between text-sm">
+          <span class="text-600 underline">${{ apartment.price_per_night }} x {{ nights }} nights</span>
+          <span class="font-bold text-900">${{ subtotal }}</span>
         </div>
-        <div class="flex justify-content-between mb-3 text-gray-700">
-          <span>Cleaning fee</span>
-          <span>$45.00</span>
+        <div class="flex justify-content-between text-sm">
+          <span class="text-600 underline">Cleaning fee</span>
+          <span class="font-bold text-900">$45.00</span>
         </div>
-        <div class="flex justify-content-between mb-4 text-gray-700">
-          <span>Apartex service fee</span>
-          <span>${{ serviceFee }}</span>
+        <div class="flex justify-content-between text-sm">
+          <span class="text-600 underline">Service fee</span>
+          <span class="font-bold text-900">${{ serviceFee }}</span>
         </div>
         
-        <Divider />
-        
-        <div class="flex justify-content-between mt-4 font-bold text-xl text-gray-900">
-          <span>Total</span>
-          <span>${{ total }}</span>
+        <div class="surface-50 p-3 border-round-lg flex justify-content-between align-items-center mt-2">
+          <span class="font-bold text-900">Total</span>
+          <span class="text-xl font-black text-900">${{ total }}</span>
         </div>
       </div>
+    </Transition>
 
-      <Message v-if="error" severity="error" class="mt-3">{{ error }}</Message>
-    </template>
-  </Card>
+    <Transition name="fade">
+      <div v-if="isOverlapping" class="mt-4 p-3 bg-red-50 text-red-600 border-round-lg text-xs font-bold flex align-items-center gap-2">
+        <i class="pi pi-exclamation-circle"></i>
+        <span>Dates are unavailable.</span>
+      </div>
+    </Transition>
+  </div>
 </template>
 
 <script setup>
@@ -85,12 +88,10 @@ import { useAuthStore } from '../stores/auth';
 import { availabilityApi } from '@/api/availability.js';
 
 // PrimeVue components
-import Card from 'primevue/card';
 import Calendar from 'primevue/calendar';
 import Button from 'primevue/button';
 import Dropdown from 'primevue/dropdown';
 import Message from 'primevue/message';
-import Divider from 'primevue/divider';
 
 const props = defineProps({
   apartment: {
@@ -112,7 +113,7 @@ const form = ref({
 const guestOptions = computed(() => {
   const options = [];
   for (let i = 1; i <= (props.apartment.max_guests || 4); i++) {
-    options.push({ label: `${i} ${i === 1 ? 'guest' : 'guests'}`, value: i });
+    options.push({ label: `${i} ${i === 1 ? 'Guest' : 'Guests'}`, value: i });
   }
   return options;
 });
@@ -129,7 +130,6 @@ const isOverlapping = computed(() => {
   if (!isValidRange.value) return false;
   const start = dates.value[0];
   const end = dates.value[1];
-  // Simple check: iterate through days in range and see if any are in disabledDates
   let current = new Date(start);
   while (current <= end) {
     const curStr = current.toISOString().split('T')[0];
@@ -171,9 +171,11 @@ const handleBooking = () => {
     return;
   }
 
-  if (!isValidRange.value) return;
+  if (!isValidRange.value) {
+    // Scroll to dates if not selected
+    return;
+  }
 
-  // Navigate to checkout with booking details as query params instead of directly creating
   router.push({
     path: '/checkout',
     query: {
@@ -190,26 +192,5 @@ const handleBooking = () => {
 </script>
 
 <style scoped>
-.booking-card {
-  border: 1px solid #f1f5f9;
-  border-radius: 1.5rem !important;
-}
-
-:deep(.p-card-body) {
-  padding: 1.5rem !important;
-}
-
-.custom-calendar :deep(.p-inputtext) {
-  border-radius: 8px;
-  padding: 0.75rem;
-}
-
-.price-header {
-  border-bottom: 1px solid #f1f5f9;
-  padding-bottom: 1rem;
-}
-
-.p-button-lg {
-  border-radius: 12px !important;
-}
+/* Styling removed */
 </style>

@@ -5,8 +5,11 @@ import { pinia } from './stores';
 
 // PrimeVue configuration
 import PrimeVue from 'primevue/config';
+import 'primevue/resources/themes/lara-light-blue/theme.css';
 import 'primevue/resources/primevue.min.css';
 import 'primeicons/primeicons.css';
+import 'primeflex/primeflex.css';
+import './assets/styles/global.css';
 
 import ConfirmationService from 'primevue/confirmationservice';
 import ToastService from 'primevue/toastservice';

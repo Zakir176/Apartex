@@ -1,156 +1,137 @@
 <template>
-  <div class="dashboard-container">
-    <div class="header-section">
-      <div class="title-area">
-        <h1>Owner Dashboard</h1>
-        <p class="subtitle">Overview of your properties and performance</p>
+  <div class="ax-container py-8">
+    <!-- Page Header -->
+    <div class="flex flex-column md:flex-row md:align-items-center justify-content-between mb-8 gap-4">
+      <div>
+        <h1 class="text-5xl font-bold text-900 mb-2">Performance Analytics</h1>
+        <p class="text-500 font-medium text-lg">Real-time overview of your property portfolio and earnings</p>
       </div>
-      <div class="action-area">
-        <Button 
-          label="Request Payout" 
-          icon="pi pi-wallet" 
-          @click="openPayoutModal" 
-          class="p-button-raised p-button-primary" 
-        />
+      <div class="flex gap-2">
+        <button @click="openPayoutModal" class="ax-button shadow-lg">
+          <i class="pi pi-wallet mr-2"></i>
+          Request Payout
+        </button>
         <Button 
           icon="pi pi-refresh" 
           @click="refreshData" 
-          class="p-button-text p-button-secondary ml-2" 
+          class="p-button-outlined p-button-secondary font-bold" 
+          v-tooltip.bottom="'Sync Data'"
           :loading="store.loading"
         />
       </div>
     </div>
 
-    <!-- Stats Overview -->
-    <div class="stats-grid">
-      <Card class="stat-card revenue">
-        <template #title>
-          <div class="stat-header">
-            <span>Total Revenue</span>
-            <i class="pi pi-dollar"></i>
+    <!-- Quick Stats -->
+    <div class="grid mb-8">
+      <div class="col-12 md:col-4 p-3">
+        <div class="surface-0 p-5 border-round-xl border-1 border-100 shadow-soft h-full">
+          <div class="flex align-items-center justify-content-between mb-4">
+            <span class="text-500 text-xs font-bold uppercase tracking-wider">Total Revenue</span>
+            <div class="w-2rem h-2rem border-circle bg-blue-50 flex align-items-center justify-content-center">
+              <i class="pi pi-dollar text-blue-500"></i>
+            </div>
           </div>
-        </template>
-        <template #content>
-          <div class="stat-value">{{ formatCurrency(store.overview?.total_revenue) }}</div>
-          <div class="stat-footer text-green-500">
+          <div class="text-4xl font-bold text-900 mb-2">{{ formatCurrency(store.overview?.total_revenue) }}</div>
+          <div class="flex align-items-center gap-2 text-green-600 text-sm font-bold">
             <i class="pi pi-arrow-up"></i>
-            <span>+12.5% from last month</span>
+            <span>12.5%</span>
+            <span class="text-500 font-normal">vs last month</span>
           </div>
-        </template>
-      </Card>
+        </div>
+      </div>
 
-      <Card class="stat-card bookings">
-        <template #title>
-          <div class="stat-header">
-            <span>Active Bookings</span>
-            <i class="pi pi-calendar"></i>
+      <div class="col-12 md:col-4 p-3">
+        <div class="surface-0 p-5 border-round-xl border-1 border-100 shadow-soft h-full">
+          <div class="flex align-items-center justify-content-between mb-4">
+            <span class="text-500 text-xs font-bold uppercase tracking-wider">Active Bookings</span>
+            <div class="w-2rem h-2rem border-circle bg-purple-50 flex align-items-center justify-content-center">
+              <i class="pi pi-calendar text-purple-500"></i>
+            </div>
           </div>
-        </template>
-        <template #content>
-          <div class="stat-value">{{ store.overview?.active_bookings || 0 }}</div>
-          <div class="stat-footer text-blue-500">
-            <span>Current active stays</span>
-          </div>
-        </template>
-      </Card>
+          <div class="text-4xl font-bold text-900 mb-2">{{ store.overview?.active_bookings || 0 }}</div>
+          <p class="text-500 text-sm font-medium m-0">Live stays at your properties</p>
+        </div>
+      </div>
 
-      <Card class="stat-card occupancy">
-        <template #title>
-          <div class="stat-header">
-            <span>Occupancy Rate</span>
-            <i class="pi pi-percentage"></i>
+      <div class="col-12 md:col-4 p-3">
+        <div class="surface-0 p-5 border-round-xl border-1 border-100 shadow-soft h-full">
+          <div class="flex align-items-center justify-content-between mb-4">
+            <span class="text-500 text-xs font-bold uppercase tracking-wider">Portfolio Health</span>
+            <div class="w-2rem h-2rem border-circle bg-orange-50 flex align-items-center justify-content-center">
+              <i class="pi pi-chart-line text-orange-500"></i>
+            </div>
           </div>
-        </template>
-        <template #content>
-          <div class="stat-value">{{ formatPercent(store.overview?.occupancy_rate) }}</div>
-          <div class="stat-footer text-orange-500">
-            <span>Average across all listings</span>
-          </div>
-        </template>
-      </Card>
+          <div class="text-4xl font-bold text-900 mb-2">{{ formatPercent(store.overview?.occupancy_rate) }}</div>
+          <p class="text-500 text-sm font-medium m-0">Average occupancy across listings</p>
+        </div>
+      </div>
     </div>
 
-    <!-- Main Content Grid -->
-    <div class="main-grid">
-      <!-- Revenue Chart -->
-      <Card class="chart-card">
-        <template #title>Revenue Trends</template>
-        <template #content>
+    <!-- Secondary Insights -->
+    <div class="grid">
+      <!-- Main Chart -->
+      <div class="col-12 lg:col-8 p-3">
+        <div class="surface-0 p-5 border-round-xl border-1 border-100 shadow-soft h-full">
+          <div class="flex align-items-center justify-content-between mb-6">
+            <h3 class="text-xl font-bold text-900">Revenue Trends</h3>
+            <span class="text-xs font-bold text-500 uppercase tracking-widest">Last 6 Months</span>
+          </div>
           <Chart type="line" :data="chartData" :options="chartOptions" class="h-20rem" />
-        </template>
-      </Card>
-
-      <!-- Payout History -->
-      <Card class="payout-card">
-        <template #title>Recent Payouts</template>
-        <template #content>
-          <DataTable :value="store.payouts" paginator :rows="5" responsiveLayout="scroll" class="p-datatable-sm">
-            <template #empty>No payout history found.</template>
-            <Column field="date" header="Date">
-              <template #body="slotProps">
-                {{ formatDate(slotProps.data.date || slotProps.data.created_at) }}
-              </template>
-            </Column>
-            <Column field="amount" header="Amount">
-              <template #body="slotProps">
-                {{ formatCurrency(slotProps.data.amount) }}
-              </template>
-            </Column>
-            <Column field="status" header="Status">
-              <template #body="slotProps">
-                <Tag :value="slotProps.data.status" :severity="getStatusSeverity(slotProps.data.status)" />
-              </template>
-            </Column>
-          </DataTable>
-        </template>
-      </Card>
-    </div>
-
-    <!-- Apartment Management -->
-    <div class="mt-6">
-      <Card class="apartments-card">
-        <template #title>Your Listings</template>
-        <template #content>
-          <DataTable :value="store.overview?.apartments || []" responsiveLayout="scroll">
-            <template #empty>You haven't listed any apartments yet.</template>
-            <Column field="title" header="Apartment"></Column>
-            <Column field="city" header="Location"></Column>
-            <Column field="price_per_night" header="Price">
-              <template #body="slotProps">
-                {{ formatCurrency(slotProps.data.price_per_night) }}/night
-              </template>
-            </Column>
-            <Column header="Actions">
-              <template #body="slotProps">
-                <Button icon="pi pi-pencil" class="p-button-text p-button-info" />
-                <Button icon="pi pi-trash" class="p-button-text p-button-danger" />
-              </template>
-            </Column>
-          </DataTable>
-        </template>
-      </Card>
-    </div>
-
-    <!-- Payout Dialog -->
-    <Dialog v-model:visible="payoutModal" header="Request Payout" :style="{ width: '450px' }" :modal="true" class="p-fluid">
-      <div class="field mb-4">
-        <label for="amount" class="block font-bold mb-2">Amount (ZMW)</label>
-        <InputNumber id="amount" v-model="payoutForm.amount" mode="currency" currency="ZMW" locale="en-ZM" :min="0" />
+        </div>
       </div>
 
-      <div class="field mb-4">
-        <label for="method" class="block font-bold mb-2">Payment Method</label>
-        <Dropdown id="method" v-model="payoutForm.method" :options="payoutMethods" optionLabel="label" optionValue="value" placeholder="Select a method" />
+      <!-- Recent Activity / Payouts -->
+      <div class="col-12 lg:col-4 p-3">
+        <div class="surface-0 p-5 border-round-xl border-1 border-100 shadow-soft h-full">
+          <h3 class="text-xl font-bold text-900 mb-6">Recent Payouts</h3>
+          
+          <div v-if="store.payouts.length > 0" class="flex flex-column gap-4">
+            <div v-for="p in store.payouts.slice(0, 5)" :key="p.id" class="flex align-items-center justify-content-between">
+              <div class="flex align-items-center gap-3">
+                <div class="w-2rem h-2rem border-round-lg surface-100 flex align-items-center justify-content-center">
+                  <i class="pi pi-arrow-down-left text-sm"></i>
+                </div>
+                <div>
+                  <div class="font-bold text-900 text-sm">{{ formatCurrency(p.amount) }}</div>
+                  <div class="text-xs text-500">{{ formatDate(p.date || p.created_at) }}</div>
+                </div>
+              </div>
+              <Tag :value="p.status" :severity="getStatusSeverity(p.status)" class="text-xs font-bold uppercase" />
+            </div>
+          </div>
+          
+          <div v-else class="flex flex-column align-items-center justify-content-center py-8 text-center">
+            <i class="pi pi-inbox text-3xl text-200 mb-3"></i>
+            <p class="text-500 text-sm font-medium">No payout history</p>
+          </div>
+        </div>
       </div>
+    </div>
 
-      <div class="field mb-4">
-        <label for="details" class="block font-bold mb-2">Transfer Details</label>
-        <InputText id="details" v-model="payoutForm.details" placeholder="Bank Account / Mobile Number" />
+    <!-- Payout Request Dialog -->
+    <Dialog v-model:visible="payoutModal" header="Request Funds" :style="{ width: '450px' }" :modal="true" class="studio-payout-modal">
+      <div class="p-fluid py-2">
+        <div class="ax-field-group">
+          <label class="ax-label">Withdrawal Amount (USD)</label>
+          <InputNumber v-model="payoutForm.amount" mode="currency" currency="USD" locale="en-US" :min="0" inputClass="ax-input" />
+        </div>
+
+        <div class="ax-field-group">
+          <label class="ax-label">Transfer Method</label>
+          <Dropdown v-model="payoutForm.method" :options="payoutMethods" optionLabel="label" optionValue="value" placeholder="Select destination" />
+        </div>
+
+        <div class="ax-field-group mb-0">
+          <label class="ax-label">Account Details</label>
+          <input v-model="payoutForm.details" class="ax-input" placeholder="SWIFT / IBAN / Account Number" />
+        </div>
       </div>
 
       <template #footer>
-        <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="closePayoutModal" />
-        <Button label="Submit Request" icon="pi pi-check" class="p-button-primary" @click="submitPayout" :loading="submitting" />
+        <div class="flex gap-2 justify-content-end pt-4">
+          <Button label="Cancel" @click="closePayoutModal" class="p-button-text p-button-secondary font-bold" />
+          <Button label="Confirm Request" icon="pi pi-check" @click="submitPayout" :loading="submitting" class="p-button-primary font-bold px-4" />
+        </div>
       </template>
     </Dialog>
   </div>
@@ -161,14 +142,10 @@ import { onMounted, computed, ref } from 'vue';
 import { useDashboardStore } from '@/stores/dashboard';
 
 // PrimeVue components
-import Card from 'primevue/card';
 import Button from 'primevue/button';
-import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
 import Chart from 'primevue/chart';
 import Tag from 'primevue/tag';
 import Dialog from 'primevue/dialog';
-import InputText from 'primevue/inputtext';
 import InputNumber from 'primevue/inputnumber';
 import Dropdown from 'primevue/dropdown';
 
@@ -179,8 +156,8 @@ const submitting = ref(false);
 const payoutForm = ref({ amount: 0, method: 'bank', details: '' });
 
 const payoutMethods = [
-  { label: 'Bank Transfer', value: 'bank' },
-  { label: 'Mobile Money', value: 'momo' }
+  { label: 'Standard Bank Transfer', value: 'bank' },
+  { label: 'Fast Settlement (Mobile)', value: 'momo' }
 ];
 
 onMounted(async () => {
@@ -223,7 +200,9 @@ const chartData = computed(() => {
     { month: 'Jan', revenue: 1200 },
     { month: 'Feb', revenue: 1900 },
     { month: 'Mar', revenue: 1500 },
-    { month: 'Apr', revenue: 2100 }
+    { month: 'Apr', revenue: 2100 },
+    { month: 'May', revenue: 2800 },
+    { month: 'Jun', revenue: 3500 }
   ];
   
   return {
@@ -233,9 +212,13 @@ const chartData = computed(() => {
         label: 'Monthly Revenue',
         data: monthly.map((m) => m.revenue),
         fill: true,
-        borderColor: '#42A5F5',
+        borderColor: '#3b82f6',
+        borderWidth: 3,
+        pointRadius: 4,
+        pointBackgroundColor: '#fff',
+        pointBorderWidth: 2,
         tension: 0.4,
-        backgroundColor: 'rgba(66, 165, 245, 0.2)'
+        backgroundColor: 'rgba(59, 130, 246, 0.05)'
       }
     ]
   };
@@ -245,21 +228,23 @@ const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
-    legend: {
-      display: false
+    legend: { display: false },
+    tooltip: {
+      backgroundColor: '#0f172a',
+      padding: 12,
+      bodyFont: { weight: 'bold' },
+      cornerRadius: 8
     }
   },
   scales: {
     y: {
       beginAtZero: true,
-      grid: {
-        color: '#f0f0f0'
-      }
+      grid: { color: '#f1f5f9', drawBorder: false },
+      ticks: { color: '#94a3b8', font: { weight: 600 } }
     },
     x: {
-      grid: {
-        display: false
-      }
+      grid: { display: false },
+      ticks: { color: '#94a3b8', font: { weight: 600 } }
     }
   }
 };
@@ -276,7 +261,7 @@ function formatPercent(p) {
 
 function formatDate(dateString) {
   if (!dateString) return '-';
-  return new Date(dateString).toLocaleDateString();
+  return new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 function getStatusSeverity(status) {
@@ -290,100 +275,7 @@ function getStatusSeverity(status) {
 </script>
 
 <style scoped>
-.dashboard-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem;
+.shadow-soft {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
 }
-
-.header-section {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2.5rem;
-}
-
-.title-area h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0 0 0.25rem 0;
-  color: #1a202c;
-}
-
-.subtitle {
-  color: #718096;
-  margin: 0;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2.5rem;
-}
-
-.stat-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 1rem;
-  color: #4a5568;
-}
-
-.stat-header i {
-  font-size: 1.25rem;
-  opacity: 0.7;
-}
-
-.stat-value {
-  font-size: 2.25rem;
-  font-weight: 800;
-  margin: 0.5rem 0;
-  color: #1a202c;
-}
-
-.stat-footer {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.main-grid {
-  display: grid;
-  grid-template-columns: 2fr 1.5fr;
-  gap: 1.5rem;
-}
-
-.chart-card, .payout-card, .apartments-card {
-  height: 100%;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-
-@media (max-width: 1024px) {
-  .main-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 768px) {
-  .header-section {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1.5rem;
-  }
-}
-</style>
-
-<style scoped>
-.input {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.375rem;
-}
-.btn { padding: 0.5rem 1rem; border-radius: 0.375rem; background: #e5e7eb; }
-.btn-primary { background: #1f6feb; color: white; }
 </style>

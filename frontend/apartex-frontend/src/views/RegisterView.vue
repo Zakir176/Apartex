@@ -1,90 +1,107 @@
 <template>
-  <div class="auth-container">
-    <!-- Left: Immersive Visual -->
-    <div class="auth-visual" :style="{ backgroundImage: `url(${bgImage})` }">
-      <div class="visual-overlay">
-        <div class="visual-content">
-          <h1 class="text-white font-bold text-5xl mb-3">Join the Elite</h1>
-          <p class="text-white opacity-80 text-xl font-medium">Whether you're hosting or staycationing, we have a place for you.</p>
-        </div>
+  <div class="grid grid-nogutter min-h-screen">
+    <!-- Left: Immersive Visual Panel -->
+    <div class="hidden lg:block lg:col-6 relative overflow-hidden">
+      <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=1920');"></div>
+      <div class="absolute inset-0 bg-black-alpha-40 flex flex-column justify-content-end p-8">
+        <h1 class="text-white text-7xl font-bold mb-3 line-height-1">Join the <br/>Elite.</h1>
+        <p class="text-white opacity-70 text-xl max-w-28rem font-medium">Unlock exclusive access to premium properties and world-class host tools.</p>
       </div>
     </div>
 
-    <!-- Right: Auth Form -->
-    <div class="auth-form-wrapper flex align-items-center justify-content-center">
-      <Card class="auth-card glass border-none shadow-none">
-        <template #content>
-          <div class="text-center mb-5">
-            <h2 class="text-3xl font-bold mb-2">Create Account</h2>
-            <p class="text-muted">Start your journey with Apartex today</p>
-          </div>
+    <!-- Right: Register Form Panel -->
+    <div class="col-12 lg:col-6 flex align-items-center justify-content-center bg-white p-6">
+      <div class="w-full max-w-26rem">
+        <div class="mb-6">
+          <h2 class="text-4xl font-bold text-900 mb-2">Create Account</h2>
+          <p class="text-500 font-medium">Start your journey with Apartex today</p>
+        </div>
 
-          <!-- Role Toggle -->
-          <div class="flex justify-content-center mb-5">
-            <SelectButton 
-              v-model="targetRole" 
-              :options="roleOptions" 
-              optionLabel="label" 
-              optionValue="value" 
-              class="premium-toggle"
+        <div class="flex justify-content-center mb-6">
+          <SelectButton 
+            v-model="targetRole" 
+            :options="roleOptions" 
+            optionLabel="label" 
+            optionValue="value" 
+            class="w-full"
+          />
+        </div>
+
+        <form @submit.prevent="handleRegister">
+          <div class="mb-4">
+            <label for="name" class="ax-label">Full Name</label>
+            <input 
+              id="name" 
+              v-model="form.name" 
+              type="text" 
+              required 
+              placeholder="John Doe" 
+              class="ax-input" 
             />
           </div>
 
-          <form @submit.prevent="handleRegister" class="p-fluid">
-            <div class="field mb-4">
-              <label for="name" class="font-bold block mb-2 text-sm uppercase tracking-wider text-gray-500">Full Name</label>
-              <InputText id="name" v-model="form.name" required placeholder="John Doe" class="p-inputtext-lg" />
-            </div>
-
-            <div class="field mb-4">
-              <label for="email" class="font-bold block mb-2 text-sm uppercase tracking-wider text-gray-500">Email Address</label>
-              <InputText id="email" v-model="form.email" type="email" required placeholder="name@example.com" class="p-inputtext-lg" />
-            </div>
-            
-            <div class="field mb-5">
-              <label for="password" class="font-bold block mb-2 text-sm uppercase tracking-wider text-gray-500">Create Password</label>
-              <Password 
-                id="password" 
-                v-model="form.password" 
-                toggleMask 
-                required 
-                minlength="6"
-                placeholder="••••••••" 
-                inputClass="p-inputtext-lg w-full" 
-              >
-                <template #footer>
-                  <Divider />
-                  <p class="mt-2 text-sm">Suggestions:</p>
-                  <ul class="pl-2 ml-2 mt-0 text-sm line-height-3">
-                    <li>At least one lowercase</li>
-                    <li>At least one uppercase</li>
-                    <li>At least one numeric</li>
-                    <li>Minimum 8 characters</li>
-                  </ul>
-                </template>
-              </Password>
-            </div>
-            
-            <Button 
-              type="submit" 
-              :label="loading ? 'Creating Account...' : 'Register Now'" 
-              :loading="loading" 
-              class="p-button-lg p-button-primary font-bold py-3 text-xl border-round-xl" 
+          <div class="mb-4">
+            <label for="email" class="ax-label">Email Address</label>
+            <input 
+              id="email" 
+              v-model="form.email" 
+              type="email" 
+              required 
+              placeholder="name@example.com" 
+              class="ax-input" 
             />
-            
-            <Message v-if="error" severity="error" class="mt-4" :closable="false">{{ error }}</Message>
-          </form>
-          
-          <div class="mt-5 text-center">
-            <p class="text-gray-500">
-              Already have an account? 
-              <router-link to="/login" class="text-primary font-bold no-underline hover:underline ml-1">
-                Login here
-              </router-link>
-            </p>
           </div>
-        </template>
-      </Card>
+
+          <div class="mb-5">
+            <label for="password" class="ax-label">Create Password</label>
+            <Password 
+              id="password" 
+              v-model="form.password" 
+              toggleMask 
+              required 
+              minlength="8"
+              placeholder="••••••••" 
+              inputClass="ax-input w-full" 
+            >
+              <template #footer>
+                <Divider />
+                <p class="mt-2 font-bold text-xs uppercase text-500 mb-2">Security Advice</p>
+                <ul class="pl-3 m-0 text-xs line-height-3 text-600">
+                  <li>Use at least 8 characters</li>
+                  <li>Include numbers and symbols</li>
+                </ul>
+              </template>
+            </Password>
+          </div>
+
+          <div class="flex align-items-center mb-6">
+            <Checkbox id="terms" v-model="acceptTerms" :binary="true" class="mr-2" />
+            <label for="terms" class="text-600 text-sm font-medium cursor-pointer">
+              I agree to the <a href="#" class="text-900 font-bold no-underline hover:underline">Membership Terms</a>
+            </label>
+          </div>
+
+          <button type="submit" :disabled="loading || !acceptTerms" class="ax-button w-full shadow-lg">
+            {{ loading ? 'Initializing...' : 'Register Now' }}
+          </button>
+
+          <Transition name="fade">
+            <div v-if="error" class="mt-4 p-3 border-round-xl bg-red-50 text-red-600 text-sm font-bold flex align-items-center gap-2">
+              <i class="pi pi-exclamation-circle"></i>
+              <span>{{ error }}</span>
+            </div>
+          </Transition>
+        </form>
+
+        <div class="mt-8 pt-6 border-top-1 border-100 text-center">
+          <p class="text-500 font-medium">
+            Already have an account? 
+            <router-link to="/login" class="text-900 font-bold no-underline hover:underline ml-1">
+              Sign In
+            </router-link>
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -95,55 +112,39 @@ import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 
 // PrimeVue components
-import Card from 'primevue/card';
-import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
-import Button from 'primevue/button';
-import Message from 'primevue/message';
 import SelectButton from 'primevue/selectbutton';
+import Checkbox from 'primevue/checkbox';
 import Divider from 'primevue/divider';
-
-// Assets
-const bgImage = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=1920';
 
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 
 const targetRole = ref('renter');
+const acceptTerms = ref(false);
 const roleOptions = [
   { label: 'Guest', value: 'renter' },
   { label: 'Host', value: 'owner' }
 ];
 
-const form = ref({
-  name: '',
-  email: '',
-  password: ''
-});
-
+const form = ref({ name: '', email: '', password: '' });
 const loading = ref(false);
 const error = ref('');
 
 onMounted(() => {
-  if (route.query.role === 'owner') {
-    targetRole.value = 'owner';
-  }
+  if (route.query.role === 'owner') targetRole.value = 'owner';
 });
 
 const handleRegister = async () => {
+  if (!acceptTerms.value) return;
   loading.value = true;
   error.value = '';
-  
   try {
     await authStore.register({ ...form.value, role: targetRole.value });
-    if (targetRole.value === 'owner') {
-      router.push('/owner');
-    } else {
-      router.push('/');
-    }
+    router.push(targetRole.value === 'owner' ? '/owner' : '/');
   } catch (err) {
-    error.value = err.response?.data?.detail || 'Registration failed. Please check your details.';
+    error.value = err.response?.data?.detail || 'Account creation failed.';
   } finally {
     loading.value = false;
   }
@@ -151,63 +152,6 @@ const handleRegister = async () => {
 </script>
 
 <style scoped>
-.auth-container {
-  display: flex;
-  min-height: 100vh;
-  width: 100%;
-}
-
-.auth-visual {
-  flex: 1.2;
-  background-size: cover;
-  background-position: center;
-  position: relative;
-  display: flex;
-  align-items: flex-end;
-  padding: 4rem;
-}
-
-.auth-visual::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: linear-gradient(to top, rgba(15, 23, 42, 0.8) 0%, rgba(15, 23, 42, 0) 100%);
-}
-
-.visual-content {
-  position: relative;
-  z-index: 10;
-}
-
-.auth-form-wrapper {
-  flex: 1;
-  background-color: var(--surface-section);
-  padding: 2rem;
-}
-
-.auth-card {
-  width: 100%;
-  max-width: 480px;
-}
-
-.premium-toggle :deep(.p-highlight) {
-  background: var(--primary-color) !important;
-  color: white !important;
-  border-color: var(--primary-color) !important;
-}
-
-.premium-toggle :deep(.p-button) {
-  padding: 0.75rem 2rem;
-  font-weight: 700;
-}
-
-.glass {
-  background: transparent !important;
-}
-
-@media (max-width: 1024px) {
-  .auth-visual {
-    display: none;
-  }
-}
+.fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>

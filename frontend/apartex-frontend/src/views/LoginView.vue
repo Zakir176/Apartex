@@ -1,85 +1,112 @@
 <template>
-  <div class="grid grid-nogutter min-h-screen">
-    <!-- Left: Immersive Visual Panel -->
-    <div class="hidden lg:block lg:col-6 relative overflow-hidden">
-      <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=1920');"></div>
-      <div class="absolute inset-0 bg-black-alpha-40 flex flex-column justify-content-end p-8">
-        <h1 class="text-white text-7xl font-bold mb-3 line-height-1">Elegance <br/>in Every Stay.</h1>
-        <p class="text-white opacity-70 text-xl max-w-28rem font-medium">Bespoke living experiences curated for the world's most discerning travelers.</p>
+  <div class="auth-page-wrapper">
+    <div class="grid grid-nogutter min-h-screen">
+      <!-- Left: Immersive Visual Panel -->
+      <div class="hidden lg:block lg:col-6 relative overflow-hidden bg-900">
+        <div class="absolute top-0 left-0 w-full h-full z-0 bg-image"></div>
+        <div class="absolute top-0 left-0 w-full h-full z-1 bg-overlay flex flex-column justify-content-end p-8">
+          <div class="mb-4 text-left">
+            <span class="inline-block px-3 py-1 bg-white-alpha-20 border-round-xl text-white text-xs font-bold uppercase tracking-widest mb-4 backdrop-blur-sm">Established 2024</span>
+            <h1 class="text-white text-7xl font-bold mb-3 line-height-1">Elegance <br/>in Every Stay.</h1>
+            <p class="text-white opacity-80 text-xl max-w-28rem font-medium line-height-3">Bespoke living experiences curated for the world's most discerning travelers.</p>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- Right: Login Form Panel -->
-    <div class="col-12 lg:col-6 flex align-items-center justify-content-center bg-white p-6">
-      <div class="w-full max-w-26rem">
-        <div class="mb-6">
-          <h2 class="text-4xl font-bold text-900 mb-2">Member Login</h2>
-          <p class="text-500 font-medium">Enter your credentials to access your account</p>
-        </div>
-
-        <div class="flex justify-content-center mb-6">
-          <SelectButton 
-            v-model="targetRole" 
-            :options="roleOptions" 
-            optionLabel="label" 
-            optionValue="value" 
-            class="w-full"
-          />
-        </div>
-
-        <form @submit.prevent="handleLogin">
-          <div class="mb-4">
-            <label for="email" class="ax-label">Email Address</label>
-            <input 
-              id="email" 
-              v-model="form.email" 
-              type="email" 
-              required 
-              placeholder="name@example.com" 
-              class="ax-input" 
-            />
-          </div>
-          
-          <div class="mb-2">
-            <div class="flex justify-content-between align-items-center mb-1">
-              <label for="password" class="ax-label mb-0">Password</label>
-              <a href="#" class="text-xs font-bold text-900 no-underline hover:underline uppercase tracking-wider">Forgot?</a>
+      <!-- Right: Login Form Panel -->
+      <div class="col-12 lg:col-6 flex align-items-center justify-content-center bg-slate-50 p-4 lg:p-8">
+        <div class="w-full max-w-28rem">
+          <!-- Brand Identity -->
+          <div class="flex align-items-center gap-2 mb-8">
+            <div class="w-3rem h-3rem bg-900 border-round-xl flex align-items-center justify-content-center shadow-lg">
+              <i class="pi pi-bolt text-white text-2xl"></i>
             </div>
-            <Password 
-              id="password" 
-              v-model="form.password" 
-              :feedback="false" 
-              toggleMask 
-              required 
-              placeholder="••••••••" 
-              inputClass="ax-input w-full" 
+            <div class="text-left">
+              <h1 class="text-2xl font-bold tracking-tight">APARTEX</h1>
+              <p class="text-xs font-bold text-500 uppercase tracking-widest">Luxury Rentals</p>
+            </div>
+          </div>
+
+          <div class="mb-6 text-left">
+            <h2 class="text-4xl font-extrabold text-900 mb-2 tracking-tight">Welcome back</h2>
+            <p class="text-600 font-medium">Please enter your credentials to continue</p>
+          </div>
+
+          <div class="mb-6 text-left">
+            <label class="ax-label mb-3">Login as</label>
+            <SelectButton 
+              v-model="targetRole" 
+              :options="roleOptions" 
+              optionLabel="label" 
+              optionValue="value" 
+              class="w-full"
             />
           </div>
 
-          <div class="flex align-items-center mb-6">
-            <Checkbox id="remember" v-model="rememberMe" :binary="true" class="mr-2" />
-            <label for="remember" class="text-600 text-sm font-medium cursor-pointer">Remember me</label>
-          </div>
-          
-          <button type="submit" :disabled="loading" class="ax-button w-full shadow-lg">
-            {{ loading ? 'Verifying...' : 'Sign In' }}
-          </button>
-          
-          <Transition name="fade">
-            <div v-if="error" class="mt-4 p-3 border-round-xl bg-red-50 text-red-600 text-sm font-bold flex align-items-center gap-2">
-              <i class="pi pi-exclamation-circle"></i>
-              <span>{{ error }}</span>
+          <form @submit.prevent="handleLogin" class="grid grid-nogutter">
+            <div class="col-12 mb-4 text-left">
+              <label for="email" class="ax-label">Email Address</label>
+              <div class="ax-input-wrapper">
+                <i class="pi pi-envelope ax-input-icon"></i>
+                <input 
+                  id="email" 
+                  v-model="form.email" 
+                  type="email" 
+                  required 
+                  placeholder="name@example.com" 
+                  class="ax-input pl-10" 
+                />
+              </div>
             </div>
-          </Transition>
-        </form>
-        
-        <div class="mt-8 pt-6 border-top-1 border-100 text-center">
-          <p class="text-500 font-medium">
-            New to Apartex? 
-            <router-link :to="registerPath" class="text-900 font-bold no-underline hover:underline ml-1">
-              Create Account
-            </router-link>
-          </p>
+            
+            <div class="col-12 mb-2 text-left">
+              <div class="flex justify-content-between align-items-center mb-1">
+                <label for="password" class="ax-label mb-0">Password</label>
+                <a href="#" class="text-xs font-bold text-primary-600 no-underline hover:underline uppercase tracking-wider">Forgot?</a>
+              </div>
+              <div class="ax-input-wrapper">
+                <i class="pi pi-lock ax-input-icon z-2"></i>
+                <Password 
+                  id="password" 
+                  v-model="form.password" 
+                  :feedback="false" 
+                  toggleMask 
+                  required 
+                  placeholder="••••••••" 
+                  inputClass="ax-input pl-10 w-full" 
+                />
+              </div>
+            </div>
+
+            <div class="col-12 flex align-items-center mb-6">
+              <Checkbox id="remember" v-model="rememberMe" :binary="true" class="mr-2" />
+              <label for="remember" class="text-600 text-sm font-semibold cursor-pointer">Remember my session</label>
+            </div>
+            
+            <div class="col-12">
+              <button type="submit" :disabled="loading" class="ax-button w-full">
+                <i v-if="loading" class="pi pi-spin pi-spinner mr-2"></i>
+                <span>{{ loading ? 'Authenticating...' : 'Sign In to Account' }}</span>
+                <i v-if="!loading" class="pi pi-arrow-right ml-2 text-xs"></i>
+              </button>
+            </div>
+            
+            <Transition name="fade">
+              <div v-if="error" class="col-12 mt-4 p-3 border-round-xl bg-red-50 text-red-600 text-sm font-bold flex align-items-center gap-2 border-1 border-red-100">
+                <i class="pi pi-exclamation-circle"></i>
+                <span>{{ error }}</span>
+              </div>
+            </Transition>
+          </form>
+          
+          <div class="mt-8 pt-6 border-top-1 border-100 text-center">
+            <p class="text-500 font-medium">
+              Don't have an account yet? 
+              <router-link :to="registerPath" class="text-900 font-bold no-underline hover:underline ml-1">
+                Create one now
+              </router-link>
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -133,6 +160,41 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-.fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
+.auth-page-wrapper {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  position: relative;
+}
+.bg-slate-50 { background-color: #f8fafc; }
+.bg-image {
+  background-image: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=1920');
+  background-size: cover;
+  background-position: center;
+}
+.bg-overlay {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.8));
+}
+.ax-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.ax-input-icon {
+  position: absolute;
+  left: 1rem;
+  color: var(--surface-400);
+  pointer-events: none;
+}
+.pl-10 { padding-left: 3rem !important; }
+.z-0 { z-index: 0; }
+.z-1 { z-index: 1; }
+.z-2 { z-index: 2; }
+.fade-enter-active, .fade-leave-active { transition: all 0.3s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; transform: translateY(-10px); }
+
+/* Ensure left panel fills height */
+.lg\:col-6 {
+  min-height: 100vh;
+}
 </style>

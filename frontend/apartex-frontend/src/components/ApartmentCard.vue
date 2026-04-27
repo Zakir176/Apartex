@@ -1,48 +1,63 @@
 <template>
-  <div class="apartment-card" @click="viewApartment">
-    <div class="apartment-image">
-      <img :src="apartment.image_url || '/placeholder-apartment.png'" :alt="apartment.title">
-      <div class="image-overlay"></div>
-      <div class="price-tag">${{ apartment.price_per_night }}<span class="price-period">/night</span></div>
-      <button class="favorite-btn" @click.stop="toggleWishlist">
-        <svg width="20" height="20" viewBox="0 0 24 24" :fill="isWishlisted ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2">
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-        </svg>
-      </button>
-    </div>
-    <div class="apartment-info">
-      <h3 class="apartment-title">{{ apartment.title }}</h3>
-      <p class="location">
-        <svg class="location-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-          <circle cx="12" cy="10" r="3"></circle>
-        </svg>
-        {{ apartment.city }}
-      </p>
-      <p class="description">{{ apartment.description }}</p>
-      <div class="amenities">
-        <span v-if="apartment.bedrooms" class="amenity-badge">
-          <svg class="amenity-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M2 4v16"></path>
-            <path d="M2 8h18a2 2 0 0 1 2 2v10"></path>
-            <path d="M2 17h20"></path>
-            <path d="M6 8V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4"></path>
-          </svg>
-          {{ apartment.bedrooms }} beds
-        </span>
-        <span v-if="apartment.bathrooms" class="amenity-badge">
-          <svg class="amenity-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"></path>
-            <line x1="10" x2="8" y1="5" y2="7"></line>
-            <line x1="2" x2="22" y1="12" y2="12"></line>
-            <line x1="7" x2="7" y1="19" y2="21"></line>
-            <line x1="17" x2="17" y1="19" y2="21"></line>
-          </svg>
-          {{ apartment.bathrooms }} baths
-        </span>
+  <div class="ax-apartment-card" @click="viewApartment">
+    <div class="card-image-wrapper">
+      <img :src="apartment.image_url || '/placeholder-apartment.png'" :alt="apartment.title" class="card-image">
+      
+      <!-- Premium Overlay Gradients -->
+      <div class="image-overlay-top"></div>
+      <div class="image-overlay-bottom"></div>
+      
+      <!-- Top Actions -->
+      <div class="card-actions-top">
+        <div class="price-pill">
+          <span class="currency">$</span>
+          <span class="amount">{{ apartment.price_per_night }}</span>
+          <span class="period">/night</span>
+        </div>
+        
+        <button class="wishlist-btn" :class="{ 'is-active': isWishlisted }" @click.stop="toggleWishlist">
+          <i :class="isWishlisted ? 'pi pi-heart-fill' : 'pi pi-heart'"></i>
+        </button>
       </div>
+
+      <!-- Badge for New/Featured if applicable -->
+      <div v-if="apartment.id % 5 === 0" class="featured-badge">
+        <i class="pi pi-sparkles"></i>
+        <span>Premier Selection</span>
+      </div>
+    </div>
+
+    <div class="card-content">
+      <div class="card-header">
+        <div class="location-group">
+          <i class="pi pi-map-marker"></i>
+          <span>{{ apartment.city }}</span>
+        </div>
+        <h3 class="card-title">{{ apartment.title }}</h3>
+      </div>
+
+      <p class="card-description">{{ apartment.description }}</p>
+
+      <div class="card-stats">
+        <div class="stat-item">
+          <i class="pi pi-users"></i>
+          <span>{{ apartment.capacity }} guests</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <i class="pi pi-home"></i>
+          <span>{{ apartment.bedrooms }} beds</span>
+        </div>
+      </div>
+
       <div class="card-footer">
-        <span class="view-details">View Details →</span>
+        <div class="amenity-preview">
+          <i v-for="icon in amenityIcons" :key="icon" :class="['pi', icon]"></i>
+        </div>
+        <button class="explore-btn">
+          <span>Explore</span>
+          <i class="pi pi-arrow-right"></i>
+        </button>
       </div>
     </div>
   </div>
@@ -52,6 +67,7 @@
 import { useRouter } from 'vue-router';
 import { useWishlistStore } from '@/stores/wishlist';
 import { useAuthStore } from '@/stores/auth';
+import { computed } from 'vue';
 
 const props = defineProps({
   apartment: {
@@ -70,13 +86,19 @@ const router = useRouter();
 const wishlistStore = useWishlistStore();
 const authStore = useAuthStore();
 
+const amenityIcons = computed(() => {
+  // Simple mapping for visual variety in the preview
+  const icons = ['pi-wifi', 'pi-car'];
+  if (props.apartment.bedrooms > 2) icons.push('pi-video');
+  return icons;
+});
+
 const viewApartment = () => {
   router.push(`/apartments/${props.apartment.id}`);
 };
 
 const toggleWishlist = async () => {
   if (!authStore.user) {
-    alert('Please log in to manage your wishlist.');
     router.push('/login');
     return;
   }
@@ -91,237 +113,229 @@ const toggleWishlist = async () => {
 </script>
 
 <style scoped>
-.apartment-card {
-  background: white;
-  border-radius: 16px;
+.ax-apartment-card {
+  background: var(--surface-0);
+  border-radius: calc(var(--border-radius) * 1.5);
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  position: relative;
+  transition: var(--transition);
   height: 100%;
   display: flex;
   flex-direction: column;
+  border: 1px solid var(--surface-100);
+  box-shadow: var(--shadow-sm);
 }
 
-.apartment-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  pointer-events: none;
-  z-index: 1;
+.ax-apartment-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--surface-200);
 }
 
-.apartment-card:hover {
-  transform: translateY(-12px) scale(1.02);
-  box-shadow: 0 20px 40px rgba(102, 126, 234, 0.25);
-}
-
-.apartment-card:hover::before {
-  opacity: 1;
-}
-
-.apartment-image {
+/* Image Section */
+.card-image-wrapper {
   position: relative;
-  height: 240px;
+  aspect-ratio: 4/3;
   overflow: hidden;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-.apartment-image img {
+.card-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.apartment-card:hover .apartment-image img {
-  transform: scale(1.15);
+.ax-apartment-card:hover .card-image {
+  transform: scale(1.08);
 }
 
-.image-overlay {
+.image-overlay-top {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.4) 100%);
-  opacity: 0;
-  transition: opacity 0.4s ease;
+  top: 0; left: 0; right: 0; height: 40%;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 100%);
+  z-index: 1;
 }
 
-.apartment-card:hover .image-overlay {
-  opacity: 1;
-}
-
-.price-tag {
+.image-overlay-bottom {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.95));
-  backdrop-filter: blur(10px);
-  color: white;
-  padding: 0.65rem 1.2rem;
-  border-radius: 50px;
-  font-weight: 700;
-  font-size: 1.1rem;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  transition: all 0.3s ease;
+  bottom: 0; left: 0; right: 0; height: 30%;
+  background: linear-gradient(to top, rgba(0,0,0,0.2) 0%, transparent 100%);
+  z-index: 1;
+}
+
+/* Actions Overlay */
+.card-actions-top {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  right: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   z-index: 2;
 }
 
-.apartment-card:hover .price-tag {
-  transform: scale(1.1);
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+.price-pill {
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  padding: 0.5rem 0.875rem;
+  border-radius: 999px;
+  display: flex;
+  align-items: baseline;
+  gap: 0.125rem;
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(255,255,255,0.1);
 }
 
-.price-period {
-  font-size: 0.75rem;
-  font-weight: 500;
-  opacity: 0.9;
-  margin-left: 2px;
-}
+.price-pill .amount { font-weight: 800; font-size: 1.125rem; }
+.price-pill .currency { font-size: 0.75rem; font-weight: 600; opacity: 0.8; }
+.price-pill .period { font-size: 0.75rem; font-weight: 500; opacity: 0.7; }
 
-.favorite-btn {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  width: 40px;
-  height: 40px;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
+.wishlist-btn {
+  width: 2.5rem;
+  height: 2.5rem;
   border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition);
+  color: var(--surface-600);
+  box-shadow: var(--shadow-sm);
+}
+
+.wishlist-btn:hover {
+  transform: scale(1.1);
+  background: #fff;
+  color: #ef4444;
+}
+
+.wishlist-btn.is-active {
+  color: #ef4444;
+  background: #fff;
+}
+
+.featured-badge {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   z-index: 2;
-  color: #667eea;
+  box-shadow: var(--shadow-sm);
 }
 
-.favorite-btn:hover {
-  background: white;
-  transform: scale(1.15);
-  color: #e91e63;
-}
+.featured-badge i { color: #f59e0b; font-size: 0.875rem; }
+.featured-badge span { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--surface-900); }
 
-.apartment-info {
-  padding: 1.5rem;
+/* Content Section */
+.card-content {
+  padding: 1.25rem;
   display: flex;
   flex-direction: column;
-  flex: 1;
+  flex-grow: 1;
 }
 
-.apartment-title {
-  margin: 0 0 0.75rem 0;
-  font-size: 1.3rem;
+.card-header { margin-bottom: 0.75rem; }
+
+.location-group {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: var(--surface-500);
+  font-size: 0.75rem;
   font-weight: 700;
-  color: #1a202c;
-  line-height: 1.3;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.location-group i { color: var(--primary-color); }
+
+.card-title {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--surface-900);
+  line-height: 1.4;
+  margin: 0;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  transition: color 0.3s ease;
 }
 
-.apartment-card:hover .apartment-title {
-  color: #667eea;
-}
-
-.location {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  color: #718096;
-  margin: 0 0 1rem 0;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.location-icon {
-  flex-shrink: 0;
-  color: #667eea;
-}
-
-.description {
-  color: #4a5568;
-  margin: 0 0 1.25rem 0;
-  font-size: 0.9rem;
+.card-description {
+  font-size: 0.875rem;
+  color: var(--surface-500);
   line-height: 1.6;
+  margin: 0 0 1.25rem 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  flex: 1;
 }
 
-.amenities {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.amenity-badge {
+.card-stats {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  background: linear-gradient(135deg, #f7fafc, #edf2f7);
-  color: #4a5568;
-  padding: 0.5rem 0.85rem;
-  border-radius: 50px;
-  font-size: 0.8rem;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 1rem;
+  background: var(--surface-50);
+  border-radius: 0.75rem;
+  border: 1px solid var(--surface-100);
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--surface-700);
+  font-size: 0.8125rem;
   font-weight: 600;
-  transition: all 0.3s ease;
-  border: 1px solid #e2e8f0;
 }
 
-.apartment-card:hover .amenity-badge {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
-  border-color: transparent;
-  transform: translateY(-2px);
-}
-
-.amenity-icon {
-  flex-shrink: 0;
-}
+.stat-item i { color: var(--surface-400); font-size: 0.875rem; }
+.stat-divider { width: 1px; height: 1rem; background: var(--surface-200); }
 
 .card-footer {
-  padding-top: 1rem;
-  border-top: 1px solid #e2e8f0;
   margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--surface-100);
 }
 
-.view-details {
-  color: #667eea;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-  display: inline-block;
+.amenity-preview { display: flex; gap: 0.75rem; }
+.amenity-preview i { color: var(--surface-300); font-size: 0.875rem; }
+
+.explore-btn {
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--primary-600);
+  font-weight: 700;
+  font-size: 0.875rem;
+  padding: 0;
+  cursor: pointer;
+  transition: var(--transition);
 }
 
-.apartment-card:hover .view-details {
-  transform: translateX(5px);
-  color: #764ba2;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .apartment-image {
-    height: 200px;
-  }
-
-  .apartment-title {
-    font-size: 1.1rem;
-  }
-
-  .price-tag {
-    font-size: 1rem;
-    padding: 0.5rem 1rem;
-  }
+.explore-btn:hover {
+  color: var(--primary-700);
+  transform: translateX(4px);
 }
 </style>

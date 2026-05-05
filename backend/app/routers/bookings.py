@@ -17,24 +17,17 @@ def check_apartment_availability(apartment_id: int, check_in: date, check_out: d
     Check if an apartment is available for the given dates.
     Returns True if available, False if booked.
     """
-    print(f"🔍 Checking availability for apartment {apartment_id}, dates {check_in} to {check_out}")
-    
     # Validate dates
     if check_in >= check_out:
-        print("❌ Invalid dates: check_in >= check_out")
         return False
     
     # Check if apartment exists and is available
     apartment = db.query(Apartment).filter(Apartment.id == apartment_id).first()
     if not apartment:
-        print("❌ Apartment not found")
         return False
     
     if not apartment.is_available:
-        print("❌ Apartment is not available")
         return False
-    
-    print(f"✅ Apartment {apartment_id} exists and is available")
 
     # Check for overlapping bookings (only consider confirmed and completed bookings)
     overlapping_bookings = db.query(Booking).filter(
@@ -43,11 +36,6 @@ def check_apartment_availability(apartment_id: int, check_in: date, check_out: d
         Booking.check_in < check_out,
         Booking.check_out > check_in
     ).all()
-    
-    print(f"📅 Found {len(overlapping_bookings)} overlapping bookings")
-    
-    for booking in overlapping_bookings:
-        print(f"   - Booking {booking.id}: {booking.check_in} to {booking.check_out}, status: {booking.status}")
     
     if overlapping_bookings:
         return False
@@ -60,11 +48,9 @@ def check_apartment_availability(apartment_id: int, check_in: date, check_out: d
             BlockedDate.blocked_date == current
         ).first()
         if blocked:
-            print(f"🚫 Date {current} is owner-blocked ({blocked.reason})")
             return False
         current += timedelta(days=1)
 
-    print("📊 Final availability: True")
     return True
 
 def calculate_booking_price(apartment_id: int, check_in: date, check_out: date, db: Session) -> float:
@@ -90,8 +76,6 @@ def create_booking(
     """
     Create a new booking with availability checks and price calculation.
     """
-    print(f"🎯 Creating booking for apartment {booking.apartment_id}")
-    
     # Check if apartment exists
     apartment = db.query(Apartment).filter(Apartment.id == booking.apartment_id).first()
     if not apartment:
@@ -173,45 +157,82 @@ def get_bookings(
     limit: int = 100, 
     apartment_id: int = None,
     user_id: int = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
 ):
     """
-    Get all bookings with optional filtering by apartment or user.
+    Get bookings. Owners see bookings for their apartments; renters see only their own.
+    Admins can optionally filter by apartment_id or user_id.
     """
     query = db.query(Booking)
-    
-    # Apply filters if provided
-    if apartment_id is not None:
-        query = query.filter(Booking.apartment_id == apartment_id)
-    
-    if user_id is not None:
-        query = query.filter(Booking.user_id == user_id)
+
+    if current_user.role == "owner":
+        # Owners can only see bookings for apartments they own
+        query = query.join(Apartment, Booking.apartment_id == Apartment.id).filter(
+            Apartment.owner_id == current_user.id
+        )
+        if apartment_id is not None:
+            query = query.filter(Booking.apartment_id == apartment_id)
+    else:
+        # Renters can only see their own bookings
+        query = query.filter(Booking.user_id == current_user.id)
+        if user_id is not None and user_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You can only view your own bookings."
+            )
     
     bookings = query.offset(skip).limit(limit).all()
     return bookings
 
 @router.get("/{booking_id}", response_model=BookingRead)
-def get_booking(booking_id: int, db: Session = Depends(get_db)):
+def get_booking(
+    booking_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
     """
-    Get a specific booking by ID.
+    Get a specific booking. Only the renter who made it or the apartment owner can view it.
     """
     booking = db.query(Booking).filter(Booking.id == booking_id).first()
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
+
+    apartment = db.query(Apartment).filter(Apartment.id == booking.apartment_id).first()
+    is_renter = booking.user_id == current_user.id
+    is_apartment_owner = apartment and apartment.owner_id == current_user.id
+
+    if not is_renter and not is_apartment_owner:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not authorized to view this booking."
+        )
+
     return booking
 
 @router.put("/{booking_id}", response_model=BookingRead)
 def update_booking(
     booking_id: int, 
     booking_update: BookingUpdate, 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
 ):
     """
-    Update a booking (e.g., change status).
+    Update a booking. Only the renter who made it or the apartment owner can update it.
     """
     db_booking = db.query(Booking).filter(Booking.id == booking_id).first()
     if not db_booking:
         raise HTTPException(status_code=404, detail="Booking not found")
+
+    apartment = db.query(Apartment).filter(Apartment.id == db_booking.apartment_id).first()
+    is_renter = db_booking.user_id == current_user.id
+    is_apartment_owner = apartment and apartment.owner_id == current_user.id
+
+    if not is_renter and not is_apartment_owner:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not authorized to update this booking."
+        )
     
     # Update fields
     update_data = booking_update.dict(exclude_unset=True)
@@ -231,13 +252,23 @@ def update_booking(
     return db_booking
 
 @router.delete("/{booking_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_booking(booking_id: int, db: Session = Depends(get_db)):
+def delete_booking(
+    booking_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
     """
-    Delete a booking.
+    Delete (cancel) a booking. Only the renter who made it can delete it.
     """
     booking = db.query(Booking).filter(Booking.id == booking_id).first()
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
+
+    if booking.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not authorized to delete this booking."
+        )
     
     try:
         db.delete(booking)

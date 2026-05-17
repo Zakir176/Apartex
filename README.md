@@ -51,9 +51,12 @@
 ---
 
 ## 📈 Project Health & Development
-We maintain high standards for code quality and security. For a detailed breakdown of current technical debt, security audits, and UI/UX recommendations, please refer to:
+We maintain high standards for code quality and security. For a detailed breakdown of system design, technical debt, and our vision, please refer to:
 
-👉 **[View Project Roadmap](./docs/ROADMAP.md)**
+- 🏗️ **[Architecture Overview](./docs/ARCHITECTURE.md)** - Deep dive into tech stack and data flow.
+- 🗄️ **[Database Schema](./docs/DATABASE.md)** - Visual and technical breakdown of the data model.
+- 🗺️ **[Project Roadmap](./docs/ROADMAP.md)** - Our vision for future phases.
+- 🤝 **[Contributing Guide](./CONTRIBUTING.md)** - How to get involved with the project.
 
 ---
 

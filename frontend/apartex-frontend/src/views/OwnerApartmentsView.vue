@@ -131,14 +131,23 @@
             <input v-model="form.image_url" class="ax-input" placeholder="https://..." />
           </div>
         </div>
+
+        <!-- Step 3: Location Picker -->
+        <div v-if="currentStep === 3">
+          <LocationPicker 
+            v-model="locationData" 
+            :address="form.address" 
+            :city="form.city" 
+          />
+        </div>
       </div>
 
       <template #footer>
         <div class="flex justify-content-between w-full pt-4">
           <Button label="Cancel" @click="closeModal" class="p-button-text p-button-secondary font-bold" />
           <div class="flex gap-2">
-            <Button v-if="currentStep === 2" label="Back" icon="pi pi-arrow-left" @click="currentStep = 1" class="p-button-outlined p-button-secondary font-bold" />
-            <Button v-if="currentStep === 1" label="Next" icon="pi pi-arrow-right" iconPos="right" @click="currentStep = 2" class="p-button-primary font-bold px-4" />
+            <Button v-if="currentStep > 1" label="Back" icon="pi pi-arrow-left" @click="currentStep--" class="p-button-outlined p-button-secondary font-bold" />
+            <Button v-if="currentStep < 3" label="Next" icon="pi pi-arrow-right" iconPos="right" @click="currentStep++" class="p-button-primary font-bold px-4" />
             <Button v-else :label="editingId ? 'Update Listing' : 'Publish Listing'" icon="pi pi-check" @click="submitForm" class="p-button-primary font-bold px-4" :loading="apartmentsStore.loading" />
           </div>
         </div>
@@ -155,7 +164,7 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref, computed } from 'vue';
 import { useApartmentsStore } from '@/stores/apartments';
 import { useConfirm } from "primevue/useconfirm";
 
@@ -165,6 +174,7 @@ import Dialog from 'primevue/dialog';
 import InputNumber from 'primevue/inputnumber';
 import ConfirmPopup from 'primevue/confirmpopup';
 import AvailabilityCalendar from '@/components/AvailabilityCalendar.vue';
+import LocationPicker from '@/components/LocationPicker.vue';
 
 const apartmentsStore = useApartmentsStore();
 const confirm = useConfirm();
@@ -185,10 +195,20 @@ const initialForm = {
   capacity: 1,
   bedrooms: 1,
   bathrooms: 1,
-  image_url: ''
+  image_url: '',
+  latitude: null,
+  longitude: null
 };
 
 const form = reactive({ ...initialForm });
+
+const locationData = computed({
+  get: () => ({ lat: form.latitude, lng: form.longitude }),
+  set: (val) => {
+    form.latitude = val.lat;
+    form.longitude = val.lng;
+  }
+});
 
 onMounted(async () => {
   await apartmentsStore.fetchMyApartments();

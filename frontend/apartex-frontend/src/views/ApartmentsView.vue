@@ -9,7 +9,7 @@
     </div>
 
     <!-- Experience Bar: The Floating Search Pill -->
-    <div class="search-pill-container flex justify-content-center">
+    <div class="search-pill-container flex justify-content-center gap-3">
       <div class="search-pill shadow-lg" @click="showFilters = true">
         <div class="pill-section border-right-1 border-100">
           <span class="label">Location</span>
@@ -28,6 +28,11 @@
             <i class="pi pi-sliders-h"></i>
           </div>
         </div>
+      </div>
+
+      <div class="map-toggle-pill shadow-lg" @click="viewMode = viewMode === 'grid' ? 'map' : 'grid'">
+        <i :class="viewMode === 'grid' ? 'pi pi-map' : 'pi pi-th-large'"></i>
+        <span>{{ viewMode === 'grid' ? 'Map' : 'Grid' }}</span>
       </div>
     </div>
 
@@ -79,7 +84,7 @@
       </div>
       
       <!-- Grid: Premium Apartment Cards -->
-      <div v-else class="grid px-2">
+      <div v-else-if="viewMode === 'grid'" class="grid px-2">
         <div v-for="apartment in apartmentsStore.apartments" :key="apartment.id" class="col-12 md:col-6 lg:col-4 xl:col-3 p-3">
           <ApartmentCard 
             :apartment="apartment" 
@@ -87,6 +92,15 @@
             @toggle-wishlist="handleToggleWishlist"
           />
         </div>
+      </div>
+
+      <!-- Map View -->
+      <div v-else class="map-view-container px-3 fadein animation-duration-500">
+        <MapComponent 
+          :markers="apartmentsStore.apartments" 
+          height="700px" 
+          @marker-click="(apt) => router.push(`/apartments/${apt.id}`)"
+        />
       </div>
     </div>
 
@@ -183,10 +197,11 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useApartmentsStore } from '@/stores/apartments';
 import { useWishlistStore } from '@/stores/wishlist';
 import ApartmentCard from '@/components/ApartmentCard.vue';
+import MapComponent from '@/components/MapComponent.vue';
 
 // PrimeVue components
 import InputText from 'primevue/inputtext';
@@ -198,10 +213,12 @@ import Checkbox from 'primevue/checkbox';
 import Skeleton from 'primevue/skeleton';
 
 const route = useRoute();
+const router = useRouter();
 const apartmentsStore = useApartmentsStore();
 const wishlistStore = useWishlistStore();
 
 const showFilters = ref(false);
+const viewMode = ref('grid'); // 'grid' or 'map'
 
 const filters = ref({
   city: route.query.city || '',
@@ -453,5 +470,32 @@ onMounted(async () => {
   .pill-section { flex: 1; border: none !important; min-width: 50%; padding: 0.75rem 1rem; }
   .pill-action { width: 100%; padding: 0.5rem; }
   .search-btn { width: 100%; border-radius: 0.75rem; }
+}
+
+.map-toggle-pill {
+  background: var(--surface-900);
+  color: #fff;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1.5rem;
+  cursor: pointer;
+  transition: var(--transition);
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.map-toggle-pill:hover {
+  background: #000;
+  transform: translateY(-2px);
+}
+
+.map-view-container {
+  border-radius: 2rem;
+  overflow: hidden;
+  border: 1px solid var(--surface-100);
+  box-shadow: var(--shadow-lg);
+  margin-top: 2rem;
 }
 </style>

@@ -146,7 +146,12 @@
               <h3 class="text-xl font-extrabold uppercase tracking-widest text-400 mb-6">Location</h3>
               <p class="text-lg font-bold text-900 mb-6">{{ apartment.address }}, {{ apartment.city }}</p>
               <div class="map-premium-wrapper">
-                   <MapComponent :city="apartment.city" :title="apartment.title" />
+                   <MapComponent 
+                     :city="apartment.city" 
+                     :title="apartment.title" 
+                     :lat="apartment.latitude" 
+                     :lng="apartment.longitude" 
+                   />
               </div>
             </section>
           </div>

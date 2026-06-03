@@ -8,18 +8,19 @@ Usage (from backend folder):
 
 from datetime import datetime, timedelta
 import traceback
+import json
 
 from app.database import SessionLocal, Base, engine
 from app.core.security import hash_password
-
-# Import model classes (make sure app/models/_init_.py exposes these names)
-try:
-    from app.models import user, apartment, booking, payout
-except Exception as e:
-    print("ERROR: could not import models from app.models. Verify app/models/_init_.py exports user, apartment, booking, payout.")
-    print("Detailed import error:")
-    traceback.print_exc()
-    raise
+from app.models.user import User
+from app.models.apartment import Apartment
+from app.models.booking import Booking
+from app.models.payout import Payout
+from app.models.wishlist import Wishlist
+from app.models.review import Review
+from app.models.loyalty import LoyaltyReward
+from app.models.blocked_date import BlockedDate
+from app.models.apartment_image import ApartmentImage
 
 def create_tables():
     """Ensure DB tables exist."""
@@ -33,9 +34,9 @@ def seed_demo_data():
 
         # --- 1) Owner user ---
         owner_email = "demo_owner@apartex.com"
-        owner = db.query(user).filter(user.email == owner_email).first()
+        owner = db.query(User).filter(User.email == owner_email).first()
         if not owner:
-            owner = user(
+            owner = User(
                 email=owner_email,
                 full_name="Demo Owner",
                 hashed_password=hash_password("owner123"),
@@ -50,9 +51,9 @@ def seed_demo_data():
 
         # --- 2) Renter user ---
         renter_email = "demo_renter@apartex.com"
-        renter = db.query(user).filter(user.email == renter_email).first()
+        renter = db.query(User).filter(User.email == renter_email).first()
         if not renter:
-            renter = user(
+            renter = User(
                 email=renter_email,
                 full_name="Demo Renter",
                 hashed_password=hash_password("renter123"),
@@ -66,39 +67,52 @@ def seed_demo_data():
             print(f"Renter already exists: id={renter.id} email={renter.email}")
 
         # --- 3) apartments ---
-        # Adjust the field names here if your apartment model uses different attribute names
-        apt1_name = "Luxury City apartment"
-        apt2_name = "Cozy Riverside Cottage"
+        apt1_title = "Luxury City Apartment"
+        apt2_title = "Cozy Riverside Cottage"
 
-        apt1 = db.query(apartment).filter(apartment.name == apt1_name).first()
+        apt1 = db.query(Apartment).filter(Apartment.title == apt1_title).first()
         if not apt1:
-            apt1 = apartment(
-                name=apt1_name,
+            apt1 = Apartment(
+                title=apt1_title,
                 description="Modern apartment with city view",
+                address="123 Independence Ave",
+                city="Lusaka",
                 price_per_night=150.0,
-                location="Lusaka",
+                capacity=2,
+                bedrooms=1,
+                bathrooms=1,
+                amenities=json.dumps(["WiFi", "AC", "Kitchen"]),
+                latitude=-15.3875,
+                longitude=28.3228,
                 owner_id=owner.id,
             )
             db.add(apt1)
             db.commit()
             db.refresh(apt1)
-            print(f"Created apartment 1 id={apt1.id} name={apt1.name}")
+            print(f"Created apartment 1 id={apt1.id} title={apt1.title}")
         else:
             print(f"Apt1 already exists id={apt1.id}")
 
-        apt2 = db.query(apartment).filter(apartment.name == apt2_name).first()
+        apt2 = db.query(Apartment).filter(Apartment.title == apt2_title).first()
         if not apt2:
-            apt2 = apartment(
-                name=apt2_name,
+            apt2 = Apartment(
+                title=apt2_title,
                 description="Peaceful cottage near the river",
+                address="456 River Bank Road",
+                city="Livingstone",
                 price_per_night=100.0,
-                location="Livingstone",
+                capacity=4,
+                bedrooms=2,
+                bathrooms=1,
+                amenities=json.dumps(["WiFi", "Fireplace", "View"]),
+                latitude=-16.8561,
+                longitude=25.8528,
                 owner_id=owner.id,
             )
             db.add(apt2)
             db.commit()
             db.refresh(apt2)
-            print(f"Created apartment 2 id={apt2.id} name={apt2.name}")
+            print(f"Created apartment 2 id={apt2.id} title={apt2.title}")
         else:
             print(f"Apt2 already exists id={apt2.id}")
 
@@ -106,18 +120,18 @@ def seed_demo_data():
         today = datetime.utcnow().date()
 
         # Completed booking on apt1
-        b1 = db.query(booking).filter(
-            booking.apartment_id == apt1.id,
-            booking.start_date == today - timedelta(days=30),
-            booking.end_date == today - timedelta(days=25)
+        b1 = db.query(Booking).filter(
+            Booking.apartment_id == apt1.id,
+            Booking.check_in == today - timedelta(days=30),
+            Booking.check_out == today - timedelta(days=25)
         ).first()
         if not b1:
-            b1 = booking(
+            b1 = Booking(
                 apartment_id=apt1.id,
                 user_id=renter.id,
-                start_date=today - timedelta(days=30),
-                end_date=today - timedelta(days=25),
-                total_amount=750.0,
+                check_in=today - timedelta(days=30),
+                check_out=today - timedelta(days=25),
+                total_price=750.0,
                 status="completed"
             )
             db.add(b1)
@@ -127,18 +141,18 @@ def seed_demo_data():
             print(f"booking1 exists id={b1.id}")
 
         # Completed booking on apt2
-        b2 = db.query(booking).filter(
-            booking.apartment_id == apt2.id,
-            booking.start_date == today - timedelta(days=10),
-            booking.end_date == today - timedelta(days=7)
+        b2 = db.query(Booking).filter(
+            Booking.apartment_id == apt2.id,
+            Booking.check_in == today - timedelta(days=10),
+            Booking.check_out == today - timedelta(days=7)
         ).first()
         if not b2:
-            b2 = booking(
+            b2 = Booking(
                 apartment_id=apt2.id,
                 user_id=renter.id,
-                start_date=today - timedelta(days=10),
-                end_date=today - timedelta(days=7),
-                total_amount=300.0,
+                check_in=today - timedelta(days=10),
+                check_out=today - timedelta(days=7),
+                total_price=300.0,
                 status="completed"
             )
             db.add(b2)
@@ -148,19 +162,19 @@ def seed_demo_data():
             print(f"booking2 exists id={b2.id}")
 
         # Upcoming booking on apt1
-        b3 = db.query(booking).filter(
-            booking.apartment_id == apt1.id,
-            booking.start_date == today + timedelta(days=5),
-            booking.end_date == today + timedelta(days=8)
+        b3 = db.query(Booking).filter(
+            Booking.apartment_id == apt1.id,
+            Booking.check_in == today + timedelta(days=5),
+            Booking.check_out == today + timedelta(days=8)
         ).first()
         if not b3:
-            b3 = booking(
+            b3 = Booking(
                 apartment_id=apt1.id,
                 user_id=renter.id,
-                start_date=today + timedelta(days=5),
-                end_date=today + timedelta(days=8),
-                total_amount=450.0,
-                status="upcoming"
+                check_in=today + timedelta(days=5),
+                check_out=today + timedelta(days=8),
+                total_price=450.0,
+                status="confirmed"
             )
             db.add(b3)
             db.commit()
@@ -169,13 +183,15 @@ def seed_demo_data():
             print(f"booking3 exists id={b3.id}")
 
         # --- 5) payouts ---
-        p1 = db.query(payout).filter(payout.owner_id == owner.id, payout.amount == 700.0).first()
+        p1 = db.query(Payout).filter(Payout.owner_id == owner.id, Payout.amount == 700.0).first()
         if not p1:
-            p1 = payout(
+            p1 = Payout(
                 owner_id=owner.id,
                 amount=700.0,
-                status="paid",
-                method="bank",
+                status="completed",
+                period_start=today - timedelta(days=45),
+                period_end=today - timedelta(days=15),
+                processed_at=datetime.utcnow() - timedelta(days=15),
                 created_at=datetime.utcnow() - timedelta(days=15)
             )
             db.add(p1)
@@ -184,13 +200,14 @@ def seed_demo_data():
         else:
             print(f"payout1 exists id={p1.id}")
 
-        p2 = db.query(payout).filter(payout.owner_id == owner.id, payout.amount == 500.0).first()
+        p2 = db.query(Payout).filter(Payout.owner_id == owner.id, Payout.amount == 500.0).first()
         if not p2:
-            p2 = payout(
+            p2 = Payout(
                 owner_id=owner.id,
                 amount=500.0,
                 status="pending",
-                method="momo",
+                period_start=today - timedelta(days=14),
+                period_end=today,
                 created_at=datetime.utcnow()
             )
             db.add(p2)
@@ -206,6 +223,6 @@ def seed_demo_data():
     finally:
         db.close()
 
-if __name__ == "_main_":
+if __name__ == "__main__":
     create_tables()
     seed_demo_data()

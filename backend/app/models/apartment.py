@@ -18,6 +18,8 @@ class Apartment(Base):
     amenities = Column(Text)  # JSON string of amenities
     image_url = Column(String(500))  # Optional primary image URL
     is_available = Column(Boolean, default=True)
+    latitude = Column(Numeric(10, 8), nullable=True)
+    longitude = Column(Numeric(11, 8), nullable=True)
     owner_id = Column(Integer, nullable=False)  # Simple foreign key for now
     
     created_at = Column(DateTime, default=datetime.utcnow)

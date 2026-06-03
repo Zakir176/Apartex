@@ -13,6 +13,8 @@ class ApartmentBase(BaseModel):
     bathrooms: int
     amenities: Optional[List[str]] = None
     image_url: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
 
 class ApartmentCreate(ApartmentBase):
     pass
@@ -28,6 +30,8 @@ class ApartmentUpdate(BaseModel):
     bathrooms: Optional[int] = None
     amenities: Optional[List[str]] = None
     image_url: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
 
 class ApartmentRead(ApartmentBase):
     id: int

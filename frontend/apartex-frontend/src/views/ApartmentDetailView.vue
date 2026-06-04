@@ -209,7 +209,10 @@
                 <div class="reviewer-meta">
                   <Avatar icon="pi pi-user" shape="circle" class="bg-primary text-white" />
                   <div>
-                    <span class="block font-extrabold text-900">Verified Member</span>
+                    <div class="flex align-items-center gap-2">
+                      <span class="block font-extrabold text-900">Verified Member</span>
+                      <Tag v-if="review.is_verified" value="Verified Stay" severity="success" class="text-xs" rounded />
+                    </div>
                     <span class="block text-xs text-500 font-bold uppercase tracking-wider">{{ formatDate(review.created_at) }}</span>
                   </div>
                 </div>
@@ -217,7 +220,14 @@
                   <i v-for="s in 5" :key="s" :class="['pi pi-star-fill', s <= review.rating ? 'text-primary-500' : 'text-100']"></i>
                 </div>
               </div>
-              <p class="review-text line-height-4 text-700 font-medium">{{ review.comment || 'An exceptional stay at this beautiful residence. Every detail was curated for comfort.' }}</p>
+              <p class="review-text line-height-4 text-700 font-medium mb-4">{{ review.comment || 'An exceptional stay at this beautiful residence. Every detail was curated for comfort.' }}</p>
+              
+              <!-- Review Images -->
+              <div v-if="review.images && review.images.length > 0" class="review-images-grid flex gap-2 flex-wrap">
+                <div v-for="img in review.images" :key="img.id" class="review-img-thumb">
+                  <Image :src="img.image_url" alt="Review Image" width="80" height="80" preview class="border-round-lg overflow-hidden" />
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -233,6 +243,24 @@
           <div class="mb-4">
             <label class="ax-label mb-3">Narrative</label>
             <Textarea v-model="newReview.comment" rows="5" placeholder="Share the highlights of your stay..." class="ax-input" />
+          </div>
+          <div class="mb-4">
+            <label class="ax-label mb-3">Photos of your stay</label>
+            <div class="flex flex-wrap gap-2 mb-2">
+               <div v-for="(url, index) in newReview.image_urls" :key="index" class="relative">
+                 <img :src="url" class="w-4rem h-4rem border-round-lg object-cover" />
+                 <button @click="removeReviewImage(index)" class="absolute top-0 right-0 bg-red-500 text-white border-none border-circle w-1rem h-1rem flex align-items-center justify-content-center cursor-pointer -mt-1 -mr-1">
+                   <i class="pi pi-times text-xs"></i>
+                 </button>
+               </div>
+            </div>
+            <div class="upload-trigger-box">
+              <input type="file" multiple accept="image/*" @change="handleReviewImageUpload" class="hidden" ref="fileInput" />
+              <button @click="$refs.fileInput.click()" class="ax-button p-button-outlined w-full" :disabled="uploadingImages">
+                <i :class="uploadingImages ? 'pi pi-spin pi-spinner' : 'pi pi-camera'" class="mr-2"></i>
+                <span>{{ uploadingImages ? 'Uploading...' : 'Add Photos' }}</span>
+              </button>
+            </div>
           </div>
         </div>
         <template #footer>
@@ -257,6 +285,7 @@ import { useAuthStore } from '@/stores/auth';
 import BookingForm from '@/components/BookingForm.vue';
 import MapComponent from '@/components/MapComponent.vue';
 import { reviewsApi } from '@/api/reviews.js';
+import { uploadImage } from '@/api/uploads.js';
 
 // PrimeVue components
 import Message from 'primevue/message';
@@ -267,6 +296,8 @@ import Skeleton from 'primevue/skeleton';
 import Dialog from 'primevue/dialog';
 import Rating from 'primevue/rating';
 import Textarea from 'primevue/textarea';
+import Tag from 'primevue/tag';
+import Image from 'primevue/image';
 
 const route = useRoute();
 const router = useRouter();
@@ -290,7 +321,8 @@ const galleryImages = computed(() => {
 const reviews = ref([]);
 const showReviewDialog = ref(false);
 const submittingReview = ref(false);
-const newReview = ref({ rating: 0, comment: '' });
+const uploadingImages = ref(false);
+const newReview = ref({ rating: 0, comment: '', image_urls: [] });
 
 const avgRating = computed(() => {
   if (reviews.value.length === 0) return 4.9;
@@ -300,6 +332,28 @@ const avgRating = computed(() => {
 const formatDate = (dateStr) => {
   if (!dateStr) return 'Recent Stay';
   return new Date(dateStr).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+};
+
+const handleReviewImageUpload = async (event) => {
+  const files = event.target.files;
+  if (!files.length) return;
+  
+  uploadingImages.value = true;
+  try {
+    for (let file of files) {
+      const result = await uploadImage(file);
+      newReview.value.image_urls.push(result.url);
+    }
+  } catch (e) {
+    console.error('Image upload failed', e);
+  } finally {
+    uploadingImages.value = false;
+    event.target.value = ''; // Reset input
+  }
+};
+
+const removeReviewImage = (index) => {
+  newReview.value.image_urls.splice(index, 1);
 };
 
 const fetchReviews = async (id) => {
@@ -318,10 +372,11 @@ const submitReview = async () => {
     await reviewsApi.createReview({
       apartment_id: apartment.value.id,
       rating: newReview.value.rating,
-      comment: newReview.value.comment
+      comment: newReview.value.comment,
+      image_urls: newReview.value.image_urls
     });
     showReviewDialog.value = false;
-    newReview.value = { rating: 0, comment: '' };
+    newReview.value = { rating: 0, comment: '', image_urls: [] };
     await fetchReviews(apartment.value.id);
   } catch (e) {
     console.error('Failed to submit review', e);

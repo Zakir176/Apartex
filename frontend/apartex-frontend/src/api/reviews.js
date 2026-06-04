@@ -11,7 +11,7 @@ export const reviewsApi = {
 
   /**
    * Create a new review for an apartment.
-   * @param {{ apartment_id: number, rating: number, comment: string }} payload
+   * @param {{ apartment_id: number, rating: number, comment: string, image_urls: string[] }} payload
    */
   createReview(payload) {
     return apiClient.post('/reviews/', payload);

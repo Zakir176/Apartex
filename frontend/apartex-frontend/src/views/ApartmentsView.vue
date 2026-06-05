@@ -89,7 +89,10 @@
           <ApartmentCard 
             :apartment="apartment" 
             :is-wishlisted="isApartmentWishlisted(apartment.id)"
+            :isSelected="selectedApartmentId === apartment.id"
             @toggle-wishlist="handleToggleWishlist"
+            @card-hover="(id) => selectedApartmentId = id"
+            @card-leave="() => selectedApartmentId = null"
           />
         </div>
       </div>
@@ -99,7 +102,11 @@
         <MapComponent 
           :markers="apartmentsStore.apartments" 
           height="700px" 
+          :selectedId="selectedApartmentId"
           @marker-click="(apt) => router.push(`/apartments/${apt.id}`)"
+          @marker-hover="(id) => selectedApartmentId = id"
+          @marker-leave="() => selectedApartmentId = null"
+          @bounds-changed="handleBoundsChanged"
         />
       </div>
     </div>
@@ -219,6 +226,8 @@ const wishlistStore = useWishlistStore();
 
 const showFilters = ref(false);
 const viewMode = ref('grid'); // 'grid' or 'map'
+const selectedApartmentId = ref(null);
+const mapBounds = ref(null);
 
 const filters = ref({
   city: route.query.city || '',
@@ -263,7 +272,7 @@ const pendingCountLabel = computed(() => {
   return n === 0 ? 'No Results' : `View ${n} Properties`;
 });
 
-const applyFilters = async () => {
+const applyFilters = async (additionalParams = {}) => {
   const [min, max] = filters.value.price_range;
   const params = {
     city: filters.value.city,
@@ -271,11 +280,24 @@ const applyFilters = async () => {
     max_price: max === 1000 ? 999999 : max,
     capacity: filters.value.min_capacity,
     bedrooms: filters.value.min_bedrooms,
-    amenities: filters.value.amenities.length > 0 ? filters.value.amenities : undefined
+    amenities: filters.value.amenities.length > 0 ? filters.value.amenities : undefined,
+    ...mapBounds.value,
+    ...additionalParams
   };
   
   await apartmentsStore.fetchApartments(params);
   showFilters.value = false;
+};
+
+const handleBoundsChanged = (bounds) => {
+  if (viewMode.value !== 'map') return;
+  mapBounds.value = bounds;
+  
+  // Debounce map-move search
+  clearTimeout(window.mapSearchTimeout);
+  window.mapSearchTimeout = setTimeout(() => {
+    applyFilters();
+  }, 500);
 };
 
 const clearFilters = async () => {
@@ -286,6 +308,7 @@ const clearFilters = async () => {
     min_bedrooms: 0,
     amenities: []
   };
+  mapBounds.value = null;
   await applyFilters();
   showFilters.value = false;
 };

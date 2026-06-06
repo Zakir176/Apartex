@@ -1,6 +1,6 @@
 <template>
   <div class="map-wrapper border-round-xl overflow-hidden shadow-2 relative" :style="{ height: height, width: '100%', z-index: 1 }">
-    <l-map ref="map" :zoom="13" :center="mapCenter" :use-global-leaflet="false">
+    <l-map ref="map" :zoom="13" :center="mapCenter" :use-global-leaflet="false" @ready="handleMapReady">
       <l-tile-layer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         layer-type="base"
@@ -12,8 +12,15 @@
         :key="marker.id" 
         :lat-lng="marker.position"
         @click="emit('marker-click', marker.raw)"
+        @mouseover="emit('marker-hover', marker.id)"
+        @mouseleave="emit('marker-leave', marker.id)"
       >
-        <l-tooltip>
+        <l-icon v-if="marker.price" :icon-anchor="[20, 40]">
+          <div class="custom-price-marker" :class="{'is-selected': marker.id === selectedId}">
+            <span>${{ marker.price }}</span>
+          </div>
+        </l-icon>
+        <l-tooltip v-if="!marker.price || marker.id === selectedId">
           <div class="flex flex-column gap-1">
             <span class="font-bold text-900">{{ marker.title }}</span>
             <span v-if="marker.price" class="text-primary-600 font-extrabold">${{ marker.price }}/nt</span>
@@ -27,7 +34,7 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue';
 import 'leaflet/dist/leaflet.css';
-import { LMap, LTileLayer, LMarker, LTooltip } from '@vue-leaflet/vue-leaflet';
+import { LMap, LTileLayer, LMarker, LTooltip, LIcon } from '@vue-leaflet/vue-leaflet';
 
 const props = defineProps({
   city: {
@@ -53,10 +60,30 @@ const props = defineProps({
   height: {
     type: String,
     default: "400px"
+  },
+  selectedId: {
+    type: Number,
+    default: null
   }
 });
 
-const emit = defineEmits(['marker-click']);
+const emit = defineEmits(['marker-click', 'marker-hover', 'marker-leave', 'bounds-changed']);
+
+const map = ref(null);
+
+const handleMapReady = () => {
+  if (map.value && map.value.leafletObject) {
+    map.value.leafletObject.on('moveend', () => {
+      const bounds = map.value.leafletObject.getBounds();
+      emit('bounds-changed', {
+        min_lat: bounds.getSouth(),
+        max_lat: bounds.getNorth(),
+        min_lng: bounds.getWest(),
+        max_lng: bounds.getEast()
+      });
+    });
+  }
+};
 
 // Very simple static mapping for cities to coordinates as fallback
 const cityCoordinates = {
@@ -124,6 +151,27 @@ const allMarkers = computed(() => {
   border-radius: 0.5rem;
   border: none;
   box-shadow: var(--shadow-sm);
+}
+
+.custom-price-marker {
+  background: white;
+  color: black;
+  padding: 4px 8px;
+  border-radius: 12px;
+  border: 2px solid var(--surface-900);
+  font-weight: 800;
+  font-size: 14px;
+  white-space: nowrap;
+  box-shadow: var(--shadow-md);
+  transition: transform 0.2s, background 0.2s, color 0.2s;
+  cursor: pointer;
+}
+
+.custom-price-marker:hover, .custom-price-marker.is-selected {
+  background: var(--surface-900);
+  color: white;
+  transform: scale(1.1) translateY(-4px);
+  z-index: 1000;
 }
 
 /* Fix leaflet icon path issues in Vue/Vite */

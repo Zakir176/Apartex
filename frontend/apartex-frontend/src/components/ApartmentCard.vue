@@ -1,5 +1,11 @@
 <template>
-  <div class="ax-apartment-card" @click="viewApartment">
+  <div 
+    class="ax-apartment-card" 
+    :class="{'is-selected': isSelected}"
+    @click="viewApartment"
+    @mouseover="$emit('card-hover', apartment.id)"
+    @mouseleave="$emit('card-leave', apartment.id)"
+  >
     <div class="card-image-wrapper">
       <img :src="apartment.image_url || '/placeholder-apartment.png'" :alt="apartment.title" class="card-image">
       
@@ -77,10 +83,14 @@ const props = defineProps({
   isWishlisted: {
     type: Boolean,
     default: false
+  },
+  isSelected: {
+    type: Boolean,
+    default: false
   }
 });
 
-const emit = defineEmits(['toggle-wishlist']);
+const emit = defineEmits(['toggle-wishlist', 'card-hover', 'card-leave']);
 
 const router = useRouter();
 const wishlistStore = useWishlistStore();
@@ -126,10 +136,14 @@ const toggleWishlist = async () => {
   box-shadow: var(--shadow-sm);
 }
 
-.ax-apartment-card:hover {
+.ax-apartment-card:hover, .ax-apartment-card.is-selected {
   transform: translateY(-8px);
   box-shadow: var(--shadow-lg);
-  border-color: var(--surface-200);
+  border-color: var(--primary-color);
+}
+
+.ax-apartment-card.is-selected {
+  border-width: 2px;
 }
 
 /* Image Section */

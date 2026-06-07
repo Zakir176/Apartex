@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.database import get_db
 from app.models.review import Review
+from app.models.review_image import ReviewImage
 from app.models.booking import Booking
 from app.models.user import User
 from app.schemas.review import ReviewCreate, ReviewRead, ReviewUpdate
@@ -24,7 +25,7 @@ def create_review(
     booking = db.query(Booking).filter(
         Booking.user_id == current_user.id,
         Booking.apartment_id == review.apartment_id,
-        Booking.status.in_(["confirmed", "completed"]) # Let confirmed bookings leave reviews for now # TODO: change to completed when date checking is rigid
+        Booking.status.in_(["confirmed", "completed"])
     ).first()
 
     if not booking:
@@ -49,11 +50,23 @@ def create_review(
         apartment_id=review.apartment_id,
         user_id=current_user.id,
         rating=review.rating,
-        comment=review.comment
+        comment=review.comment,
+        is_verified=True # Automatically verified since we check for booking
     )
     
     try:
         db.add(db_review)
+        db.flush() # Flush to get db_review.id
+
+        # Add images if provided
+        if review.image_urls:
+            for url in review.image_urls:
+                db_image = ReviewImage(
+                    review_id=db_review.id,
+                    image_url=url
+                )
+                db.add(db_image)
+        
         db.commit()
         db.refresh(db_review)
     except Exception as e:

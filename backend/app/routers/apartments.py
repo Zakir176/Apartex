@@ -52,6 +52,11 @@ def get_apartments(
     capacity: Optional[int] = None,
     bedrooms: Optional[int] = None,
     amenities: Optional[List[str]] = Query(None),
+    # Bounding box parameters
+    min_lat: Optional[float] = None,
+    max_lat: Optional[float] = None,
+    min_lng: Optional[float] = None,
+    max_lng: Optional[float] = None,
     db: Session = Depends(get_db)
 ):
     query = db.query(Apartment)
@@ -67,6 +72,16 @@ def get_apartments(
         query = query.filter(Apartment.capacity >= capacity)
     if bedrooms is not None:
         query = query.filter(Apartment.bedrooms >= bedrooms)
+    
+    # Bounding box filters
+    if min_lat is not None:
+        query = query.filter(Apartment.latitude >= min_lat)
+    if max_lat is not None:
+        query = query.filter(Apartment.latitude <= max_lat)
+    if min_lng is not None:
+        query = query.filter(Apartment.longitude >= min_lng)
+    if max_lng is not None:
+        query = query.filter(Apartment.longitude <= max_lng)
     
     apartments = query.offset(skip).limit(limit).all()
     

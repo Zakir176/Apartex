@@ -14,9 +14,7 @@ async def upload_image(
     file: UploadFile = File(...),
     current_user = Depends(get_current_active_user)
 ):
-    if current_user.role not in ("owner", "admin"):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized")
-
+    # Any active user can upload images (owners for apartments, renters for reviews)
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Only image files are allowed")
 

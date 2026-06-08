@@ -12,6 +12,7 @@ class Review(Base):
     
     rating = Column(Integer, nullable=False) # 1-5 scale
     comment = Column(Text, nullable=True)
+    is_verified = Column(Boolean, default=False)
     
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -19,3 +20,4 @@ class Review(Base):
     # Relationships
     apartment = relationship("Apartment", back_populates="reviews")
     user = relationship("User", back_populates="reviews")
+    images = relationship("ReviewImage", back_populates="review", cascade="all, delete-orphan")

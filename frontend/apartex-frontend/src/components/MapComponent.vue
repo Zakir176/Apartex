@@ -1,5 +1,5 @@
 <template>
-  <div class="map-wrapper border-round-xl overflow-hidden shadow-2 relative" :style="{ height: height, width: '100%', z-index: 1 }">
+  <div class="map-wrapper border-round-xl overflow-hidden shadow-2 relative" :style="{ height: height, width: '100%', zIndex: 1 }">
     <l-map ref="map" :zoom="13" :center="mapCenter" :use-global-leaflet="false" @ready="handleMapReady">
       <l-tile-layer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

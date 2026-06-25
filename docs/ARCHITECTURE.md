@@ -68,11 +68,17 @@ We chose a bespoke **Vanilla CSS** approach for styling to achieve a premium "Gl
 FastAPI's `async/await` support is leveraged to handle high-concurrency scenarios, especially useful for future real-time features like chat or live availability updates.
 
 ### 🛡️ Enhanced Security
-Passwords are hashed using `bcrypt` with configurable rounds. JWT tokens have a defined expiration, and the system is ready for refresh token implementation (see `auth_enhanced.py`).
+Passwords are hashed using `bcrypt` with configurable rounds. JWT access and refresh tokens are implemented (`auth_enhanced.py`), with refresh handled via `/api/auth-enhanced/refresh`.
 
 ---
 
 ## 🚀 Deployment Strategy
-- **Frontend**: Optimized static build served via Vercel/Netlify.
-- **Backend**: Containerized with Docker and deployed to a cloud provider (e.g., AWS, DigitalOcean).
-- **CI/CD**: GitHub Actions for automated linting, testing, and deployment.
+- **Frontend**: Built with `vite build`, deployed as a static site to Vercel (`apartex.vercel.app`).
+- **Backend**: FastAPI app served via Uvicorn; currently uses SQLite for simplicity, designed to move to PostgreSQL.
+- **Important**: All backend routes are mounted under the `/api` prefix (see `main.py`). The Vite dev server proxies `/api` → `http://127.0.0.1:8000` automatically, but **production builds have no proxy** — set `VITE_API_BASE_URL` to the deployed backend URL before building for Vercel.
+
+## ✅ Current Status & Known Issues (last reviewed June 2026)
+- Backend boots cleanly, auto-migrates SQLite schema, and ships with seeded demo data.
+- Frontend production build is verified working (`npm run build` succeeds).
+- `backend/tests/` are manual smoke scripts (not pytest), and predate the `/api` prefix — update their `BASE_URL` usage before relying on them.
+- Postgres support is declared in `app/core/config.py` but not yet wired up — `app/database.py` is hardcoded to SQLite.

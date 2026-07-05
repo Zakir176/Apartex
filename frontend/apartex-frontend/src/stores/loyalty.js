@@ -68,9 +68,30 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     error.value = null;
     try {
       const response = await loyaltyAPI.getLoyaltyStatus(userId);
-      loyaltyStatus.value = response.data;
+      const data = response.data;
+      
+      let nextTier = 'Maximum Tier';
+      let bookingsRequired = 0;
+      
+      if (data.loyalty_tier === 'bronze') {
+        nextTier = 'Silver';
+        bookingsRequired = 3;
+      } else if (data.loyalty_tier === 'silver') {
+        nextTier = 'Gold';
+        bookingsRequired = 10;
+      }
+      
+      loyaltyStatus.value = {
+        current_tier: data.loyalty_tier,
+        points: data.loyalty_points,
+        total_bookings: data.total_bookings,
+        bookings_required: bookingsRequired,
+        next_tier: nextTier,
+        bookings_needed: Math.max(0, bookingsRequired - data.total_bookings)
+      };
+      
       console.log('✅ Loyalty status set:', loyaltyStatus.value);
-      return response.data;
+      return loyaltyStatus.value;
     } catch (err) {
       error.value = err.response?.data?.detail || 'Failed to fetch loyalty status';
       throw err;
@@ -83,13 +104,24 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
     console.log('🔄 Fetching user rewards for user:', userId);
     loading.value = true;
     error.value = null;
-    
-    await new Promise(resolve => setTimeout(resolve, 600));
-    
-    userRewards.value = mockUserRewards;
-    console.log('✅ User rewards set:', userRewards.value);
-    loading.value = false;
-    return mockUserRewards;
+    try {
+      const response = await loyaltyAPI.getLoyaltyRewards(userId);
+      userRewards.value = response.data.map(reward => ({
+        id: reward.id,
+        name: reward.reward_type === 'percentage_discount' ? `${reward.reward_value}% Discount` : 'Free Night',
+        description: reward.reward_type === 'percentage_discount' ? `Get ${reward.reward_value}% off your next booking` : 'One free night at any standard apartment',
+        redeemed_at: reward.earned_at,
+        used: reward.status === 'used',
+        redemption_code: `CODE-${reward.reward_type === 'percentage_discount' ? 'DISC' : 'FREE'}-${reward.id}`
+      }));
+      console.log('✅ User rewards set:', userRewards.value);
+      return userRewards.value;
+    } catch (err) {
+      error.value = err.response?.data?.detail || 'Failed to fetch user rewards';
+      throw err;
+    } finally {
+      loading.value = false;
+    }
   }
 
   async function fetchLoyaltyTiers() {

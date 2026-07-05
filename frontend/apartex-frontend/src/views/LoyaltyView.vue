@@ -22,7 +22,7 @@
             <p class="points">{{ loyaltyStatus.points }} points</p>
           </div>
 
-          <div class="progress-section">
+          <div class="progress-section" v-if="loyaltyStatus.bookings_required > 0">
             <div class="progress-header">
               <span>Progress to {{ loyaltyStatus.next_tier }}</span>
               <span>{{ progressPercentage }}%</span>
@@ -35,16 +35,20 @@
               ></div>
             </div>
             <div class="progress-text">
-              {{ loyaltyStatus.points }} / {{ loyaltyStatus.points_required }} points
+              {{ loyaltyStatus.total_bookings }} / {{ loyaltyStatus.bookings_required }} bookings
             </div>
           </div>
 
-          <div class="next-tier">
+          <div class="next-tier" v-if="loyaltyStatus.bookings_required > 0">
             <h3>Next Tier: {{ loyaltyStatus.next_tier }}</h3>
-            <p>Unlocks at {{ loyaltyStatus.points_required }} points</p>
+            <p>Unlocks at {{ loyaltyStatus.bookings_required }} bookings</p>
             <p class="points-needed">
-              {{ loyaltyStatus.points_required - loyaltyStatus.points }} points to go
+              {{ loyaltyStatus.bookings_needed }} booking(s) to go
             </p>
+          </div>
+          <div class="next-tier" v-else>
+            <h3>Congratulations!</h3>
+            <p>You have reached the maximum Gold Tier.</p>
           </div>
         </div>
       </div>
@@ -148,7 +152,7 @@
             </div>
           </div>
           <div class="tier-requirements">
-            <p><strong>Required Points:</strong> {{ tier.required_points }}</p>
+            <p><strong>Required Stays:</strong> {{ tier.min_bookings }}{{ tier.max_bookings ? ' - ' + tier.max_bookings : '+' }} bookings</p>
             <p><strong>Benefits:</strong></p>
             <ul class="benefits-list">
               <li v-for="benefit in tier.benefits" :key="benefit">
@@ -184,8 +188,10 @@ const availableRewards = computed(() => loyaltyStore.availableRewards || []);
 
 const progressPercentage = computed(() => {
   if (!loyaltyStatus.value) return 0;
-  const progress = (loyaltyStatus.value.points / loyaltyStatus.value.points_required) * 100;
-  return Math.min(Math.round(progress), 100);
+  const current = loyaltyStatus.value.total_bookings;
+  const required = loyaltyStatus.value.bookings_required;
+  if (!required) return 100;
+  return Math.min(Math.round((current / required) * 100), 100);
 });
 
 const isRewardRedeemable = (reward) => {

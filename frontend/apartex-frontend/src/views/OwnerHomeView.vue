@@ -1,7 +1,7 @@
 <template>
   <div class="owner-home-container">
     <div class="welcome-header">
-      <h1>Welcome back, {{ authStore.user?.name }}!</h1>
+      <h1>Welcome back, {{ authStore.user?.full_name }}!</h1>
       <p>Efficiently manage your properties and maximize your earnings from one central hub.</p>
     </div>
 

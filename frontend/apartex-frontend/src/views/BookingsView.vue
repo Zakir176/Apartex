@@ -109,14 +109,14 @@
               <div class="booking-dates-row">
                 <div class="date-block">
                   <span class="date-label">Check-in</span>
-                  <span class="date-value">{{ formatDate(booking.checkin_date) }}</span>
+                  <span class="date-value">{{ formatDate(booking.check_in) }}</span>
                 </div>
                 <div class="date-arrow">
                   <i class="pi pi-arrow-right"></i>
                 </div>
                 <div class="date-block">
                   <span class="date-label">Check-out</span>
-                  <span class="date-value">{{ formatDate(booking.checkout_date) }}</span>
+                  <span class="date-value">{{ formatDate(booking.check_out) }}</span>
                 </div>
               </div>
             </div>
@@ -248,7 +248,7 @@ const formatDate = (dateString) => {
 };
 
 const isUpcoming = (booking) => {
-  return new Date(booking.checkin_date) > new Date() && booking.status === 'confirmed';
+  return new Date(booking.check_in) > new Date() && booking.status === 'confirmed';
 };
 
 const isCompleted = (booking) => {
@@ -256,11 +256,11 @@ const isCompleted = (booking) => {
 };
 
 const canCancel = (booking) => {
-  return booking.status === 'confirmed' && new Date(booking.checkin_date) > new Date();
+  return booking.status === 'confirmed' && new Date(booking.check_in) > new Date();
 };
 
 const canComplete = (booking) => {
-  return booking.status === 'confirmed' && new Date(booking.checkout_date) < new Date();
+  return booking.status === 'confirmed' && new Date(booking.check_out) < new Date();
 };
 
 const statusIcon = (status) => {

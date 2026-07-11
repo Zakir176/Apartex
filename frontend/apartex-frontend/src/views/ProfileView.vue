@@ -1,105 +1,111 @@
 <template>
-  <div class="profile-dashboard fadein animation-duration-500">
-    <div class="dashboard-header mb-5">
-      <h1 class="text-4xl font-bold mb-2">Account Dashboard</h1>
-      <p class="text-muted text-lg">Manage your personal identity and security preferences</p>
+  <div class="max-w-[1200px] mx-auto px-6 py-12">
+    <!-- Header -->
+    <div class="mb-10 text-center md:text-left">
+      <h1 class="text-4xl font-extrabold text-slate-800 mb-2">Account Dashboard</h1>
+      <p class="text-slate-500 font-medium text-lg">Manage your personal identity and security preferences</p>
     </div>
 
-    <div class="grid">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
       <!-- Left Column: Avatar & Quick Info -->
-      <div class="col-12 lg:col-4">
-        <Card class="identity-card mb-4 border-none shadow-sm">
-          <template #content>
-            <div class="flex flex-column align-items-center py-4">
-              <div class="avatar-container mb-4">
-                <Avatar 
-                  :image="authStore.user?.avatar_url || '/placeholder-avatar.png'" 
-                  size="xlarge" 
-                  shape="circle" 
-                  class="profile-avatar shadow-lg" 
-                />
-                <Button 
-                  icon="pi pi-camera" 
-                  class="p-button-rounded p-button-primary avatar-edit-btn" 
-                  @click="$refs.avatarInput.click()"
-                />
-                <input type="file" ref="avatarInput" hidden accept="image/*" @change="handleAvatarUpload" />
-              </div>
-              <h2 class="text-2xl font-bold mb-1">{{ authStore.user?.full_name || 'Anonymous' }}</h2>
-              <Tag 
-                :value="authStore.user?.role?.toUpperCase()" 
-                :severity="authStore.user?.role === 'owner' ? 'warning' : 'info'" 
-                rounded 
-                class="px-3 py-1 font-bold tracking-wider"
-              />
-              
-              <div class="mt-5 w-full flex flex-column gap-3 pt-4 border-top-1 border-gray-100">
-                <div class="flex justify-content-between text-sm">
-                  <span class="text-muted">Member Since</span>
-                  <span class="font-bold">April 2024</span>
-                </div>
-                <div class="flex justify-content-between text-sm">
-                  <span class="text-muted">Verified</span>
-                  <i class="pi pi-verified text-primary"></i>
-                </div>
+      <div class="lg:col-span-1">
+        <div class="card-base p-8 text-center flex flex-col items-center">
+          <div class="relative mb-6">
+            <div class="w-36 h-36 rounded-full overflow-hidden border-4 border-white shadow-xl bg-slate-100 flex items-center justify-center">
+              <img v-if="authStore.user?.avatar_url" :src="authStore.user?.avatar_url" alt="Avatar" class="w-full h-full object-cover" />
+              <i v-else class="pi pi-user text-5xl text-slate-300"></i>
+            </div>
+            <button 
+              @click="$refs.avatarInput.click()"
+              class="absolute bottom-1 right-1 w-10 h-10 rounded-full bg-accent text-white shadow-lg flex items-center justify-center hover:bg-orange-600 transition-colors transform hover:scale-105 active:scale-95"
+            >
+              <i class="pi pi-camera"></i>
+            </button>
+            <input type="file" ref="avatarInput" hidden accept="image/*" @change="handleAvatarUpload" />
+          </div>
+          
+          <h2 class="text-2xl font-black text-slate-800 mb-2">{{ authStore.user?.full_name || 'Anonymous' }}</h2>
+          <span 
+            class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-8 inline-block"
+            :class="authStore.user?.role === 'owner' ? 'bg-orange-100 text-orange-800' : 'bg-blue-100 text-blue-800'"
+          >
+            {{ authStore.user?.role || 'User' }}
+          </span>
+          
+          <div class="w-full pt-6 border-t border-surface-border flex flex-col gap-4 text-left">
+            <div class="flex justify-between items-center text-sm">
+              <span class="text-slate-500 font-medium">Member Since</span>
+              <span class="font-bold text-slate-800">April 2024</span>
+            </div>
+            <div class="flex justify-between items-center text-sm">
+              <span class="text-slate-500 font-medium">Verified Status</span>
+              <div class="flex items-center gap-1.5 text-blue-600 font-bold bg-blue-50 px-2 py-1 rounded-md">
+                <i class="pi pi-verified text-xs"></i> Verified
               </div>
             </div>
-          </template>
-        </Card>
+          </div>
+        </div>
       </div>
 
       <!-- Right Column: Settings Form -->
-      <div class="col-12 lg:col-8">
-        <Card class="settings-card border-none shadow-sm">
-          <template #title>
-            <div class="flex align-items-center gap-2 mb-2">
-              <i class="pi pi-user text-primary"></i>
-              <span>Personal Information</span>
+      <div class="lg:col-span-2">
+        <div class="card-base">
+          <div class="p-6 md:p-8 border-b border-surface-border flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+              <i class="pi pi-user text-lg"></i>
             </div>
-          </template>
-          <template #content>
-            <form @submit.prevent="saveProfile" class="p-fluid grid mt-2">
-              <div class="field col-12 md:col-6 mb-4">
-                <label for="fullName" class="font-bold text-sm block mb-2 text-muted uppercase">Full Display Name</label>
-                <InputText id="fullName" v-model="fullName" placeholder="Your full name" class="p-inputtext-lg" />
-              </div>
-              
-              <div class="field col-12 md:col-6 mb-4">
-                <label for="email" class="font-bold text-sm block mb-2 text-muted uppercase">Email Address</label>
-                <InputText id="email" :value="authStore.user?.email" disabled class="p-inputtext-lg opacity-60" />
-                <small class="text-muted block mt-1"><i class="pi pi-lock mr-1"></i>Email cannot be changed</small>
-              </div>
-
-              <div class="col-12 border-top-1 border-gray-100 mt-4 pt-4 mb-4">
-                <div class="flex align-items-center gap-2 mb-4">
-                  <i class="pi pi-shield text-primary"></i>
-                  <span class="text-xl font-bold">Account Security</span>
+            <h2 class="text-2xl font-bold text-slate-800">Personal Information</h2>
+          </div>
+          
+          <div class="p-6 md:p-8">
+            <form @submit.prevent="saveProfile" class="flex flex-col gap-8">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="label-base">Full Display Name</label>
+                  <input v-model="fullName" type="text" class="input-base" placeholder="Your full name" />
                 </div>
-                <div class="field col-12 md:col-6">
-                  <label class="font-bold text-sm block mb-2 text-muted uppercase">Password</label>
-                  <Button 
-                    label="Reset My Password" 
-                    icon="pi pi-refresh" 
-                    class="p-button-text p-button-sm font-bold p-0 w-fit" 
-                    @click="confirmPasswordReset"
-                  />
+                
+                <div>
+                  <label class="label-base">Email Address</label>
+                  <input :value="authStore.user?.email" disabled type="email" class="input-base opacity-60 bg-slate-50 cursor-not-allowed" />
+                  <p class="text-xs font-medium text-slate-400 mt-2 flex items-center gap-1.5">
+                    <i class="pi pi-lock"></i> Email cannot be changed
+                  </p>
                 </div>
               </div>
 
-              <div class="col-12 flex justify-content-end mt-4">
-                <Button 
-                  type="submit" 
-                  label="Save Updates" 
-                  icon="pi pi-check" 
-                  :loading="saving" 
-                  class="p-button-primary p-button-lg px-5 font-bold border-round-xl" 
-                />
+              <div class="pt-8 border-t border-surface-border">
+                <div class="flex items-center gap-3 mb-6">
+                  <div class="w-10 h-10 rounded-xl bg-orange-50 text-accent flex items-center justify-center">
+                    <i class="pi pi-shield text-lg"></i>
+                  </div>
+                  <h3 class="text-xl font-bold text-slate-800">Account Security</h3>
+                </div>
+                
+                <div>
+                  <label class="label-base">Password</label>
+                  <button type="button" @click="confirmPasswordReset" class="px-5 py-2.5 rounded-full border border-surface-border text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors inline-flex items-center gap-2">
+                    <i class="pi pi-refresh"></i>
+                    Reset My Password
+                  </button>
+                </div>
+              </div>
+
+              <div class="pt-6 flex justify-end">
+                <button type="submit" :disabled="saving" class="btn-accent shadow-accent inline-flex items-center gap-2 px-8 py-3.5 text-base">
+                  <i class="pi pi-check" v-if="!saving"></i>
+                  <i class="pi pi-spinner pi-spin" v-else></i>
+                  Save Updates
+                </button>
               </div>
             </form>
-          </template>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
+
+    <ConfirmDialog />
   </div>
 </template>
 
@@ -111,11 +117,7 @@ import { uploadImage } from '@/api/uploads';
 import { useConfirm } from "primevue/useconfirm";
 
 // PrimeVue components
-import Card from 'primevue/card';
-import InputText from 'primevue/inputtext';
-import Button from 'primevue/button';
-import Avatar from 'primevue/avatar';
-import Tag from 'primevue/tag';
+import ConfirmDialog from 'primevue/confirmdialog';
 
 const authStore = useAuthStore();
 const confirm = useConfirm();
@@ -163,51 +165,3 @@ const confirmPasswordReset = () => {
   });
 };
 </script>
-
-<style scoped>
-.profile-dashboard {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 4rem 2rem;
-}
-
-.identity-card, .settings-card {
-  background: var(--surface-card) !important;
-  border: 1px solid var(--surface-border) !important;
-  border-radius: 20px !important;
-}
-
-.avatar-container {
-  position: relative;
-}
-
-.profile-avatar {
-  width: 140px !important;
-  height: 140px !important;
-  border: 4px solid white;
-}
-
-.avatar-edit-btn {
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
-  width: 40px !important;
-  height: 40px !important;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
-}
-
-.dark .profile-avatar {
-  border-color: #1e293b;
-}
-
-:deep(.p-card-title) {
-  font-size: 1.5rem !important;
-  font-weight: 800 !important;
-}
-
-@media (max-width: 991px) {
-  .profile-dashboard {
-    padding: 2rem 1rem;
-  }
-}
-</style>

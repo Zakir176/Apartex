@@ -1,231 +1,264 @@
 <template>
-  <div class="ax-detail-page">
-    <div v-if="apartmentsStore.loading" class="flex flex-column gap-5 min-h-screen pt-4 ax-container">
-      <Skeleton width="15rem" height="2rem" class="mb-4" />
-      <Skeleton width="60%" height="3rem" class="mb-2" />
-      <Skeleton width="40%" height="2rem" class="mb-5" />
-      <Skeleton width="100%" height="500px" class="border-round-2xl mb-6" />
-      
-      <div class="main-layout-grid">
-        <div class="info-column">
-           <Skeleton width="100%" height="100px" class="border-round-xl mb-4" />
-           <Skeleton width="100%" height="250px" class="border-round-xl mb-4" />
-        </div>
-        <div class="booking-column">
-           <Skeleton width="100%" height="400px" class="border-round-xl" />
-        </div>
+  <div class="bg-white min-h-screen pb-20">
+    <div v-if="apartmentsStore.loading" class="max-w-[1200px] mx-auto px-6 pt-8 flex flex-col gap-6">
+      <Skeleton width="15rem" height="2rem" />
+      <Skeleton width="60%" height="3rem" />
+      <Skeleton width="40%" height="2rem" />
+      <Skeleton width="100%" height="500px" class="rounded-3xl" />
+      <div class="grid grid-cols-1 lg:grid-cols-[1.8fr_1fr] gap-12 mt-6">
+         <div class="flex flex-col gap-6">
+           <Skeleton width="100%" height="100px" class="rounded-2xl" />
+           <Skeleton width="100%" height="250px" class="rounded-2xl" />
+         </div>
+         <Skeleton width="100%" height="400px" class="rounded-2xl" />
       </div>
     </div>
     
-    <div v-else-if="apartmentsStore.error" class="error-wrapper p-6 text-center">
-      <i class="pi pi-exclamation-triangle text-4xl text-red-500 mb-4"></i>
-      <h2 class="text-2xl font-bold mb-2">Something went wrong</h2>
-      <p class="text-600 mb-6">{{ apartmentsStore.error }}</p>
-      <button @click="router.push('/apartments')" class="ax-button">
-        <i class="pi pi-arrow-left mr-2"></i>
-        <span>Return to Listings</span>
+    <div v-else-if="apartmentsStore.error" class="max-w-2xl mx-auto p-12 text-center mt-20 card-base border-red-100 bg-red-50">
+      <i class="pi pi-exclamation-triangle text-5xl text-red-500 mb-6"></i>
+      <h2 class="text-3xl font-extrabold text-slate-800 mb-3">Something went wrong</h2>
+      <p class="text-slate-600 font-medium mb-8 text-lg">{{ apartmentsStore.error }}</p>
+      <button @click="router.push('/apartments')" class="px-6 py-3 rounded-full bg-white border border-surface-border font-bold text-slate-700 hover:bg-slate-50 transition-colors inline-flex items-center gap-2 shadow-sm">
+        <i class="pi pi-arrow-left"></i>
+        Return to Listings
       </button>
     </div>
 
-    <div v-else-if="apartment" class="detail-wrapper fadein animation-duration-500">
+    <div v-else-if="apartment" class="animate-fade-in">
       <!-- Top Contextual Navigation -->
-      <nav class="top-context-nav px-4 py-3 flex align-items-center justify-content-between">
-        <button @click="router.back()" class="back-btn">
-          <i class="pi pi-chevron-left"></i>
-          <span>Listings</span>
-        </button>
-        <div class="flex gap-2">
-          <button class="circle-action-btn"><i class="pi pi-share-alt"></i></button>
-          <button 
-            class="circle-action-btn" 
-            :class="{'is-active': isApartmentWishlisted}" 
-            @click="toggleWishlist"
-          >
-            <i :class="isApartmentWishlisted ? 'pi pi-heart-fill' : 'pi pi-heart'"></i>
+      <nav class="sticky top-16 z-40 bg-white/80 backdrop-blur-md border-b border-surface-border">
+        <div class="max-w-[1200px] mx-auto px-6 py-3 flex items-center justify-between">
+          <button @click="router.back()" class="flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors group">
+            <div class="w-8 h-8 rounded-full border border-surface-border bg-white flex items-center justify-center group-hover:bg-slate-50">
+              <i class="pi pi-chevron-left"></i>
+            </div>
+            <span>Back to Listings</span>
           </button>
+          
+          <div class="flex gap-2">
+            <button class="w-10 h-10 rounded-full border border-surface-border bg-white text-slate-600 flex items-center justify-center hover:bg-slate-50 transition-colors">
+              <i class="pi pi-share-alt"></i>
+            </button>
+            <button 
+              class="w-10 h-10 rounded-full border bg-white flex items-center justify-center transition-all duration-300 transform active:scale-95"
+              :class="isApartmentWishlisted ? 'border-red-200 text-red-500 bg-red-50' : 'border-surface-border text-slate-600 hover:bg-slate-50'"
+              @click="toggleWishlist"
+            >
+              <i :class="isApartmentWishlisted ? 'pi pi-heart-fill' : 'pi pi-heart'"></i>
+            </button>
+          </div>
         </div>
       </nav>
 
-      <div class="ax-container">
+      <div class="max-w-[1200px] mx-auto px-6 pt-8">
         <!-- Main Header -->
-        <header class="header-section mt-4 mb-6 text-left">
-          <h1 class="text-5xl font-extrabold tracking-tight mb-3">{{ apartment.title }}</h1>
-          <div class="header-meta flex flex-wrap align-items-center gap-4">
-            <div class="meta-item">
-              <i class="pi pi-map-marker"></i>
+        <header class="mb-8">
+          <h1 class="text-4xl md:text-5xl font-black text-slate-800 mb-4 tracking-tight leading-tight">{{ apartment.title }}</h1>
+          
+          <div class="flex flex-wrap items-center gap-3 text-sm font-bold text-slate-600">
+            <div class="flex items-center gap-1.5 hover:underline cursor-pointer">
+              <i class="pi pi-map-marker text-accent"></i>
               <span>{{ apartment.city }}, Zambia</span>
             </div>
-            <div class="meta-divider"></div>
-            <div class="meta-item highlight">
-              <i class="pi pi-star-fill"></i>
-              <span class="font-bold">4.95</span>
-              <span class="count opacity-60">({{ reviews.length }} reviews)</span>
+            <div class="w-1 h-1 rounded-full bg-slate-300"></div>
+            <div class="flex items-center gap-1.5 cursor-pointer hover:underline">
+              <i class="pi pi-star-fill text-yellow-500"></i>
+              <span class="text-slate-900">4.95</span>
+              <span class="font-medium text-slate-500">({{ reviews.length }} reviews)</span>
             </div>
-            <div class="meta-divider"></div>
-            <div class="meta-item">
-              <span class="badge-elite">Premier Selection</span>
+            <div class="w-1 h-1 rounded-full bg-slate-300"></div>
+            <div class="px-3 py-1 rounded-full bg-gradient-to-r from-slate-900 to-slate-700 text-white text-[10px] font-black uppercase tracking-widest shadow-sm">
+              Premier Selection
             </div>
           </div>
         </header>
 
-        <!-- Premium Image Gallery -->
-        <section class="gallery-section mb-8">
-          <div class="gallery-grid">
-            <div class="main-image">
-              <img :src="galleryImages[0].itemImageSrc" :alt="apartment.title">
-            </div>
-            <div class="side-images">
-              <div v-for="i in 2" :key="i" class="side-img-wrapper">
-                <img :src="galleryImages[i].itemImageSrc" :alt="apartment.title">
-              </div>
-              <div class="side-img-wrapper more-images">
-                <img :src="galleryImages[3].itemImageSrc" :alt="apartment.title">
-                <div class="overlay-count">
-                  <span class="text-2xl font-bold">+12</span>
-                  <span class="text-xs font-bold uppercase tracking-widest">Photos</span>
-                </div>
-              </div>
+        <!-- Premium Image Gallery (Pure Tailwind Grid) -->
+        <section class="mb-12 h-[300px] sm:h-[400px] lg:h-[500px] grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-3 rounded-3xl overflow-hidden group/gallery relative">
+          <!-- Main Large Image -->
+          <div class="md:col-span-2 row-span-2 relative overflow-hidden cursor-pointer group/img h-full" @click="showGallery = true">
+            <img :src="galleryImages[0].itemImageSrc" :alt="apartment.title" class="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-700">
+            <div class="absolute inset-0 bg-black/10 group-hover/img:bg-transparent transition-colors duration-300"></div>
+          </div>
+          
+          <!-- Smaller Side Images -->
+          <div class="hidden md:block relative overflow-hidden cursor-pointer group/img" @click="showGallery = true">
+            <img :src="galleryImages[1].itemImageSrc" :alt="apartment.title" class="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-700">
+            <div class="absolute inset-0 bg-black/10 group-hover/img:bg-transparent transition-colors duration-300"></div>
+          </div>
+          <div class="hidden md:block relative overflow-hidden cursor-pointer group/img" @click="showGallery = true">
+            <img :src="galleryImages[2].itemImageSrc" :alt="apartment.title" class="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-700">
+            <div class="absolute inset-0 bg-black/10 group-hover/img:bg-transparent transition-colors duration-300"></div>
+          </div>
+          <div class="hidden md:block relative overflow-hidden cursor-pointer group/img" @click="showGallery = true">
+            <img :src="galleryImages[3].itemImageSrc" :alt="apartment.title" class="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-700">
+            <div class="absolute inset-0 bg-black/10 group-hover/img:bg-transparent transition-colors duration-300"></div>
+          </div>
+          <div class="hidden md:block relative overflow-hidden cursor-pointer group/img" @click="showGallery = true">
+            <img :src="galleryImages[4].itemImageSrc" :alt="apartment.title" class="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-700">
+            <div class="absolute inset-0 bg-black/40 group-hover/img:bg-black/50 transition-colors duration-300"></div>
+            <div class="absolute inset-0 flex flex-col items-center justify-center text-white backdrop-blur-[2px]">
+              <i class="pi pi-images text-2xl mb-1"></i>
+              <span class="font-bold text-sm tracking-widest uppercase">View All</span>
             </div>
           </div>
+
+          <!-- Floating View All Button for Mobile -->
+          <button @click="showGallery = true" class="md:hidden absolute bottom-4 right-4 px-4 py-2 rounded-lg bg-white/90 backdrop-blur-md shadow-md text-sm font-bold text-slate-800 flex items-center gap-2">
+            <i class="pi pi-images"></i> 5+ Photos
+          </button>
         </section>
 
         <!-- Main Layout Split -->
-        <div class="main-layout-grid">
-          <div class="info-column">
+        <div class="grid grid-cols-1 lg:grid-cols-[1.8fr_1fr] gap-12 lg:gap-16 relative">
+          
+          <!-- Left Column: Details -->
+          <div class="flex flex-col gap-10">
+            
             <!-- Host Card -->
-            <section class="host-premium-card mb-6">
-              <div class="flex align-items-center justify-content-between">
-                <div class="host-info">
-                  <h2 class="text-2xl font-extrabold text-900 mb-1">Managed by Sarah</h2>
-                  <div class="flex gap-3 text-500 font-semibold text-sm">
-                    <span>{{ apartment.bedrooms }} Bedrooms</span>
-                    <span>•</span>
-                    <span>{{ apartment.bathrooms }} Bathrooms</span>
-                    <span>•</span>
-                    <span>Up to {{ apartment.capacity }} Guests</span>
-                  </div>
+            <section class="card-base p-6 border-l-4 border-l-accent flex items-center justify-between">
+              <div>
+                <h2 class="text-2xl font-extrabold text-slate-800 mb-2">Hosted by Apartex Premier</h2>
+                <div class="flex flex-wrap gap-x-4 gap-y-2 text-slate-500 font-bold text-sm">
+                  <span>{{ apartment.bedrooms }} Bedrooms</span>
+                  <span class="hidden sm:block">•</span>
+                  <span>{{ apartment.bathrooms }} Bathrooms</span>
+                  <span class="hidden sm:block">•</span>
+                  <span>Up to {{ apartment.capacity }} Guests</span>
                 </div>
-                <div class="host-avatar">
-                  <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150" alt="Host">
-                  <div class="verified-badge"><i class="pi pi-check"></i></div>
+              </div>
+              <div class="relative w-14 h-14 flex-shrink-0 ml-4">
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150" alt="Host" class="w-full h-full rounded-full object-cover shadow-sm">
+                <div class="absolute bottom-0 right-0 w-5 h-5 bg-accent text-white rounded-full flex items-center justify-center border-2 border-white">
+                  <i class="pi pi-check text-[10px] font-bold"></i>
                 </div>
               </div>
             </section>
 
-            <Divider class="my-6 opacity-40" />
+            <div class="w-full h-px bg-surface-border"></div>
 
             <!-- Description -->
-            <section class="description-premium mb-8 text-left">
-              <h3 class="text-xl font-extrabold uppercase tracking-widest text-400 mb-4">The Residence</h3>
-              <p class="text-xl text-700 line-height-4 font-medium">{{ apartment.description }}</p>
-              <button class="text-900 font-extrabold border-bottom-2 border-900 bg-transparent border-none p-0 pb-1 mt-4 cursor-pointer">Read the full narrative</button>
-            </section>
-
-            <Divider class="my-6 opacity-40" />
-
-            <!-- Amenities -->
-            <section class="amenities-premium mb-8 text-left">
-              <h3 class="text-xl font-extrabold uppercase tracking-widest text-400 mb-6">Refined Amenities</h3>
-              <div class="amenity-luxury-grid">
-                <div v-for="amenity in (apartment.amenities || commonAmenities.slice(0, 6))" :key="amenity" class="amenity-item">
-                  <div class="amenity-icon-box">
-                    <i :class="getAmenityIcon(amenity)"></i>
-                  </div>
-                  <span class="font-bold text-700">{{ amenity }}</span>
-                </div>
-              </div>
-              <button class="ax-button p-button-outlined mt-6">
-                <span>All {{ apartment.amenities?.length || 12 }} Amenities</span>
+            <section>
+              <h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-5">The Residence</h3>
+              <p class="text-lg text-slate-700 leading-relaxed font-medium mb-4 whitespace-pre-line">{{ apartment.description }}</p>
+              <button class="text-slate-900 font-extrabold border-b-2 border-slate-900 pb-0.5 hover:text-accent hover:border-accent transition-colors">
+                Read the full narrative <i class="pi pi-angle-right ml-1 text-sm"></i>
               </button>
             </section>
 
-            <Divider class="my-6 opacity-40" />
+            <div class="w-full h-px bg-surface-border"></div>
+
+            <!-- Amenities -->
+            <section>
+              <h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-6">Refined Amenities</h3>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-6 mb-6">
+                <div v-for="amenity in (apartment.amenities || commonAmenities.slice(0, 6))" :key="amenity" class="flex items-center gap-3 group">
+                  <div class="w-10 h-10 rounded-xl bg-slate-50 border border-surface-border flex items-center justify-center text-slate-500 group-hover:bg-white group-hover:shadow-sm group-hover:border-slate-200 group-hover:text-accent transition-all">
+                    <i :class="getAmenityIcon(amenity)" class="text-lg"></i>
+                  </div>
+                  <span class="font-bold text-slate-700 group-hover:text-slate-900 transition-colors">{{ amenity }}</span>
+                </div>
+              </div>
+              <button class="px-6 py-3 rounded-full border border-surface-border text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors inline-flex items-center gap-2">
+                Show all {{ apartment.amenities?.length || 12 }} amenities
+              </button>
+            </section>
+
+            <div class="w-full h-px bg-surface-border"></div>
 
             <!-- Location Map -->
-            <section class="location-premium mb-8 text-left">
-              <h3 class="text-xl font-extrabold uppercase tracking-widest text-400 mb-6">Location</h3>
-              <p class="text-lg font-bold text-900 mb-6">{{ apartment.address }}, {{ apartment.city }}</p>
-              <div class="map-premium-wrapper">
-                   <MapComponent 
-                     :city="apartment.city" 
-                     :title="apartment.title" 
-                     :lat="apartment.latitude" 
-                     :lng="apartment.longitude" 
-                   />
+            <section>
+              <h3 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-5">Location</h3>
+              <p class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
+                <i class="pi pi-map-marker text-accent"></i>
+                {{ apartment.address }}, {{ apartment.city }}
+              </p>
+              <div class="h-[400px] rounded-3xl overflow-hidden border border-surface-border shadow-sm">
+                <MapComponent :city="apartment.city" :title="apartment.title" :lat="apartment.latitude" :lng="apartment.longitude" />
               </div>
             </section>
           </div>
 
-          <!-- Sticky Booking Sidebar -->
-          <div class="booking-column">
-            <div class="sticky-booking-card">
-              <BookingForm :apartment="apartment" />
+          <!-- Right Column: Sticky Booking Widget -->
+          <div class="relative">
+            <div class="sticky top-32 z-30 flex flex-col gap-5">
+              <!-- Wrapping the original BookingForm in a card-base container was already done inside the component usually, but let's ensure it has our shadow -->
+              <div class="shadow-xl rounded-3xl overflow-hidden border border-surface-border bg-white">
+                <BookingForm :apartment="apartment" />
+              </div>
               
-              <div class="trust-indicators mt-4 p-3 border-round-xl bg-slate-50 flex flex-column gap-3">
-                <div class="flex align-items-center gap-3">
-                  <i class="pi pi-shield text-primary-600 font-bold"></i>
-                  <span class="text-xs font-bold text-700 uppercase tracking-wider">Apartex Protection Included</span>
+              <!-- Trust Indicators -->
+              <div class="card-base p-5 flex flex-col gap-4 bg-slate-50/50">
+                <div class="flex items-start gap-3">
+                  <i class="pi pi-shield text-accent mt-0.5 text-lg"></i>
+                  <div>
+                    <h4 class="text-sm font-bold text-slate-800 mb-0.5">Apartex Protection Included</h4>
+                    <p class="text-xs font-medium text-slate-500 m-0 leading-relaxed">Every booking includes free protection from Host cancellations and listing inaccuracies.</p>
+                  </div>
                 </div>
-                <div class="flex align-items-center gap-3">
-                  <i class="pi pi-calendar-times text-primary-600 font-bold"></i>
-                  <span class="text-xs font-bold text-700 uppercase tracking-wider">Free cancellation for 48h</span>
+                <div class="h-px w-full bg-surface-border"></div>
+                <div class="flex items-start gap-3">
+                  <i class="pi pi-calendar-times text-accent mt-0.5 text-lg"></i>
+                  <div>
+                    <h4 class="text-sm font-bold text-slate-800 mb-0.5">Flexible Cancellation</h4>
+                    <p class="text-xs font-medium text-slate-500 m-0 leading-relaxed">Cancel for free up to 48 hours before check-in for a full refund.</p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <Divider class="my-8 opacity-40" />
+        <div class="w-full h-px bg-surface-border my-12"></div>
 
-        <!-- Reviews: Enhanced Premium Layout -->
-        <section class="reviews-luxury pb-8 text-left">
-          <header class="flex align-items-center justify-content-between mb-8">
-            <div class="flex align-items-center gap-3">
-              <div class="rating-hero">
-                <i class="pi pi-star-fill"></i>
-                <span>{{ avgRating.toFixed(2) }}</span>
+        <!-- Reviews Section -->
+        <section class="pb-10">
+          <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
+            <div class="flex items-center gap-4">
+              <div class="px-4 py-2 rounded-xl bg-slate-900 text-white flex items-center gap-2 font-black text-xl shadow-md">
+                <i class="pi pi-star-fill text-yellow-500"></i>
+                {{ avgRating.toFixed(2) }}
               </div>
-              <h3 class="text-3xl font-extrabold m-0">{{ reviews.length }} Guest Reviews</h3>
+              <h3 class="text-3xl font-extrabold text-slate-800 m-0">{{ reviews.length }} Guest Reviews</h3>
             </div>
-            <button
-              v-if="authStore.user"
-              @click="showReviewDialog = true"
-              class="ax-button"
-            >
-              <i class="pi pi-pencil mr-2"></i>
-              <span>Share Experience</span>
+            <button v-if="authStore.user" @click="showReviewDialog = true" class="btn-accent shadow-accent inline-flex items-center gap-2">
+              <i class="pi pi-pencil"></i>
+              Share Experience
             </button>
           </header>
 
-          <!-- Review Grid -->
-          <div v-if="reviews.length === 0" class="empty-reviews text-center py-6 bg-slate-50 border-round-2xl border-1 border-100">
-            <i class="pi pi-comments text-4xl text-300 mb-3"></i>
-            <p class="text-500 font-bold uppercase tracking-widest">No reviews yet for this sanctuary</p>
+          <div v-if="reviews.length === 0" class="card-base p-12 text-center flex flex-col items-center bg-slate-50">
+            <div class="w-16 h-16 rounded-full bg-white flex items-center justify-center mb-4 border border-surface-border text-slate-300">
+              <i class="pi pi-comments text-2xl"></i>
+            </div>
+            <p class="text-slate-500 font-bold uppercase tracking-widest text-sm">No reviews yet for this sanctuary</p>
           </div>
 
-          <div v-else class="reviews-luxury-grid">
-            <div v-for="review in reviews" :key="review.id" class="luxury-review-card">
-              <div class="review-header mb-4">
-                <div class="reviewer-meta">
-                  <Avatar icon="pi pi-user" shape="circle" class="bg-primary text-white" />
+          <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-12">
+            <div v-for="review in reviews" :key="review.id" class="flex flex-col">
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                  <Avatar icon="pi pi-user" shape="circle" class="bg-blue-100 text-blue-600 font-bold" />
                   <div>
-                    <div class="flex align-items-center gap-2">
-                      <span class="block font-extrabold text-900">Verified Member</span>
-                      <Tag v-if="review.is_verified" value="Verified Stay" severity="success" class="text-xs" rounded />
+                    <div class="flex items-center gap-2">
+                      <span class="font-extrabold text-slate-800 text-sm">Verified Guest</span>
+                      <Tag v-if="review.is_verified" value="Verified Stay" severity="success" class="text-[9px] uppercase tracking-wider font-bold" rounded />
                     </div>
-                    <span class="block text-xs text-500 font-bold uppercase tracking-wider">{{ formatDate(review.created_at) }}</span>
+                    <span class="text-xs text-slate-500 font-medium">{{ formatDate(review.created_at) }}</span>
                   </div>
                 </div>
-                <div class="review-rating">
-                  <i v-for="s in 5" :key="s" :class="['pi pi-star-fill', s <= review.rating ? 'text-primary-500' : 'text-100']"></i>
+                <div class="flex gap-0.5 text-xs">
+                  <i v-for="s in 5" :key="s" :class="['pi pi-star-fill', s <= review.rating ? 'text-yellow-500' : 'text-slate-200']"></i>
                 </div>
               </div>
-              <p class="review-text line-height-4 text-700 font-medium mb-4">{{ review.comment || 'An exceptional stay at this beautiful residence. Every detail was curated for comfort.' }}</p>
               
-              <!-- Review Images -->
-              <div v-if="review.images && review.images.length > 0" class="review-images-grid flex gap-2 flex-wrap">
-                <div v-for="img in review.images" :key="img.id" class="review-img-thumb">
-                  <Image :src="img.image_url" alt="Review Image" width="80" height="80" preview class="border-round-lg overflow-hidden" />
+              <p class="text-slate-700 font-medium leading-relaxed mb-4 flex-grow text-sm">
+                {{ review.comment || 'An exceptional stay at this beautiful residence. Every detail was curated for comfort.' }}
+              </p>
+              
+              <div v-if="review.images && review.images.length > 0" class="flex gap-2 flex-wrap">
+                <div v-for="img in review.images" :key="img.id" class="w-20 h-20 rounded-lg overflow-hidden border border-surface-border">
+                  <Image :src="img.image_url" alt="Review Image" class="w-full h-full object-cover" preview />
                 </div>
               </div>
             </div>
@@ -233,40 +266,41 @@
         </section>
       </div>
 
-      <!-- Review Dialog (Kept simple but styled) -->
-      <Dialog v-model:visible="showReviewDialog" modal header="Experience Feedback" :style="{ width: '480px' }" class="ax-sidebar-premium">
-        <div class="p-fluid pt-2">
-          <div class="mb-4">
-            <label class="ax-label mb-3">Overall Rating</label>
+      <!-- Review Dialog -->
+      <Dialog v-model:visible="showReviewDialog" modal header="Experience Feedback" :style="{ width: '500px', maxWidth: '95vw' }" contentClass="pt-2">
+        <div class="flex flex-col gap-6 py-4">
+          <div>
+            <label class="label-base">Overall Rating</label>
             <Rating v-model="newReview.rating" :stars="5" :cancel="false" />
           </div>
-          <div class="mb-4">
-            <label class="ax-label mb-3">Narrative</label>
-            <Textarea v-model="newReview.comment" rows="5" placeholder="Share the highlights of your stay..." class="ax-input" />
+          <div>
+            <label class="label-base">Narrative</label>
+            <Textarea v-model="newReview.comment" rows="4" placeholder="Share the highlights of your stay..." class="input-base w-full resize-none" />
           </div>
-          <div class="mb-4">
-            <label class="ax-label mb-3">Photos of your stay</label>
-            <div class="flex flex-wrap gap-2 mb-2">
-               <div v-for="(url, index) in newReview.image_urls" :key="index" class="relative">
-                 <img :src="url" class="w-4rem h-4rem border-round-lg object-cover" />
-                 <button @click="removeReviewImage(index)" class="absolute top-0 right-0 bg-red-500 text-white border-none border-circle w-1rem h-1rem flex align-items-center justify-content-center cursor-pointer -mt-1 -mr-1">
-                   <i class="pi pi-times text-xs"></i>
+          <div>
+            <label class="label-base">Photos of your stay (Optional)</label>
+            <div class="flex flex-wrap gap-3 mb-3">
+               <div v-for="(url, index) in newReview.image_urls" :key="index" class="relative w-16 h-16 rounded-lg overflow-hidden border border-surface-border">
+                 <img :src="url" class="w-full h-full object-cover" />
+                 <button @click="removeReviewImage(index)" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-red-600 shadow-sm">
+                   <i class="pi pi-times text-[10px]"></i>
                  </button>
                </div>
             </div>
-            <div class="upload-trigger-box">
-              <input type="file" multiple accept="image/*" @change="handleReviewImageUpload" class="hidden" ref="fileInput" />
-              <button @click="$refs.fileInput.click()" class="ax-button p-button-outlined w-full" :disabled="uploadingImages">
-                <i :class="uploadingImages ? 'pi pi-spin pi-spinner' : 'pi pi-camera'" class="mr-2"></i>
-                <span>{{ uploadingImages ? 'Uploading...' : 'Add Photos' }}</span>
-              </button>
-            </div>
+            
+            <input type="file" multiple accept="image/*" @change="handleReviewImageUpload" class="hidden" ref="fileInput" />
+            <button @click="$refs.fileInput.click()" :disabled="uploadingImages" class="w-full px-4 py-3 rounded-xl border-2 border-dashed border-surface-border text-sm font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-colors flex items-center justify-center gap-2">
+              <i :class="uploadingImages ? 'pi pi-spin pi-spinner' : 'pi pi-camera'"></i>
+              <span>{{ uploadingImages ? 'Uploading photos...' : 'Upload Photos' }}</span>
+            </button>
           </div>
         </div>
         <template #footer>
-          <div class="flex gap-2 w-full">
-            <button @click="showReviewDialog = false" class="p-button p-button-text flex-1 font-bold">Cancel</button>
-            <button @click="submitReview" :disabled="submittingReview || !newReview.rating" class="ax-button flex-1">
+          <div class="flex gap-3 justify-end pt-4 border-t border-surface-border w-full">
+            <button @click="showReviewDialog = false" class="px-5 py-2.5 rounded-full text-sm font-bold text-slate-500 hover:bg-slate-100 transition-colors">Cancel</button>
+            <button @click="submitReview" :disabled="submittingReview || !newReview.rating" class="btn-accent inline-flex items-center gap-2">
+              <i class="pi pi-check" v-if="!submittingReview"></i>
+              <i class="pi pi-spinner pi-spin" v-else></i>
               <span>{{ submittingReview ? 'Publishing...' : 'Publish Review' }}</span>
             </button>
           </div>
@@ -288,9 +322,6 @@ import { reviewsApi } from '@/api/reviews.js';
 import { uploadImage } from '@/api/uploads.js';
 
 // PrimeVue components
-import Message from 'primevue/message';
-import Button from 'primevue/button';
-import Divider from 'primevue/divider';
 import Avatar from 'primevue/avatar';
 import Skeleton from 'primevue/skeleton';
 import Dialog from 'primevue/dialog';
@@ -323,9 +354,10 @@ const showReviewDialog = ref(false);
 const submittingReview = ref(false);
 const uploadingImages = ref(false);
 const newReview = ref({ rating: 0, comment: '', image_urls: [] });
+const showGallery = ref(false); // Can be used to trigger a fullscreen lightbox later
 
 const avgRating = computed(() => {
-  if (reviews.value.length === 0) return 4.9;
+  if (reviews.value.length === 0) return 4.95;
   return reviews.value.reduce((sum, r) => sum + r.rating, 0) / reviews.value.length;
 });
 
@@ -387,7 +419,9 @@ const submitReview = async () => {
 
 onMounted(async () => {
   await apartmentsStore.fetchApartmentById(route.params.id);
-  await wishlistStore.fetchWishlist();
+  if (authStore.user) {
+    await wishlistStore.fetchWishlist();
+  }
   if (apartment.value?.id) {
     await fetchReviews(apartment.value.id);
   }
@@ -416,115 +450,12 @@ const getAmenityIcon = (label) => {
 </script>
 
 <style scoped>
-.ax-detail-page { background: #fff; min-height: 100vh; }
-
-.top-context-nav {
-  position: sticky;
-  top: 5rem;
-  z-index: 100;
-  background: rgba(255,255,255,0.8);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--surface-100);
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
 }
 
-.back-btn {
-  background: transparent; border: none;
-  display: flex; align-items: center; gap: 0.5rem;
-  font-weight: 700; color: var(--surface-600);
-  cursor: pointer; transition: var(--transition);
-}
-.back-btn:hover { color: var(--surface-900); transform: translateX(-4px); }
-
-.circle-action-btn {
-  width: 2.5rem; height: 2.5rem;
-  border-radius: 50%; border: 1px solid var(--surface-200);
-  background: #fff; display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: var(--transition);
-}
-.circle-action-btn:hover { background: var(--surface-50); transform: scale(1.1); }
-.circle-action-btn.is-active { color: #ef4444; border-color: #fee2e2; background: #fef2f2; }
-
-/* Header */
-.meta-item { display: flex; align-items: center; gap: 0.5rem; color: var(--surface-600); font-weight: 600; font-size: 0.875rem; }
-.meta-item i { color: var(--primary-600); }
-.meta-divider { width: 4px; height: 4px; background: var(--surface-200); border-radius: 50%; }
-.meta-item.highlight { color: var(--surface-900); }
-.meta-item.highlight i { color: #f59e0b; }
-.badge-elite { 
-  background: linear-gradient(135deg, #0f172a, #1e293b);
-  color: #fff; padding: 0.25rem 0.75rem; border-radius: 999px;
-  font-size: 0.625rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;
-}
-
-/* Gallery Grid */
-.gallery-section { height: 500px; }
-.gallery-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 1rem;
-  height: 100%;
-}
-.main-image { border-radius: 1.5rem; overflow: hidden; position: relative; }
-.main-image img { width: 100%; height: 100%; object-fit: cover; }
-.side-images { display: grid; grid-template-rows: 1fr 1fr; gap: 1rem; }
-.side-img-wrapper { border-radius: 1rem; overflow: hidden; position: relative; }
-.side-img-wrapper img { width: 100%; height: 100%; object-fit: cover; }
-.more-images { position: relative; cursor: pointer; }
-.overlay-count {
-  position: absolute; inset: 0; background: rgba(0,0,0,0.4);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  color: #fff; backdrop-filter: blur(4px);
-}
-
-/* Layout */
-.main-layout-grid { display: grid; grid-template-columns: 1.8fr 1fr; gap: 4rem; }
-.sticky-booking-card { position: sticky; top: 10rem; }
-
-/* Host Card */
-.host-premium-card {
-  padding: 1.5rem; background: var(--surface-50);
-  border-radius: 1.5rem; border: 1px solid var(--surface-100);
-}
-.host-avatar { position: relative; width: 4rem; height: 4rem; }
-.host-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-.verified-badge {
-  position: absolute; bottom: 0; right: 0;
-  width: 1.25rem; height: 1.25rem; background: var(--primary-600);
-  border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  color: #fff; font-size: 0.625rem; border: 2px solid #fff;
-}
-
-/* Amenities */
-.amenity-luxury-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-.amenity-item { display: flex; align-items: center; gap: 1rem; }
-.amenity-icon-box {
-  width: 2.5rem; height: 2.5rem; background: var(--surface-50);
-  border-radius: 0.75rem; display: flex; align-items: center; justify-content: center;
-  color: var(--surface-500); border: 1px solid var(--surface-100);
-}
-
-/* Map */
-.map-premium-wrapper {
-  height: 400px; border-radius: 1.5rem; overflow: hidden;
-  border: 1px solid var(--surface-100); box-shadow: var(--shadow-sm);
-}
-
-/* Reviews */
-.rating-hero {
-  background: var(--surface-900); color: #fff;
-  padding: 0.5rem 1rem; border-radius: 1rem;
-  display: flex; align-items: center; gap: 0.5rem; font-weight: 800;
-}
-.rating-hero i { color: #f59e0b; }
-.reviews-luxury-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
-.reviewer-meta { display: flex; align-items: center; gap: 1rem; }
-.review-rating i { font-size: 0.625rem; margin-right: 0.125rem; }
-
-@media (max-width: 1024px) {
-  .main-layout-grid { grid-template-columns: 1fr; gap: 3rem; }
-  .gallery-section { height: 350px; }
-  .gallery-grid { grid-template-columns: 1fr; }
-  .side-images { display: none; }
-  .reviews-luxury-grid { grid-template-columns: 1fr; gap: 2rem; }
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 </style>

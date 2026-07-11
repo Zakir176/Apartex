@@ -1,60 +1,62 @@
 <template>
-  <div class="apartments-page">
-    <!-- TOP BAR -->
-    <div class="top-bar">
-      <h1 class="page-title">Explore Stays</h1>
-      <span class="result-count">{{ pendingCount }} properties found</span>
-    </div>
-
-    <!-- FILTER BAR -->
-    <div class="filter-bar">
-      <div 
-        class="filter-chip" 
-        :class="{ active: filters.city === '' }"
-        @click="setCityFilter('')"
-      >
-        All
+  <div class="min-h-screen bg-[#F8F7F4] py-8 px-6">
+    <div class="max-w-[1400px] mx-auto">
+      <!-- TOP BAR -->
+      <div class="flex justify-between items-end mb-6">
+        <h1 class="text-3xl font-extrabold text-slate-800 m-0">Explore Stays</h1>
+        <span class="text-sm font-medium text-slate-400">{{ pendingCount }} properties found</span>
       </div>
-      <div 
-        v-for="city in ['Lusaka', 'Livingstone', 'Ndola', 'Kitwe']" 
-        :key="city"
-        class="filter-chip"
-        :class="{ active: filters.city === city }"
-        @click="setCityFilter(city)"
-      >
-        {{ city }}
+
+      <!-- FILTER BAR -->
+      <div class="flex gap-3 overflow-x-auto pb-4 mb-6 scrollbar-hide">
+        <div 
+          class="bg-white border-[1.5px] border-surface-border rounded-full px-4 py-2 text-sm font-semibold text-slate-500 cursor-pointer whitespace-nowrap transition-all duration-150 hover:border-surface-border-strong hover:text-slate-800" 
+          :class="filters.city === '' ? '!bg-accent !text-white !border-accent' : ''"
+          @click="setCityFilter('')"
+        >
+          All
+        </div>
+        <div 
+          v-for="city in ['Lusaka', 'Livingstone', 'Ndola', 'Kitwe']" 
+          :key="city"
+          class="bg-white border-[1.5px] border-surface-border rounded-full px-4 py-2 text-sm font-semibold text-slate-500 cursor-pointer whitespace-nowrap transition-all duration-150 hover:border-surface-border-strong hover:text-slate-800"
+          :class="filters.city === city ? '!bg-accent !text-white !border-accent' : ''"
+          @click="setCityFilter(city)"
+        >
+          {{ city }}
+        </div>
       </div>
-    </div>
 
-    <!-- LOADING STATE -->
-    <div v-if="apartmentsStore.loading && apartmentsStore.apartments.length === 0" class="card-grid">
-      <div v-for="i in 6" :key="i" class="skeleton-card">
-        <div class="skeleton-image pulse"></div>
-        <div class="skeleton-text pulse title"></div>
-        <div class="skeleton-text pulse desc"></div>
+      <!-- LOADING STATE -->
+      <div v-if="apartmentsStore.loading && apartmentsStore.apartments.length === 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div v-for="i in 6" :key="i" class="bg-white border border-surface-border rounded-lg p-4 flex flex-col gap-4">
+          <div class="h-[200px] rounded-md bg-slate-200 animate-pulse"></div>
+          <div class="h-5 rounded-sm bg-slate-200 animate-pulse w-3/5"></div>
+          <div class="h-10 rounded-sm bg-slate-200 animate-pulse w-full"></div>
+        </div>
       </div>
-    </div>
 
-    <!-- EMPTY STATE -->
-    <div v-else-if="apartmentsStore.apartments.length === 0" class="empty-state">
-      <div class="empty-icon">🏜️</div>
-      <h2>No properties found</h2>
-      <p>We couldn't find any stays matching your criteria.</p>
-      <button class="btn-reset" @click="clearFilters">Reset Filters</button>
-    </div>
+      <!-- EMPTY STATE -->
+      <div v-else-if="apartmentsStore.apartments.length === 0" class="flex flex-col items-center justify-center text-center py-16">
+        <div class="text-6xl mb-4">🏜️</div>
+        <h2 class="text-xl font-bold text-slate-800 mb-2">No properties found</h2>
+        <p class="text-slate-500 mb-6">We couldn't find any stays matching your criteria.</p>
+        <button class="btn-accent px-6 py-3" @click="clearFilters">Reset Filters</button>
+      </div>
 
-    <!-- CARD GRID -->
-    <div v-else class="card-grid">
-      <ApartmentCard 
-        v-for="apartment in apartmentsStore.apartments" 
-        :key="apartment.id"
-        :apartment="apartment" 
-        :is-wishlisted="isApartmentWishlisted(apartment.id)"
-        :isSelected="selectedApartmentId === apartment.id"
-        @toggle-wishlist="handleToggleWishlist"
-        @card-hover="(id) => selectedApartmentId = id"
-        @card-leave="() => selectedApartmentId = null"
-      />
+      <!-- CARD GRID -->
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <ApartmentCard 
+          v-for="apartment in apartmentsStore.apartments" 
+          :key="apartment.id"
+          :apartment="apartment" 
+          :is-wishlisted="isApartmentWishlisted(apartment.id)"
+          :isSelected="selectedApartmentId === apartment.id"
+          @toggle-wishlist="handleToggleWishlist"
+          @card-hover="(id) => selectedApartmentId = id"
+          @card-leave="() => selectedApartmentId = null"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -194,170 +196,11 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.apartments-page {
-  background: var(--color-bg);
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: var(--space-8) var(--space-6);
-  min-height: 100vh;
-}
-
-.top-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: var(--space-6);
-}
-
-.page-title {
-  font-size: var(--font-size-3xl);
-  font-weight: 800;
-  color: var(--color-text-primary);
-  margin: 0;
-}
-
-.result-count {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-  font-weight: 500;
-}
-
-.filter-bar {
-  display: flex;
-  gap: var(--space-3);
-  overflow-x: auto;
-  padding-bottom: var(--space-4);
-  margin-bottom: var(--space-6);
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.filter-bar::-webkit-scrollbar {
+.scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
-
-.filter-chip {
-  background: var(--color-surface);
-  border: 1.5px solid var(--color-border);
-  border-radius: var(--radius-full);
-  padding: var(--space-2) var(--space-4);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all var(--transition-fast);
-}
-
-.filter-chip:hover {
-  border-color: var(--color-border-strong);
-  color: var(--color-text-primary);
-}
-
-.filter-chip.active {
-  background: var(--color-accent);
-  color: white;
-  border-color: var(--color-accent);
-}
-
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-6);
-}
-
-@media (max-width: 1024px) {
-  .card-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 768px) {
-  .card-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: var(--space-16) 0;
-}
-
-.empty-icon {
-  font-size: var(--font-size-5xl);
-  margin-bottom: var(--space-4);
-}
-
-.empty-state h2 {
-  font-size: var(--font-size-xl);
-  color: var(--color-text-primary);
-  margin-bottom: var(--space-2);
-}
-
-.empty-state p {
-  color: var(--color-text-secondary);
-  margin-bottom: var(--space-6);
-}
-
-.btn-reset {
-  background: var(--color-accent);
-  color: white;
-  border: none;
-  border-radius: var(--radius-full);
-  padding: var(--space-3) var(--space-6);
-  font-weight: 600;
-  font-size: var(--font-size-base);
-  cursor: pointer;
-  transition: background var(--transition-fast);
-}
-
-.btn-reset:hover {
-  background: var(--color-accent-hover);
-}
-
-/* SKELETON CARDS */
-.skeleton-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-4);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.skeleton-image {
-  height: 200px;
-  border-radius: var(--radius-md);
-  background: #e2e8f0;
-}
-
-.skeleton-text {
-  height: 20px;
-  border-radius: var(--radius-sm);
-  background: #e2e8f0;
-}
-
-.skeleton-text.title {
-  width: 60%;
-}
-
-.skeleton-text.desc {
-  width: 100%;
-  height: 40px;
-}
-
-.pulse {
-  animation: pulse 2s infinite ease-in-out;
-}
-
-@keyframes pulse {
-  0% { opacity: 0.6; }
-  50% { opacity: 0.2; }
-  100% { opacity: 0.6; }
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 </style>

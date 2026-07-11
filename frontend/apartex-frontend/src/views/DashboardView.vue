@@ -1,20 +1,20 @@
 <template>
-  <div class="ax-container py-8">
+  <div class="max-w-[1200px] mx-auto px-6 py-8">
     <!-- Page Header -->
-    <div class="flex flex-column md:flex-row md:align-items-center justify-content-between mb-8 gap-4">
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
       <div>
-        <h1 class="text-5xl font-bold text-900 mb-2">Performance Analytics</h1>
-        <p class="text-500 font-medium text-lg">Real-time overview of your property portfolio and earnings</p>
+        <h1 class="text-4xl font-extrabold text-slate-800 mb-2">Performance Analytics</h1>
+        <p class="text-slate-500 font-medium text-lg">Real-time overview of your property portfolio and earnings</p>
       </div>
-      <div class="flex gap-2">
-        <button @click="openPayoutModal" class="ax-button shadow-lg">
-          <i class="pi pi-wallet mr-2"></i>
+      <div class="flex items-center gap-3">
+        <button @click="openPayoutModal" class="btn-accent shadow-accent inline-flex items-center gap-2">
+          <i class="pi pi-wallet"></i>
           Request Payout
         </button>
         <Button 
           icon="pi pi-refresh" 
           @click="refreshData" 
-          class="p-button-outlined p-button-secondary font-bold" 
+          class="p-button-outlined p-button-secondary font-bold !rounded-full !w-10 !h-10 p-0 flex items-center justify-center" 
           v-tooltip.bottom="'Sync Data'"
           :loading="store.loading"
         />
@@ -22,115 +22,126 @@
     </div>
 
     <!-- Quick Stats -->
-    <div class="grid mb-8">
-      <div class="col-12 md:col-4 p-3">
-        <div class="surface-0 p-5 border-round-xl border-1 border-100 shadow-soft h-full">
-          <div class="flex align-items-center justify-content-between mb-4">
-            <span class="text-500 text-xs font-bold uppercase tracking-wider">Total Revenue</span>
-            <div class="w-2rem h-2rem border-circle bg-blue-50 flex align-items-center justify-content-center">
-              <i class="pi pi-dollar text-blue-500"></i>
-            </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <!-- Total Revenue -->
+      <div class="card-base p-6 flex flex-col justify-between h-full">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-slate-500 text-xs font-bold uppercase tracking-wider">Total Revenue</span>
+          <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+            <i class="pi pi-dollar text-blue-500 text-lg"></i>
           </div>
-          <div class="text-4xl font-bold text-900 mb-2">{{ formatCurrency(store.overview?.total_revenue) }}</div>
-          <div class="flex align-items-center gap-2 text-green-600 text-sm font-bold">
-            <i class="pi pi-arrow-up"></i>
+        </div>
+        <div>
+          <div class="text-4xl font-extrabold text-slate-800 tracking-tight mb-2">{{ formatCurrency(store.overview?.total_revenue) }}</div>
+          <div class="flex items-center gap-2 text-green-600 text-sm font-bold">
+            <i class="pi pi-arrow-up text-xs"></i>
             <span>12.5%</span>
-            <span class="text-500 font-normal">vs last month</span>
+            <span class="text-slate-500 font-medium">vs last month</span>
           </div>
         </div>
       </div>
 
-      <div class="col-12 md:col-4 p-3">
-        <div class="surface-0 p-5 border-round-xl border-1 border-100 shadow-soft h-full">
-          <div class="flex align-items-center justify-content-between mb-4">
-            <span class="text-500 text-xs font-bold uppercase tracking-wider">Active Bookings</span>
-            <div class="w-2rem h-2rem border-circle bg-purple-50 flex align-items-center justify-content-center">
-              <i class="pi pi-calendar text-purple-500"></i>
-            </div>
+      <!-- Active Bookings -->
+      <div class="card-base p-6 flex flex-col justify-between h-full">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-slate-500 text-xs font-bold uppercase tracking-wider">Active Bookings</span>
+          <div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center">
+            <i class="pi pi-calendar text-purple-500 text-lg"></i>
           </div>
-          <div class="text-4xl font-bold text-900 mb-2">{{ store.overview?.active_bookings || 0 }}</div>
-          <p class="text-500 text-sm font-medium m-0">Live stays at your properties</p>
+        </div>
+        <div>
+          <div class="text-4xl font-extrabold text-slate-800 tracking-tight mb-2">{{ store.overview?.active_bookings || 0 }}</div>
+          <p class="text-slate-500 text-sm font-medium m-0">Live stays at your properties</p>
         </div>
       </div>
 
-      <div class="col-12 md:col-4 p-3">
-        <div class="surface-0 p-5 border-round-xl border-1 border-100 shadow-soft h-full">
-          <div class="flex align-items-center justify-content-between mb-4">
-            <span class="text-500 text-xs font-bold uppercase tracking-wider">Portfolio Health</span>
-            <div class="w-2rem h-2rem border-circle bg-orange-50 flex align-items-center justify-content-center">
-              <i class="pi pi-chart-line text-orange-500"></i>
-            </div>
+      <!-- Portfolio Health -->
+      <div class="card-base p-6 flex flex-col justify-between h-full">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-slate-500 text-xs font-bold uppercase tracking-wider">Portfolio Health</span>
+          <div class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center">
+            <i class="pi pi-chart-line text-orange-500 text-lg"></i>
           </div>
-          <div class="text-4xl font-bold text-900 mb-2">{{ formatPercent(store.overview?.occupancy_rate) }}</div>
-          <p class="text-500 text-sm font-medium m-0">Average occupancy across listings</p>
+        </div>
+        <div>
+          <div class="text-4xl font-extrabold text-slate-800 tracking-tight mb-2">{{ formatPercent(store.overview?.occupancy_rate) }}</div>
+          <p class="text-slate-500 text-sm font-medium m-0">Average occupancy across listings</p>
         </div>
       </div>
     </div>
 
     <!-- Secondary Insights -->
-    <div class="grid">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Main Chart -->
-      <div class="col-12 lg:col-8 p-3">
-        <div class="surface-0 p-5 border-round-xl border-1 border-100 shadow-soft h-full">
-          <div class="flex align-items-center justify-content-between mb-6">
-            <h3 class="text-xl font-bold text-900">Revenue Trends</h3>
-            <span class="text-xs font-bold text-500 uppercase tracking-widest">Last 6 Months</span>
+      <div class="lg:col-span-2">
+        <div class="card-base p-6 h-full">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold text-slate-800">Revenue Trends</h3>
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Last 6 Months</span>
           </div>
-          <Chart type="line" :data="chartData" :options="chartOptions" class="h-20rem" />
+          <div class="h-64">
+            <Chart type="line" :data="chartData" :options="chartOptions" class="h-full w-full" />
+          </div>
         </div>
       </div>
 
       <!-- Recent Activity / Payouts -->
-      <div class="col-12 lg:col-4 p-3">
-        <div class="surface-0 p-5 border-round-xl border-1 border-100 shadow-soft h-full">
-          <h3 class="text-xl font-bold text-900 mb-6">Recent Payouts</h3>
+      <div class="lg:col-span-1">
+        <div class="card-base p-6 h-full">
+          <h3 class="text-xl font-bold text-slate-800 mb-6">Recent Payouts</h3>
           
-          <div v-if="store.payouts.length > 0" class="flex flex-column gap-4">
-            <div v-for="p in store.payouts.slice(0, 5)" :key="p.id" class="flex align-items-center justify-content-between">
-              <div class="flex align-items-center gap-3">
-                <div class="w-2rem h-2rem border-round-lg surface-100 flex align-items-center justify-content-center">
-                  <i class="pi pi-arrow-down-left text-sm"></i>
+          <div v-if="store.payouts.length > 0" class="flex flex-col gap-5">
+            <div v-for="p in store.payouts.slice(0, 5)" :key="p.id" class="flex items-center justify-between pb-4 border-b border-surface-border last:border-0 last:pb-0">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center">
+                  <i class="pi pi-arrow-down-left text-slate-400"></i>
                 </div>
                 <div>
-                  <div class="font-bold text-900 text-sm">{{ formatCurrency(p.amount) }}</div>
-                  <div class="text-xs text-500">{{ formatDate(p.date || p.created_at) }}</div>
+                  <div class="font-extrabold text-slate-800 text-sm mb-0.5">{{ formatCurrency(p.amount) }}</div>
+                  <div class="text-xs font-medium text-slate-500">{{ formatDate(p.date || p.created_at) }}</div>
                 </div>
               </div>
-              <Tag :value="p.status" :severity="getStatusSeverity(p.status)" class="text-xs font-bold uppercase" />
+              <Tag :value="p.status" :severity="getStatusSeverity(p.status)" class="text-[10px] font-bold uppercase tracking-wider" />
             </div>
           </div>
           
-          <div v-else class="flex flex-column align-items-center justify-content-center py-8 text-center">
-            <i class="pi pi-inbox text-3xl text-200 mb-3"></i>
-            <p class="text-500 text-sm font-medium">No payout history</p>
+          <div v-else class="flex flex-col items-center justify-center py-10 text-center">
+            <div class="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-4">
+              <i class="pi pi-inbox text-2xl text-slate-300"></i>
+            </div>
+            <p class="text-slate-500 text-sm font-medium">No payout history found</p>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Payout Request Dialog -->
-    <Dialog v-model:visible="payoutModal" header="Request Funds" :style="{ width: '450px' }" :modal="true" class="studio-payout-modal">
-      <div class="p-fluid py-2">
-        <div class="ax-field-group">
-          <label class="ax-label">Withdrawal Amount (USD)</label>
-          <InputNumber v-model="payoutForm.amount" mode="currency" currency="USD" locale="en-US" :min="0" inputClass="ax-input" />
+    <Dialog v-model:visible="payoutModal" header="Request Funds" :style="{ width: '450px' }" :modal="true" :breakpoints="{'640px': '90vw'}" contentClass="pt-2">
+      <div class="flex flex-col gap-5 py-4">
+        <div>
+          <label class="label-base">Withdrawal Amount (USD)</label>
+          <InputNumber v-model="payoutForm.amount" mode="currency" currency="USD" locale="en-US" :min="0" inputClass="input-base !w-full" class="w-full" />
         </div>
 
-        <div class="ax-field-group">
-          <label class="ax-label">Transfer Method</label>
-          <Dropdown v-model="payoutForm.method" :options="payoutMethods" optionLabel="label" optionValue="value" placeholder="Select destination" />
+        <div>
+          <label class="label-base">Transfer Method</label>
+          <Dropdown v-model="payoutForm.method" :options="payoutMethods" optionLabel="label" optionValue="value" placeholder="Select destination" class="w-full" />
         </div>
 
-        <div class="ax-field-group mb-0">
-          <label class="ax-label">Account Details</label>
-          <input v-model="payoutForm.details" class="ax-input" placeholder="SWIFT / IBAN / Account Number" />
+        <div>
+          <label class="label-base">Account Details</label>
+          <input v-model="payoutForm.details" class="input-base" placeholder="SWIFT / IBAN / Account Number" />
         </div>
       </div>
 
       <template #footer>
-        <div class="flex gap-2 justify-content-end pt-4">
-          <Button label="Cancel" @click="closePayoutModal" class="p-button-text p-button-secondary font-bold" />
-          <Button label="Confirm Request" icon="pi pi-check" @click="submitPayout" :loading="submitting" class="p-button-primary font-bold px-4" />
+        <div class="flex gap-3 justify-end pt-4 border-t border-surface-border">
+          <button @click="closePayoutModal" class="px-5 py-2.5 rounded-full text-sm font-bold text-slate-500 hover:bg-slate-100 transition-colors">Cancel</button>
+          <button @click="submitPayout" :disabled="submitting" class="btn-accent inline-flex items-center gap-2">
+            <i class="pi pi-check" v-if="!submitting"></i>
+            <i class="pi pi-spinner pi-spin" v-else></i>
+            <span>Confirm Request</span>
+          </button>
         </div>
       </template>
     </Dialog>
@@ -212,13 +223,13 @@ const chartData = computed(() => {
         label: 'Monthly Revenue',
         data: monthly.map((m) => m.revenue),
         fill: true,
-        borderColor: '#3b82f6',
+        borderColor: '#E8621A',
         borderWidth: 3,
         pointRadius: 4,
         pointBackgroundColor: '#fff',
         pointBorderWidth: 2,
         tension: 0.4,
-        backgroundColor: 'rgba(59, 130, 246, 0.05)'
+        backgroundColor: 'rgba(232, 98, 26, 0.05)'
       }
     ]
   };
@@ -230,7 +241,7 @@ const chartOptions = {
   plugins: {
     legend: { display: false },
     tooltip: {
-      backgroundColor: '#0f172a',
+      backgroundColor: '#1E293B',
       padding: 12,
       bodyFont: { weight: 'bold' },
       cornerRadius: 8
@@ -239,12 +250,12 @@ const chartOptions = {
   scales: {
     y: {
       beginAtZero: true,
-      grid: { color: '#f1f5f9', drawBorder: false },
-      ticks: { color: '#94a3b8', font: { weight: 600 } }
+      grid: { color: '#F1EFE9', drawBorder: false },
+      ticks: { color: '#94A3B8', font: { weight: 600 } }
     },
     x: {
       grid: { display: false },
-      ticks: { color: '#94a3b8', font: { weight: 600 } }
+      ticks: { color: '#94A3B8', font: { weight: 600 } }
     }
   }
 };
@@ -273,9 +284,3 @@ function getStatusSeverity(status) {
   }
 }
 </script>
-
-<style scoped>
-.shadow-soft {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
-}
-</style>

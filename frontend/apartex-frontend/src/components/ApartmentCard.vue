@@ -1,46 +1,68 @@
 <template>
-  <div 
-    class="apartment-card" 
-    :class="{'is-selected': isSelected}"
+  <div
+    class="card-base cursor-pointer flex flex-col overflow-hidden rounded-lg group"
+    :class="isSelected ? 'ring-2 ring-accent' : ''"
     @click="viewApartment"
     @mouseover="$emit('card-hover', apartment.id)"
     @mouseleave="$emit('card-leave', apartment.id)"
   >
-    <div class="card-image-section">
-      <img :src="apartment.image_url || '/placeholder-apartment.png'" :alt="apartment.title" class="card-image">
-      
-      <div class="price-pill">
-        <span class="currency">$</span>
-        <span class="amount">{{ apartment.price_per_night }}</span>
+    <!-- Image -->
+    <div class="relative aspect-[4/3] overflow-hidden">
+      <img
+        :src="apartment.image_url || '/placeholder-apartment.png'"
+        :alt="apartment.title"
+        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+      />
+
+      <!-- Price pill -->
+      <div class="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-sm text-white text-sm font-bold px-3 py-1.5 rounded-full flex items-baseline gap-0.5">
+        <span class="text-xs font-medium opacity-75">$</span>
+        <span>{{ apartment.price_per_night }}</span>
+        <span class="text-xs font-normal opacity-60">/night</span>
       </div>
-      
-      <button class="wishlist-btn" :class="{ 'active': isWishlisted }" @click.stop="toggleWishlist">
-        <i :class="isWishlisted ? 'pi pi-heart-fill' : 'pi pi-heart'"></i>
+
+      <!-- Wishlist -->
+      <button
+        class="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm hover:scale-110 transition-transform duration-150"
+        :class="isWishlisted ? 'text-red-500' : 'text-slate-400 hover:text-red-400'"
+        @click.stop="toggleWishlist"
+      >
+        <i :class="isWishlisted ? 'pi pi-heart-fill' : 'pi pi-heart'" class="text-sm"></i>
       </button>
     </div>
 
-    <div class="card-body">
-      <div class="location">
-        <i class="pi pi-map-marker"></i>
+    <!-- Body -->
+    <div class="flex flex-col flex-1 p-4 gap-2">
+      <!-- Location -->
+      <div class="flex items-center gap-1 text-accent text-xs font-bold uppercase tracking-wide">
+        <i class="pi pi-map-marker text-xs"></i>
         <span>{{ apartment.city }}</span>
       </div>
-      
-      <h3 class="title">{{ apartment.title }}</h3>
-      <p class="description">{{ apartment.description }}</p>
 
-      <div class="stats-strip">
-        <div class="stat">
-          <i class="pi pi-users"></i>
-          <span>{{ apartment.capacity }} guests</span>
+      <!-- Title -->
+      <h3 class="text-base font-bold text-slate-800 leading-snug line-clamp-1">{{ apartment.title }}</h3>
+
+      <!-- Description -->
+      <p class="text-sm text-slate-500 line-clamp-2 leading-relaxed">{{ apartment.description }}</p>
+
+      <!-- Stats strip -->
+      <div class="flex items-center gap-3 mt-1 px-3 py-2 bg-[#F8F7F4] rounded-md text-sm text-slate-600">
+        <div class="flex items-center gap-1.5">
+          <i class="pi pi-users text-slate-400 text-xs"></i>
+          <span class="font-medium">{{ apartment.capacity }} guests</span>
         </div>
-        <div class="stat">
-          <i class="pi pi-home"></i>
-          <span>{{ apartment.bedrooms }} beds</span>
+        <div class="w-px h-3 bg-slate-200"></div>
+        <div class="flex items-center gap-1.5">
+          <i class="pi pi-home text-slate-400 text-xs"></i>
+          <span class="font-medium">{{ apartment.bedrooms }} beds</span>
         </div>
       </div>
 
-      <div class="card-footer">
-        <span class="explore-link">Explore &rarr;</span>
+      <!-- Footer -->
+      <div class="mt-auto pt-3 border-t border-surface-border flex justify-end">
+        <span class="text-sm font-semibold text-accent group-hover:translate-x-1 transition-transform duration-150 inline-flex items-center gap-1">
+          Explore <i class="pi pi-arrow-right text-xs"></i>
+        </span>
       </div>
     </div>
   </div>
@@ -97,159 +119,3 @@ const toggleWishlist = async () => {
   emit('toggle-wishlist', props.apartment.id, !props.isWishlisted);
 };
 </script>
-
-<style scoped>
-.apartment-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
-}
-
-.apartment-card:hover, .apartment-card.is-selected {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-xl);
-  border-color: var(--color-border-strong);
-}
-
-.card-image-section {
-  position: relative;
-  aspect-ratio: 4/3;
-  overflow: hidden;
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-}
-
-.card-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.price-pill {
-  position: absolute;
-  top: var(--space-3);
-  left: var(--space-3);
-  background: rgba(0, 0, 0, 0.75);
-  color: white;
-  padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-full);
-  display: flex;
-  align-items: baseline;
-  gap: 2px;
-}
-
-.price-pill .amount {
-  font-weight: 700;
-  font-size: var(--font-size-base);
-}
-
-.price-pill .currency {
-  font-size: var(--font-size-xs);
-}
-
-.wishlist-btn {
-  position: absolute;
-  top: var(--space-3);
-  right: var(--space-3);
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-full);
-  background: white;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: var(--color-text-muted);
-  box-shadow: var(--shadow-sm);
-  transition: transform var(--transition-fast);
-}
-
-.wishlist-btn:hover {
-  transform: scale(1.1);
-}
-
-.wishlist-btn.active {
-  color: var(--color-error);
-}
-
-.card-body {
-  padding: var(--space-5);
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.location {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  color: var(--color-accent);
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  margin-bottom: var(--space-2);
-}
-
-.title {
-  font-size: var(--font-size-lg);
-  font-weight: 700;
-  color: var(--color-text-primary);
-  margin: 0 0 var(--space-2) 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.description {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  line-height: 1.5;
-  margin: 0 0 var(--space-4) 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.stats-strip {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  background: var(--color-surface-alt);
-  border-radius: var(--radius-sm);
-  padding: var(--space-2) var(--space-3);
-  margin-bottom: var(--space-4);
-}
-
-.stat {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-}
-
-.stat i {
-  color: var(--color-text-muted);
-}
-
-.card-footer {
-  margin-top: auto;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.explore-link {
-  color: var(--color-accent);
-  font-weight: 600;
-  font-size: var(--font-size-sm);
-}
-</style>

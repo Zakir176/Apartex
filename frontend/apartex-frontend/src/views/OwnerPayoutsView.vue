@@ -1,84 +1,96 @@
 <template>
-  <div class="owner-payouts-container">
-    <div class="header-section">
-      <div class="title-area">
-        <h1>Finance & Payouts</h1>
-        <p class="subtitle">Track your earnings and manage withdrawal requests</p>
+  <div class="max-w-[1200px] mx-auto px-6 py-8">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+      <div>
+        <h1 class="text-4xl font-extrabold text-slate-800 mb-2">Finance & Payouts</h1>
+        <p class="text-slate-500 font-medium text-lg m-0">Track your earnings and manage withdrawal requests</p>
       </div>
-      <div class="action-area">
-        <Button 
-          label="Request New Payout" 
-          icon="pi pi-wallet" 
+      <div>
+        <button 
           @click="handleRequestPayout" 
-          :loading="loading" 
-          class="p-button-raised p-button-primary" 
-        />
+          :disabled="loading" 
+          class="btn-accent shadow-accent inline-flex items-center gap-2"
+        >
+          <i class="pi pi-wallet" v-if="!loading"></i>
+          <i class="pi pi-spinner pi-spin" v-else></i>
+          Request New Payout
+        </button>
       </div>
     </div>
 
-    <!-- Payout Statistics (Mocked/Static for now) -->
-    <div class="stats-grid mb-6">
-      <Card class="stat-item">
-        <template #content>
-          <div class="stat-label">Pending Balance</div>
-          <div class="stat-value">{{ formatCurrency(pendingBalance) }}</div>
-        </template>
-      </Card>
-      <Card class="stat-item">
-        <template #content>
-          <div class="stat-label">Total Withdrawn</div>
-          <div class="stat-value text-green-600">{{ formatCurrency(totalWithdrawn) }}</div>
-        </template>
-      </Card>
+    <!-- Payout Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+      <div class="card-base p-6 flex flex-col justify-between">
+        <div class="flex justify-between items-center mb-4">
+          <span class="text-slate-500 text-xs font-bold uppercase tracking-wider">Pending Balance</span>
+          <div class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center">
+            <i class="pi pi-clock text-accent text-lg"></i>
+          </div>
+        </div>
+        <div class="text-4xl font-extrabold text-slate-800 tracking-tight">{{ formatCurrency(pendingBalance) }}</div>
+      </div>
+      
+      <div class="card-base p-6 flex flex-col justify-between">
+        <div class="flex justify-between items-center mb-4">
+          <span class="text-slate-500 text-xs font-bold uppercase tracking-wider">Total Withdrawn</span>
+          <div class="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
+            <i class="pi pi-check-circle text-green-600 text-lg"></i>
+          </div>
+        </div>
+        <div class="text-4xl font-extrabold text-green-600 tracking-tight">{{ formatCurrency(totalWithdrawn) }}</div>
+      </div>
     </div>
 
     <!-- Payout History Table -->
-    <Card class="table-card">
-      <template #title>Transaction History</template>
-      <template #content>
-        <DataTable 
-          :value="payouts" 
-          paginator 
-          :rows="10" 
-          :loading="loading"
-          responsiveLayout="scroll"
-          class="p-datatable-sm"
-        >
-          <template #empty>No payout history found.</template>
-          
-          <Column field="id" header="Transaction ID" sortable></Column>
-          
-          <Column field="amount" header="Amount" sortable>
-            <template #body="slotProps">
-              <span class="font-bold text-lg text-primary">{{ formatCurrency(slotProps.data.amount) }}</span>
-            </template>
-          </Column>
+    <div class="card-base overflow-hidden">
+      <div class="p-6 border-b border-surface-border">
+        <h3 class="text-lg font-bold text-slate-800">Transaction History</h3>
+      </div>
+      
+      <DataTable 
+        :value="payouts" 
+        paginator 
+        :rows="10" 
+        :loading="loading"
+        responsiveLayout="scroll"
+        class="border-none"
+      >
+        <template #empty>
+          <div class="p-8 text-center text-slate-500 font-medium">No payout history found.</div>
+        </template>
+        
+        <Column field="id" header="Transaction ID" sortable></Column>
+        
+        <Column field="amount" header="Amount" sortable>
+          <template #body="slotProps">
+            <span class="font-extrabold text-lg text-slate-800 tracking-tight">{{ formatCurrency(slotProps.data.amount) }}</span>
+          </template>
+        </Column>
 
-          <Column field="status" header="Status" sortable>
-            <template #body="slotProps">
-              <Tag :value="slotProps.data.status" :severity="getStatusSeverity(slotProps.data.status)" />
-            </template>
-          </Column>
+        <Column field="status" header="Status" sortable>
+          <template #body="slotProps">
+            <Tag :value="slotProps.data.status" :severity="getStatusSeverity(slotProps.data.status)" class="text-[10px] font-bold uppercase tracking-wider" />
+          </template>
+        </Column>
 
-          <Column field="period" header="Coverage Period">
-            <template #body="slotProps">
-              <div class="flex align-items-center gap-2">
-                <i class="pi pi-calendar-minus opacity-50"></i>
-                <span>{{ formatDate(slotProps.data.period_start) }}</span>
-                <i class="pi pi-arrow-right text-xs opacity-50"></i>
-                <span>{{ formatDate(slotProps.data.period_end) }}</span>
-              </div>
-            </template>
-          </Column>
+        <Column field="period" header="Coverage Period">
+          <template #body="slotProps">
+            <div class="flex items-center gap-2 text-sm font-medium text-slate-600">
+              <i class="pi pi-calendar-minus text-slate-400"></i>
+              <span>{{ formatDate(slotProps.data.period_start) }}</span>
+              <i class="pi pi-arrow-right text-[10px] text-slate-300"></i>
+              <span>{{ formatDate(slotProps.data.period_end) }}</span>
+            </div>
+          </template>
+        </Column>
 
-          <Column field="created_at" header="Requested Date" sortable>
-            <template #body="slotProps">
-              {{ formatDate(slotProps.data.created_at) }}
-            </template>
-          </Column>
-        </DataTable>
-      </template>
-    </Card>
+        <Column field="created_at" header="Requested Date" sortable>
+          <template #body="slotProps">
+            <span class="text-sm font-medium text-slate-600">{{ formatDate(slotProps.data.created_at) }}</span>
+          </template>
+        </Column>
+      </DataTable>
+    </div>
   </div>
 </template>
 
@@ -88,17 +100,15 @@ import { useAuthStore } from '@/stores/auth';
 import { fetchOwnerPayouts, requestPayout } from '@/api/dashboard';
 
 // PrimeVue components
-import Button from 'primevue/button';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Tag from 'primevue/tag';
-import Card from 'primevue/card';
 
 const auth = useAuthStore();
 const payouts = ref([]);
 const loading = ref(false);
 
-const pendingBalance = ref(450.00); // Mocked for now, in a real app this would come from an API
+const pendingBalance = ref(450.00); // Mocked for now
 
 const totalWithdrawn = computed(() => {
   return payouts.value
@@ -123,7 +133,6 @@ async function handleRequestPayout() {
   try {
     await requestPayout(auth.user.id, {});
     await loadPayouts();
-    // In a real app, we'd fire a toast here
   } finally {
     loading.value = false;
   }
@@ -133,7 +142,7 @@ onMounted(loadPayouts);
 
 const formatDate = (dateString) => {
   if (!dateString) return '-';
-  return new Date(dateString).toLocaleDateString();
+  return new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 };
 
 const formatCurrency = (v) => {
@@ -150,60 +159,3 @@ const getStatusSeverity = (status) => {
   }
 };
 </script>
-
-<style scoped>
-.owner-payouts-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 3rem 2rem;
-}
-
-.header-section {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2.5rem;
-}
-
-.title-area h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 0.25rem;
-}
-
-.subtitle {
-  color: #718096;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
-}
-
-.stat-item {
-  border-radius: 12px;
-  background: white;
-  border: 1px solid #f1f5f9;
-}
-
-.stat-label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #718096;
-  margin-bottom: 0.5rem;
-}
-
-.stat-value {
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: #1a202c;
-}
-
-.table-card {
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-</style>
-

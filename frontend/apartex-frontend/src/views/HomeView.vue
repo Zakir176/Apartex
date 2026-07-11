@@ -1,143 +1,181 @@
 <template>
-  <div class="home-container">
-    
-    <!-- HERO SECTION -->
-    <header class="hero-section">
-      <div class="hero-content">
-        <h1 class="hero-title">Find Your Perfect Stay in Zambia</h1>
-        <p class="hero-subtitle">Handpicked apartments, lodges and guest houses — no hidden fees.</p>
-        
-        <div class="search-bar">
-          <div class="search-input-group">
-            <label>Location</label>
-            <select v-model="selectedCity" class="search-select">
-              <option value="">Where are you going?</option>
+  <div class="min-h-screen bg-[#F8F7F4]">
+
+    <!-- HERO -->
+    <header class="bg-animated-mesh border-b border-surface-border">
+      <div class="max-w-content mx-auto px-6 py-20 text-center relative z-10">
+        <span class="section-tag">Zambia's Accommodation Platform</span>
+        <h1 class="text-5xl md:text-6xl font-black text-slate-800 tracking-tight leading-tight mb-4">
+          Find Your Perfect<br class="hidden md:block" />
+          <span class="text-accent">Stay in Zambia</span>
+        </h1>
+        <p class="text-lg text-slate-500 max-w-xl mx-auto mb-10">
+          Handpicked apartments, lodges and guest houses — no hidden fees.
+        </p>
+
+        <!-- Search Bar -->
+        <div class="bg-white rounded-xl shadow-xl border border-surface-border max-w-4xl mx-auto p-2 flex flex-col md:flex-row items-stretch gap-2">
+          <!-- Location -->
+          <div class="flex-1 flex flex-col px-4 py-2 border-b md:border-b-0 md:border-r border-surface-border">
+            <label class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-1">Where to?</label>
+            <select v-model="selectedCity" class="bg-transparent text-sm font-semibold text-slate-700 outline-none border-none cursor-pointer">
+              <option value="">Any city</option>
               <option v-for="city in cities" :key="city" :value="city">{{ city }}</option>
             </select>
           </div>
-          <div class="search-divider"></div>
-          
-          <div class="search-input-group">
-            <label>Check-in</label>
-            <input type="date" v-model="checkInDate" class="search-input" :min="todayDate" />
+          <!-- Check-in -->
+          <div class="flex-1 flex flex-col px-4 py-2 border-b md:border-b-0 md:border-r border-surface-border">
+            <label class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-1">Check-in</label>
+            <input type="date" v-model="checkInDate" :min="todayDate" class="bg-transparent text-sm font-semibold text-slate-700 outline-none border-none cursor-pointer" />
           </div>
-          <div class="search-divider"></div>
-          
-          <div class="search-input-group">
-            <label>Check-out</label>
-            <input type="date" v-model="checkOutDate" class="search-input" :min="checkInDate || todayDate" />
+          <!-- Check-out -->
+          <div class="flex-1 flex flex-col px-4 py-2 border-b md:border-b-0 md:border-r border-surface-border">
+            <label class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-1">Check-out</label>
+            <input type="date" v-model="checkOutDate" :min="checkInDate || todayDate" class="bg-transparent text-sm font-semibold text-slate-700 outline-none border-none cursor-pointer" />
           </div>
-          <div class="search-divider"></div>
-          
-          <div class="search-input-group">
-            <label>Guests</label>
-            <select v-model="guestCount" class="search-select">
+          <!-- Guests -->
+          <div class="flex-1 flex flex-col px-4 py-2 border-b md:border-b-0 md:border-r border-surface-border">
+            <label class="text-xs font-bold text-slate-400 uppercase tracking-wide mb-1">Guests</label>
+            <select v-model="guestCount" class="bg-transparent text-sm font-semibold text-slate-700 outline-none border-none cursor-pointer">
               <option v-for="n in 6" :key="n" :value="n">{{ n }} Guest{{ n > 1 ? 's' : '' }}</option>
             </select>
           </div>
-          
-          <button @click="triggerSearch" class="btn-search">Search</button>
+          <!-- Search Button -->
+          <button @click="triggerSearch" class="btn-accent px-8 py-3 rounded-lg whitespace-nowrap shrink-0 text-sm">
+            <i class="pi pi-search mr-2"></i> Search
+          </button>
         </div>
-        
-        <div class="trust-row">
-          <span><i class="pi pi-check"></i> No booking fees</span>
-          <span class="dot">·</span>
-          <span><i class="pi pi-check"></i> Verified properties</span>
-          <span class="dot">·</span>
-          <span><i class="pi pi-check"></i> Instant confirmation</span>
+
+        <!-- Trust row -->
+        <div class="flex items-center justify-center gap-3 mt-6 text-sm text-slate-400 flex-wrap">
+          <span class="flex items-center gap-1.5"><i class="pi pi-check-circle text-accent"></i> No booking fees</span>
+          <span class="text-slate-300">·</span>
+          <span class="flex items-center gap-1.5"><i class="pi pi-check-circle text-accent"></i> Verified properties</span>
+          <span class="text-slate-300">·</span>
+          <span class="flex items-center gap-1.5"><i class="pi pi-check-circle text-accent"></i> Instant confirmation</span>
         </div>
       </div>
     </header>
 
-    <!-- DESTINATIONS SECTION -->
-    <section class="home-section">
-      <div class="section-header">
-        <h2 class="section-title">Explore by City</h2>
-      </div>
-      
-      <div class="destinations-grid">
-        <div 
-          v-for="destination in destinationList" 
-          :key="destination.name" 
-          class="city-card"
+    <!-- DESTINATIONS -->
+    <section class="max-w-content mx-auto px-6 py-16">
+      <h2 class="section-title mb-8">Explore by City</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div
+          v-for="destination in destinationList"
+          :key="destination.name"
+          class="relative rounded-lg overflow-hidden cursor-pointer group aspect-[4/5]"
           @click="selectTrendingCity(destination.name)"
         >
-          <img :src="destination.image" :alt="destination.name" class="city-image" />
-          <div class="city-overlay">
-            <h3 class="city-name">{{ destination.name }}</h3>
-            <p class="city-count">{{ destination.count }} Properties</p>
+          <img :src="destination.image" :alt="destination.name" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent"></div>
+          <div class="absolute bottom-0 left-0 p-4">
+            <h3 class="text-white font-bold text-lg leading-tight">{{ destination.name }}</h3>
+            <p class="text-white/70 text-sm font-medium">{{ destination.count }} Properties</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- FEATURED STAYS SECTION -->
-    <section class="home-section">
-      <div class="section-header-flex">
+    <!-- FEATURED STAYS -->
+    <section class="max-w-content mx-auto px-6 pb-16">
+      <div class="flex items-end justify-between mb-8">
         <h2 class="section-title">Featured Stays</h2>
-        <router-link to="/apartments" class="btn-view-all">View All &rarr;</router-link>
+        <router-link to="/apartments" class="text-sm font-semibold text-accent hover:text-accent-hover transition-colors duration-150 no-underline">
+          View all →
+        </router-link>
       </div>
 
-      <div v-if="apartmentsStore.loading" class="featured-grid">
-        <div v-for="i in 3" :key="i" class="skeleton-card">
-          <div class="skeleton-image pulse"></div>
-          <div class="skeleton-text pulse title"></div>
-          <div class="skeleton-text pulse desc"></div>
+      <!-- Skeleton -->
+      <div v-if="apartmentsStore.loading" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div v-for="i in 3" :key="i" class="bg-white rounded-lg border border-surface-border overflow-hidden">
+          <div class="aspect-[4/3] bg-slate-100 animate-pulse"></div>
+          <div class="p-4 flex flex-col gap-3">
+            <div class="h-3 bg-slate-100 rounded animate-pulse w-1/3"></div>
+            <div class="h-4 bg-slate-100 rounded animate-pulse w-3/4"></div>
+            <div class="h-3 bg-slate-100 rounded animate-pulse w-full"></div>
+          </div>
         </div>
       </div>
 
-      <div v-else class="featured-grid">
-        <ApartmentCard 
-          v-for="apartment in apartmentsStore.featuredApartments" 
+      <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <ApartmentCard
+          v-for="apartment in apartmentsStore.featuredApartments"
           :key="apartment.id"
           :apartment="apartment"
-          @click="viewApartmentDetail(apartment.id)"
         />
       </div>
+
+      <div v-if="!apartmentsStore.loading && apartmentsStore.featuredApartments.length === 0" class="text-center py-16 text-slate-400">
+        <p class="text-4xl mb-4">🏠</p>
+        <p class="font-semibold">No featured stays yet — check back soon.</p>
+      </div>
     </section>
 
-    <!-- WHY APARTEX SECTION -->
-    <section class="home-section bg-alt">
-      <div class="why-grid">
-        <div v-for="perk in perks" :key="perk.title" class="feature-card">
-          <div class="feature-icon">
-            <i :class="perk.icon"></i>
+    <!-- WHY APARTEX -->
+    <section class="bg-surface-alt border-y border-surface-border py-16">
+      <div class="max-w-content mx-auto px-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div v-for="perk in perks" :key="perk.title" class="flex flex-col items-start gap-4">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-accent-light">
+              <i :class="perk.icon" class="text-accent text-xl"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-slate-800 text-lg mb-1">{{ perk.title }}</h3>
+              <p class="text-slate-500 text-sm leading-relaxed">{{ perk.description }}</p>
+            </div>
           </div>
-          <h3 class="feature-title">{{ perk.title }}</h3>
-          <p class="feature-desc">{{ perk.description }}</p>
         </div>
       </div>
     </section>
 
-    <!-- LOYALTY TEASER SECTION -->
-    <section class="home-section loyalty-section">
-      <div class="loyalty-grid">
-        <div class="loyalty-content">
-          <h2 class="section-title">Apartex Loyalty Club</h2>
-          <p class="loyalty-desc">Unlock premium rewards with every booking. Travel more, earn more.</p>
-          <ul class="loyalty-list">
-            <li><i class="pi pi-check-circle"></i> Earn points on every night spent</li>
-            <li><i class="pi pi-check-circle"></i> Redeem rewards for discount bookings</li>
-            <li><i class="pi pi-check-circle"></i> Enjoy lifetime tier benefits</li>
+    <!-- LOYALTY TEASER -->
+    <section class="max-w-content mx-auto px-6 py-16">
+      <div class="bg-navy rounded-2xl p-10 md:p-16 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <!-- Text -->
+        <div>
+          <span class="text-xs font-bold uppercase tracking-widest text-accent mb-3 block">Apartex Club</span>
+          <h2 class="text-3xl md:text-4xl font-black text-white tracking-tight mb-4">Earn Rewards With Every Stay</h2>
+          <p class="text-white/60 text-base leading-relaxed mb-6">
+            Every night you book earns points. Redeem them for free stays, upgrades, and cashback.
+          </p>
+          <ul class="flex flex-col gap-3 mb-8">
+            <li class="flex items-center gap-3 text-white/80 text-sm font-medium">
+              <i class="pi pi-check-circle text-accent"></i>
+              Earn points on every night spent
+            </li>
+            <li class="flex items-center gap-3 text-white/80 text-sm font-medium">
+              <i class="pi pi-check-circle text-accent"></i>
+              Redeem rewards for discount bookings
+            </li>
+            <li class="flex items-center gap-3 text-white/80 text-sm font-medium">
+              <i class="pi pi-check-circle text-accent"></i>
+              Bronze → Silver → Gold tier benefits
+            </li>
           </ul>
-          <router-link to="/loyalty" class="btn-loyalty">Join the Club</router-link>
+          <router-link to="/loyalty" class="inline-flex items-center gap-2 bg-accent text-white font-semibold px-6 py-3 rounded-full text-sm hover:bg-accent-hover transition-colors duration-150 no-underline">
+            View Loyalty Perks <i class="pi pi-star-fill text-xs"></i>
+          </router-link>
         </div>
-        
-        <div class="loyalty-card-wrapper">
-          <div class="membership-card">
-            <div class="card-top">
-              <span class="brand">APARTEX</span>
-              <span class="tier">GOLD MEMBER</span>
-            </div>
-            <div class="card-chip"></div>
-            <div class="card-bottom">
-              <div class="member-info">
-                <span class="label">MEMBER</span>
-                <span class="name">Demo Traveler</span>
+        <!-- Loyalty Card mockup -->
+        <div class="flex justify-center">
+          <div class="w-full max-w-sm bg-gradient-to-br from-navy-700 to-slate-900 border border-white/10 rounded-2xl p-7 relative overflow-hidden shadow-2xl">
+            <div class="absolute top-0 right-0 w-48 h-48 bg-accent/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+            <div class="relative z-10">
+              <div class="flex justify-between items-start mb-8">
+                <div>
+                  <p class="text-white/40 text-xs font-bold uppercase tracking-widest">Apartex Club</p>
+                  <p class="text-2xl font-black bg-gradient-to-r from-yellow-300 to-yellow-500 bg-clip-text text-transparent mt-1">GOLD TIER</p>
+                </div>
+                <span class="bg-yellow-400/10 border border-yellow-400/20 text-yellow-400 text-xs font-black px-2.5 py-1 rounded-md">VIP</span>
               </div>
-              <div class="points-info">
-                <span class="label">POINTS</span>
-                <span class="value">4,250</span>
+              <div class="mb-6">
+                <p class="text-white/40 text-xs uppercase tracking-widest mb-1">Card Holder</p>
+                <p class="text-white font-bold text-lg">Demo Traveler</p>
+              </div>
+              <div>
+                <p class="text-white/40 text-xs uppercase tracking-widest mb-1">Points Balance</p>
+                <p class="text-white font-black text-2xl">4,250 <span class="text-sm font-medium text-white/50">PTS</span></p>
               </div>
             </div>
           </div>
@@ -145,22 +183,27 @@
       </div>
     </section>
 
-    <!-- TESTIMONIALS SECTION -->
-    <section class="home-section">
-      <div class="section-header">
-        <h2 class="section-title">Traveler Stories</h2>
-      </div>
-      <div class="testimonials-grid">
-        <div v-for="review in reviews" :key="review.author" class="testimonial-card">
-          <div class="stars">
-            <i v-for="s in 5" :key="s" class="pi pi-star-fill"></i>
-          </div>
-          <p class="quote">"{{ review.text }}"</p>
-          <div class="reviewer">
-            <div class="avatar">{{ review.initials }}</div>
-            <div class="info">
-              <h4>{{ review.author }}</h4>
-              <span>Verified Guest</span>
+    <!-- TESTIMONIALS -->
+    <section class="bg-surface-alt border-t border-surface-border py-16">
+      <div class="max-w-content mx-auto px-6">
+        <div class="text-center mb-10">
+          <span class="section-tag">Traveler Stories</span>
+          <h2 class="section-title">Loved by Guests</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div v-for="review in reviews" :key="review.author" class="bg-white rounded-lg border border-surface-border p-6 shadow-sm flex flex-col gap-4">
+            <div class="flex gap-0.5">
+              <i v-for="s in 5" :key="s" class="pi pi-star-fill text-accent text-sm"></i>
+            </div>
+            <p class="text-slate-600 text-sm leading-relaxed italic flex-1">"{{ review.text }}"</p>
+            <div class="flex items-center gap-3 pt-3 border-t border-surface-border">
+              <div class="w-9 h-9 rounded-full bg-navy-light flex items-center justify-center text-navy font-bold text-sm shrink-0">
+                {{ review.initials }}
+              </div>
+              <div>
+                <p class="font-bold text-sm text-slate-800">{{ review.author }}</p>
+                <p class="text-xs text-slate-400 flex items-center gap-1"><i class="pi pi-shield-check text-green-500"></i> Verified Guest</p>
+              </div>
             </div>
           </div>
         </div>
@@ -168,52 +211,51 @@
     </section>
 
     <!-- FOOTER -->
-    <footer class="footer">
-      <div class="footer-grid">
-        <div class="footer-col brand-col">
-          <h3>Apartex</h3>
-          <p>Redefining temporary stays with handpicked collections across Zambia.</p>
-          <div class="socials">
-            <a href="#"><i class="pi pi-facebook"></i></a>
-            <a href="#"><i class="pi pi-twitter"></i></a>
-            <a href="#"><i class="pi pi-instagram"></i></a>
+    <footer class="bg-white border-t border-surface-border">
+      <div class="max-w-content mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-10">
+        <div class="col-span-1">
+          <h2 class="text-lg font-black text-navy mb-3">APARTEX</h2>
+          <p class="text-sm text-slate-400 leading-relaxed mb-5">Redefining accommodation booking across Zambia with handpicked, verified properties.</p>
+          <div class="flex gap-3">
+            <a href="#" class="w-9 h-9 rounded-full border border-surface-border flex items-center justify-center text-slate-400 hover:border-accent hover:text-accent transition-colors duration-150"><i class="pi pi-facebook text-sm"></i></a>
+            <a href="#" class="w-9 h-9 rounded-full border border-surface-border flex items-center justify-center text-slate-400 hover:border-accent hover:text-accent transition-colors duration-150"><i class="pi pi-twitter text-sm"></i></a>
+            <a href="#" class="w-9 h-9 rounded-full border border-surface-border flex items-center justify-center text-slate-400 hover:border-accent hover:text-accent transition-colors duration-150"><i class="pi pi-instagram text-sm"></i></a>
           </div>
         </div>
-        
-        <div class="footer-col">
-          <h4>Quick Links</h4>
-          <ul>
-            <li><router-link to="/">Home</router-link></li>
-            <li><router-link to="/apartments">Explore Stays</router-link></li>
-            <li><router-link to="/bookings">Reservations</router-link></li>
-            <li><router-link to="/loyalty">Loyalty Club</router-link></li>
+        <div>
+          <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Quick Links</h3>
+          <ul class="flex flex-col gap-2.5">
+            <li><router-link to="/" class="text-sm text-slate-500 hover:text-accent no-underline transition-colors duration-150">Home</router-link></li>
+            <li><router-link to="/apartments" class="text-sm text-slate-500 hover:text-accent no-underline transition-colors duration-150">Explore Stays</router-link></li>
+            <li><router-link to="/bookings" class="text-sm text-slate-500 hover:text-accent no-underline transition-colors duration-150">Reservations</router-link></li>
+            <li><router-link to="/loyalty" class="text-sm text-slate-500 hover:text-accent no-underline transition-colors duration-150">Loyalty Club</router-link></li>
           </ul>
         </div>
-        
-        <div class="footer-col">
-          <h4>Destinations</h4>
-          <ul>
-            <li><a href="#" @click.prevent="selectTrendingCity('Lusaka')">Lusaka</a></li>
-            <li><a href="#" @click.prevent="selectTrendingCity('Livingstone')">Livingstone</a></li>
-            <li><a href="#" @click.prevent="selectTrendingCity('Ndola')">Ndola</a></li>
+        <div>
+          <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Destinations</h3>
+          <ul class="flex flex-col gap-2.5">
+            <li><a href="#" @click.prevent="selectTrendingCity('Lusaka')" class="text-sm text-slate-500 hover:text-accent no-underline transition-colors duration-150">Lusaka</a></li>
+            <li><a href="#" @click.prevent="selectTrendingCity('Livingstone')" class="text-sm text-slate-500 hover:text-accent no-underline transition-colors duration-150">Livingstone</a></li>
+            <li><a href="#" @click.prevent="selectTrendingCity('Ndola')" class="text-sm text-slate-500 hover:text-accent no-underline transition-colors duration-150">Ndola</a></li>
+            <li><a href="#" @click.prevent="selectTrendingCity('Kitwe')" class="text-sm text-slate-500 hover:text-accent no-underline transition-colors duration-150">Kitwe</a></li>
           </ul>
         </div>
-        
-        <div class="footer-col">
-          <h4>Newsletter</h4>
-          <p>Stay updated on premium properties and exclusive offers.</p>
-          <div class="newsletter">
-            <input type="email" placeholder="Your email address" />
-            <button>Subscribe</button>
+        <div>
+          <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Newsletter</h3>
+          <p class="text-sm text-slate-400 leading-relaxed mb-4">Stay updated on premium properties and exclusive offers.</p>
+          <div class="flex gap-2">
+            <input type="email" placeholder="Your email" class="input-base !py-2" />
+            <button class="btn-accent shrink-0">Subscribe</button>
           </div>
         </div>
       </div>
-      
-      <div class="footer-bottom">
-        <p>&copy; 2026 Apartex Inc. All rights reserved.</p>
-        <div class="legal-links">
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms of Service</a>
+      <div class="border-t border-surface-border">
+        <div class="max-w-content mx-auto px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p class="text-xs text-slate-400">&copy; 2026 Apartex Inc. All rights reserved.</p>
+          <div class="flex gap-4">
+            <a href="#" class="text-xs text-slate-400 hover:text-accent no-underline">Privacy Policy</a>
+            <a href="#" class="text-xs text-slate-400 hover:text-accent no-underline">Terms of Service</a>
+          </div>
         </div>
       </div>
     </footer>
@@ -317,555 +359,3 @@ const viewApartmentDetail = (id) => {
   router.push(`/apartments/${id}`);
 };
 </script>
-
-<style scoped>
-.home-container {
-  width: 100%;
-}
-
-/* HERO SECTION */
-.hero-section {
-  width: 100%;
-  padding: var(--space-16) var(--space-6);
-  background: var(--color-bg);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.hero-content {
-  max-width: 1000px;
-  width: 100%;
-}
-
-.hero-title {
-  font-size: clamp(2.5rem, 5vw, 4rem);
-  font-weight: 900;
-  color: var(--color-text-primary);
-  letter-spacing: -0.04em;
-  margin-bottom: var(--space-4);
-  line-height: 1.1;
-}
-
-.hero-subtitle {
-  font-size: var(--font-size-xl);
-  color: var(--color-text-secondary);
-  margin-bottom: var(--space-10);
-  font-weight: 500;
-}
-
-.search-bar {
-  display: flex;
-  background: var(--color-surface);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-xl);
-  padding: var(--space-4) var(--space-6);
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--space-6);
-}
-
-.search-input-group {
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-  flex: 1;
-  padding: 0 var(--space-4);
-}
-
-.search-input-group label {
-  font-size: var(--font-size-xs);
-  font-weight: 700;
-  color: var(--color-text-primary);
-  text-transform: uppercase;
-  margin-bottom: var(--space-1);
-}
-
-.search-select, .search-input {
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: var(--font-size-base);
-  color: var(--color-text-secondary);
-  font-family: var(--font-family);
-  cursor: pointer;
-  padding: var(--space-2) 0;
-}
-
-.search-select:focus, .search-input:focus {
-  color: var(--color-text-primary);
-}
-
-.search-divider {
-  width: 1px;
-  height: 40px;
-  background: var(--color-border);
-}
-
-.btn-search {
-  background: var(--color-accent);
-  color: white;
-  border: none;
-  border-radius: var(--radius-full);
-  padding: var(--space-3) var(--space-6);
-  font-weight: 600;
-  font-size: var(--font-size-base);
-  cursor: pointer;
-  transition: background var(--transition-fast);
-}
-
-.btn-search:hover {
-  background: var(--color-accent-hover);
-}
-
-.trust-row {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--space-4);
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-}
-
-.trust-row i {
-  color: var(--color-success);
-  margin-right: var(--space-1);
-}
-
-.dot {
-  color: var(--color-border-strong);
-}
-
-@media (max-width: 768px) {
-  .search-bar {
-    flex-direction: column;
-    padding: var(--space-4);
-    gap: var(--space-4);
-    border-radius: var(--radius-lg);
-  }
-  .search-input-group {
-    width: 100%;
-    padding: var(--space-2);
-  }
-  .search-divider {
-    display: none;
-  }
-  .btn-search {
-    width: 100%;
-  }
-  .trust-row {
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-}
-
-/* SECTION STANDARDS */
-.home-section {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: var(--space-12) var(--space-6);
-}
-
-.bg-alt {
-  background: var(--color-surface-alt);
-  max-width: 100%;
-}
-
-.section-header {
-  margin-bottom: var(--space-8);
-}
-
-.section-header-flex {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: var(--space-8);
-}
-
-.section-title {
-  font-size: var(--font-size-3xl);
-  font-weight: 700;
-  color: var(--color-text-primary);
-  margin: 0;
-  text-align: left;
-}
-
-.btn-view-all {
-  color: var(--color-accent);
-  text-decoration: none;
-  font-weight: 600;
-  font-size: var(--font-size-base);
-}
-
-.btn-view-all:hover {
-  text-decoration: underline;
-}
-
-/* DESTINATIONS */
-.destinations-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-6);
-}
-
-.city-card {
-  position: relative;
-  height: 280px;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  cursor: pointer;
-  transition: transform var(--transition-base), box-shadow var(--transition-base);
-}
-
-.city-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-xl);
-}
-
-.city-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform var(--transition-slow);
-}
-
-.city-card:hover .city-image {
-  transform: scale(1.05);
-}
-
-.city-overlay {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  padding: var(--space-6);
-  background: linear-gradient(transparent, rgba(0,0,0,0.8));
-  color: white;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-}
-
-.city-name {
-  font-size: var(--font-size-xl);
-  font-weight: 700;
-  margin: 0 0 var(--space-1) 0;
-}
-
-.city-count {
-  font-size: var(--font-size-sm);
-  margin: 0;
-  opacity: 0.9;
-}
-
-@media (max-width: 1024px) {
-  .destinations-grid { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 640px) {
-  .destinations-grid { grid-template-columns: 1fr; }
-}
-
-/* FEATURED STAYS */
-.featured-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-6);
-}
-
-@media (max-width: 1024px) {
-  .featured-grid { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 768px) {
-  .featured-grid { grid-template-columns: 1fr; }
-}
-
-.skeleton-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-4);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-.skeleton-image { height: 200px; border-radius: var(--radius-md); background: #e2e8f0; }
-.skeleton-text { height: 20px; border-radius: var(--radius-sm); background: #e2e8f0; }
-.skeleton-text.title { width: 60%; }
-.skeleton-text.desc { width: 100%; height: 40px; }
-.pulse { animation: pulse 2s infinite ease-in-out; }
-
-@keyframes pulse {
-  0% { opacity: 0.6; }
-  50% { opacity: 0.2; }
-  100% { opacity: 0.6; }
-}
-
-/* WHY APARTEX */
-.why-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-8);
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.feature-card {
-  background: transparent;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-}
-
-.feature-icon {
-  width: 3.5rem;
-  height: 3.5rem;
-  background: var(--color-accent-light);
-  color: var(--color-accent);
-  border-radius: var(--radius-full);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  margin-bottom: var(--space-4);
-}
-
-.feature-title {
-  font-size: var(--font-size-lg);
-  font-weight: 700;
-  color: var(--color-text-primary);
-  margin: 0 0 var(--space-2) 0;
-}
-
-.feature-desc {
-  font-size: var(--font-size-base);
-  color: var(--color-text-secondary);
-  line-height: 1.6;
-  margin: 0;
-}
-
-@media (max-width: 768px) {
-  .why-grid { grid-template-columns: 1fr; }
-}
-
-/* LOYALTY TEASER */
-.loyalty-section {
-  padding: var(--space-16) var(--space-6);
-}
-
-.loyalty-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-12);
-  align-items: center;
-}
-
-.loyalty-desc {
-  font-size: var(--font-size-xl);
-  color: var(--color-text-secondary);
-  margin-bottom: var(--space-6);
-}
-
-.loyalty-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 var(--space-8) 0;
-}
-
-.loyalty-list li {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  font-size: var(--font-size-base);
-  color: var(--color-text-primary);
-  font-weight: 500;
-  margin-bottom: var(--space-3);
-}
-
-.loyalty-list i {
-  color: var(--color-accent);
-  font-size: 1.25rem;
-}
-
-.btn-loyalty {
-  display: inline-block;
-  background: var(--color-accent);
-  color: white;
-  text-decoration: none;
-  padding: var(--space-3) var(--space-6);
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  transition: background var(--transition-fast);
-}
-.btn-loyalty:hover { background: var(--color-accent-hover); }
-
-.loyalty-card-wrapper {
-  display: flex;
-  justify-content: center;
-}
-
-.membership-card {
-  width: 100%;
-  max-width: 400px;
-  aspect-ratio: 1.58;
-  background: linear-gradient(135deg, var(--color-navy) 0%, #102341 100%);
-  border-radius: var(--radius-lg);
-  padding: var(--space-6);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  color: white;
-  box-shadow: var(--shadow-xl);
-  position: relative;
-  overflow: hidden;
-}
-
-.card-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.brand { font-weight: 800; font-size: var(--font-size-xl); letter-spacing: 0.1em; }
-.tier { color: #F59E0B; font-weight: 700; font-size: var(--font-size-sm); }
-
-.card-chip {
-  width: 45px; height: 35px;
-  background: #F59E0B;
-  border-radius: var(--radius-sm);
-  opacity: 0.8;
-  margin-top: auto;
-  margin-bottom: var(--space-4);
-}
-
-.card-bottom {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-}
-.label { display: block; font-size: 0.6rem; color: rgba(255,255,255,0.6); letter-spacing: 0.1em; margin-bottom: 2px; }
-.name { font-size: var(--font-size-base); font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
-.value { font-size: var(--font-size-xl); font-weight: 700; color: #F59E0B; }
-
-@media (max-width: 900px) {
-  .loyalty-grid { grid-template-columns: 1fr; }
-  .loyalty-card-wrapper { margin-top: var(--space-8); }
-}
-
-/* TESTIMONIALS */
-.testimonials-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-6);
-}
-
-.testimonial-card {
-  background: var(--color-surface);
-  border-radius: var(--radius-lg);
-  padding: var(--space-6);
-  box-shadow: var(--shadow-sm);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.stars { color: var(--color-accent); margin-bottom: var(--space-4); }
-
-.quote {
-  font-size: var(--font-size-base);
-  color: var(--color-text-secondary);
-  font-style: italic;
-  margin-bottom: var(--space-6);
-  line-height: 1.6;
-}
-
-.reviewer {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-}
-
-.avatar {
-  width: 3rem; height: 3rem;
-  background: var(--color-surface-alt);
-  border-radius: var(--radius-full);
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 700; color: var(--color-text-primary);
-}
-
-.info h4 { margin: 0; color: var(--color-text-primary); font-size: var(--font-size-sm); }
-.info span { font-size: var(--font-size-xs); color: var(--color-success); font-weight: 600; }
-
-@media (max-width: 1024px) { .testimonials-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 768px) { .testimonials-grid { grid-template-columns: 1fr; } }
-
-/* FOOTER */
-.footer {
-  background: var(--color-surface);
-  border-top: 1px solid var(--color-border);
-  padding: var(--space-12) var(--space-6) var(--space-6);
-}
-
-.footer-grid {
-  max-width: 1400px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1.5fr;
-  gap: var(--space-8);
-  margin-bottom: var(--space-12);
-}
-
-.footer-col h3 { font-size: 1.5rem; font-weight: 800; color: var(--color-navy); margin: 0 0 var(--space-4) 0; }
-.footer-col h4 { font-size: 1.125rem; font-weight: 700; color: var(--color-text-primary); margin: 0 0 var(--space-4) 0; }
-.footer-col p { color: var(--color-text-secondary); line-height: 1.6; margin-bottom: var(--space-4); }
-
-.socials { display: flex; gap: var(--space-4); }
-.socials a { color: var(--color-text-secondary); font-size: 1.25rem; transition: color var(--transition-fast); }
-.socials a:hover { color: var(--color-accent); }
-
-.footer-col ul { list-style: none; padding: 0; margin: 0; }
-.footer-col ul li { margin-bottom: var(--space-3); }
-.footer-col ul a { color: var(--color-text-secondary); text-decoration: none; transition: color var(--transition-fast); }
-.footer-col ul a:hover { color: var(--color-accent); }
-
-.newsletter { display: flex; gap: var(--space-2); }
-.newsletter input {
-  flex: 1;
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  font-family: var(--font-family);
-}
-.newsletter button {
-  background: var(--color-accent);
-  color: white;
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 0 var(--space-4);
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.footer-bottom {
-  max-width: 1400px;
-  margin: 0 auto;
-  border-top: 1px solid var(--color-border);
-  padding-top: var(--space-6);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
-}
-
-.legal-links { display: flex; gap: var(--space-4); }
-.legal-links a { color: var(--color-text-muted); text-decoration: none; }
-.legal-links a:hover { color: var(--color-text-secondary); }
-
-@media (max-width: 1024px) {
-  .footer-grid { grid-template-columns: 1fr 1fr; }
-}
-@media (max-width: 640px) {
-  .footer-grid { grid-template-columns: 1fr; }
-  .footer-bottom { flex-direction: column; gap: var(--space-4); text-align: center; }
-}
-</style>

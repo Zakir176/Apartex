@@ -1,113 +1,118 @@
 <template>
-  <div class="owner-bookings-container">
-    <div class="header-section">
-      <div class="title-area">
-        <h1>Guest Bookings</h1>
-        <p class="subtitle">Monitor and manage guest reservations across all properties</p>
+  <div class="max-w-[1200px] mx-auto px-6 py-8">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+      <div>
+        <h1 class="text-4xl font-extrabold text-slate-800 mb-2">Guest Bookings</h1>
+        <p class="text-slate-500 font-medium text-lg m-0">Monitor and manage guest reservations across all properties</p>
       </div>
-      <div class="action-area">
-        <Button 
-          icon="pi pi-refresh" 
+      <div>
+        <button 
           @click="loadBookings" 
-          class="p-button-text p-button-secondary" 
-          :loading="bookingsStore.loading"
-        />
+          class="px-4 py-2 rounded-full border border-surface-border text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors inline-flex items-center gap-2"
+          :disabled="bookingsStore.loading"
+        >
+          <i class="pi pi-refresh" :class="{ 'pi-spin': bookingsStore.loading }"></i>
+          Refresh List
+        </button>
       </div>
     </div>
 
     <!-- Bookings Table -->
-    <Card class="table-card">
-      <template #content>
-        <DataTable 
-          v-model:filters="filters"
-          :value="bookingsStore.bookings" 
-          paginator 
-          :rows="10" 
-          dataKey="id"
-          filterDisplay="menu"
-          :loading="bookingsStore.loading"
-          :globalFilterFields="['id', 'apartment_id', 'status']"
-          responsiveLayout="scroll"
-          class="p-datatable-sm"
-        >
-          <template #header>
-            <div class="flex justify-content-between align-items-center">
-              <span class="p-input-icon-left">
-                <i class="pi pi-search" />
-                <InputText v-model="filters['global'].value" placeholder="Search bookings..." />
-              </span>
-              <div class="flex gap-2">
-                <Dropdown 
-                  v-model="filters['status'].value" 
-                  :options="statuses" 
-                  placeholder="Filter by Status" 
-                  class="p-column-filter"
-                  style="min-width: 12rem"
-                  :showClear="true"
-                />
+    <div class="card-base overflow-hidden">
+      <DataTable 
+        v-model:filters="filters"
+        :value="bookingsStore.bookings" 
+        paginator 
+        :rows="10" 
+        dataKey="id"
+        filterDisplay="menu"
+        :loading="bookingsStore.loading"
+        :globalFilterFields="['id', 'apartment_id', 'status']"
+        responsiveLayout="scroll"
+        class="border-none"
+      >
+        <template #header>
+          <div class="flex flex-col md:flex-row justify-between items-center gap-4 p-2 bg-white">
+            <span class="relative w-full md:w-auto">
+              <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+              <InputText v-model="filters['global'].value" placeholder="Search bookings..." class="input-base !pl-10 !py-2 !text-sm w-full md:w-72" />
+            </span>
+            <div class="w-full md:w-auto">
+              <Dropdown 
+                v-model="filters['status'].value" 
+                :options="statuses" 
+                placeholder="Filter by Status" 
+                class="w-full md:w-48"
+                :showClear="true"
+              />
+            </div>
+          </div>
+        </template>
+
+        <template #empty>
+          <div class="p-8 text-center text-slate-500 font-medium">No bookings found.</div>
+        </template>
+        
+        <Column field="id" header="ID" sortable style="min-width: 5rem"></Column>
+        
+        <Column field="apartment_id" header="Apartment" sortable>
+          <template #body="slotProps">
+            <div class="flex items-center gap-2 font-bold text-slate-700">
+              <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                <i class="pi pi-home text-sm"></i>
               </div>
+              <span>Listing #{{ slotProps.data.apartment_id }}</span>
             </div>
           </template>
+        </Column>
 
-          <template #empty>No bookings found.</template>
-          
-          <Column field="id" header="ID" sortable style="min-width: 5rem"></Column>
-          
-          <Column field="apartment_id" header="Apartment" sortable>
-            <template #body="slotProps">
-              <div class="flex align-items-center">
-                <i class="pi pi-home mr-2 text-primary"></i>
-                <span>Listing #{{ slotProps.data.apartment_id }}</span>
-              </div>
-            </template>
-          </Column>
+        <Column field="check_in" header="Check-in" sortable>
+          <template #body="slotProps">
+            <span class="font-medium text-slate-600">{{ formatDate(slotProps.data.check_in) }}</span>
+          </template>
+        </Column>
 
-          <Column field="check_in" header="Check-in" sortable>
-            <template #body="slotProps">
-              {{ formatDate(slotProps.data.check_in) }}
-            </template>
-          </Column>
+        <Column field="check_out" header="Check-out" sortable>
+          <template #body="slotProps">
+            <span class="font-medium text-slate-600">{{ formatDate(slotProps.data.check_out) }}</span>
+          </template>
+        </Column>
 
-          <Column field="check_out" header="Check-out" sortable>
-            <template #body="slotProps">
-              {{ formatDate(slotProps.data.check_out) }}
-            </template>
-          </Column>
-
-          <Column field="guests" header="Guests" sortable style="text-align: center">
-            <template #body="slotProps">
-              <i class="pi pi-users mr-1"></i>
+        <Column field="guests" header="Guests" sortable align="center">
+          <template #body="slotProps">
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 border border-surface-border rounded-md text-xs font-bold text-slate-600">
+              <i class="pi pi-users text-slate-400"></i>
               {{ slotProps.data.guests }}
-            </template>
-          </Column>
+            </div>
+          </template>
+        </Column>
 
-          <Column field="total_price" header="Total" sortable>
-            <template #body="slotProps">
-              <span class="font-bold text-lg">{{ formatCurrency(slotProps.data.total_price) }}</span>
-            </template>
-          </Column>
+        <Column field="total_price" header="Total" sortable>
+          <template #body="slotProps">
+            <span class="font-extrabold text-slate-800 tracking-tight">{{ formatCurrency(slotProps.data.total_price) }}</span>
+          </template>
+        </Column>
 
-          <Column field="status" header="Status" sortable>
-            <template #body="slotProps">
-              <Tag :value="slotProps.data.status" :severity="getStatusSeverity(slotProps.data.status)" />
-            </template>
-          </Column>
+        <Column field="status" header="Status" sortable>
+          <template #body="slotProps">
+            <Tag :value="slotProps.data.status" :severity="getStatusSeverity(slotProps.data.status)" class="text-[10px] font-bold uppercase tracking-wider" />
+          </template>
+        </Column>
 
-          <Column header="Actions" style="min-width: 8rem">
-            <template #body="slotProps">
-              <Button 
-                v-if="slotProps.data.status === 'confirmed'"
-                icon="pi pi-check" 
-                label="Complete" 
-                class="p-button-success p-button-sm p-button-text" 
-                @click="bookingsStore.completeBooking(slotProps.data.id)"
-              />
-              <span v-else class="text-gray-400 text-xs italic">No actions available</span>
-            </template>
-          </Column>
-        </DataTable>
-      </template>
-    </Card>
+        <Column header="Actions" align="right">
+          <template #body="slotProps">
+            <button 
+              v-if="slotProps.data.status === 'confirmed'"
+              @click="bookingsStore.completeBooking(slotProps.data.id)"
+              class="px-3 py-1.5 bg-green-50 text-green-600 hover:bg-green-100 rounded-md text-xs font-bold transition-colors inline-flex items-center gap-1.5"
+            >
+              <i class="pi pi-check"></i> Complete
+            </button>
+            <span v-else class="text-slate-400 text-xs font-medium italic">No actions</span>
+          </template>
+        </Column>
+      </DataTable>
+    </div>
   </div>
 </template>
 
@@ -118,12 +123,10 @@ import { useAuthStore } from '@/stores/auth';
 import { FilterMatchMode } from 'primevue/api';
 
 // PrimeVue components
-import Button from 'primevue/button';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Tag from 'primevue/tag';
 import InputText from 'primevue/inputtext';
-import Card from 'primevue/card';
 import Dropdown from 'primevue/dropdown';
 
 const auth = useAuthStore();
@@ -147,7 +150,7 @@ onMounted(loadBookings);
 
 const formatDate = (dateString) => {
   if (!dateString) return '-';
-  return new Date(dateString).toLocaleDateString();
+  return new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 };
 
 const formatCurrency = (v) => {
@@ -164,43 +167,3 @@ const getStatusSeverity = (status) => {
   }
 };
 </script>
-
-<style scoped>
-.owner-bookings-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 3rem 2rem;
-}
-
-.header-section {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2.5rem;
-}
-
-.title-area h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 0.25rem;
-}
-
-.subtitle {
-  color: #718096;
-}
-
-.table-card {
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-
-:deep(.p-datatable .p-datatable-header) {
-  background: white;
-  padding: 1rem;
-}
-
-:deep(.p-inputtext) {
-  border-radius: 8px;
-}
-</style>

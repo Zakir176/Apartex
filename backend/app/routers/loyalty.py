@@ -11,6 +11,7 @@ from app.schemas.loyalty import (
     RewardType, RewardStatus
 )
 from app.services.loyalty_service import LoyaltyService
+from app.routers.auth_enhanced import get_current_active_user
 from decimal import Decimal
 import logging
 
@@ -21,18 +22,38 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 @router.get("/users/{user_id}/status", response_model=LoyaltyStatus)
-def get_loyalty_status(user_id: int, db: Session = Depends(get_db)):
+def get_loyalty_status(
+    user_id: int, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
     """Get loyalty status and rewards for a user."""
+    if current_user.id != user_id and current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not authorized to access this loyalty status."
+        )
+        
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    status = LoyaltyService.get_loyalty_status(user_id, db)
-    return status
+    loyalty_status = LoyaltyService.get_loyalty_status(user_id, db)
+    return loyalty_status
 
 @router.get("/users/{user_id}/rewards", response_model=List[LoyaltyRewardRead])
-def get_user_rewards(user_id: int, db: Session = Depends(get_db)):
+def get_user_rewards(
+    user_id: int, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
     """Get all rewards for a user."""
+    if current_user.id != user_id and current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not authorized to access these rewards."
+        )
+        
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -44,7 +65,11 @@ def get_user_rewards(user_id: int, db: Session = Depends(get_db)):
     return rewards
 
 @router.post("/rewards/redeem")
-def redeem_reward(redemption: RewardRedemption, db: Session = Depends(get_db)):
+def redeem_reward(
+    redemption: RewardRedemption, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
     """Redeem a reward for a booking."""
     logger.info("🚀 Starting reward redemption...")
 
@@ -56,6 +81,13 @@ def redeem_reward(redemption: RewardRedemption, db: Session = Depends(get_db)):
     
     if not reward:
         raise HTTPException(status_code=404, detail="Reward not found or already used")
+        
+    # Enforce authorization: only allow the reward owner (or admin) to redeem it
+    if reward.user_id != current_user.id and current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not authorized to redeem this reward."
+        )
     
     logger.info(f"✅ Reward found: {reward.reward_type} {reward.reward_value}%")
 

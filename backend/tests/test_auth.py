@@ -1,7 +1,7 @@
 import requests
 
 def test_enhanced_auth():
-    BASE_URL = "http://localhost:8000"
+    BASE_URL = "http://localhost:8000/api"
     
     print("=== Testing Enhanced Authentication ===\n")
     

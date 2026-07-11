@@ -215,7 +215,7 @@ const loadLoyaltyData = async () => {
   }
 
   try {
-    console.log('🔄 Loading loyalty data for user:', authStore.user.id);
+
     await loyaltyStore.fetchLoyaltyStatus(authStore.user.id);
   } catch (error) {
     console.error('❌ Failed to load loyalty data:', error);
@@ -232,7 +232,7 @@ const loadUserRewards = async () => {
   userRewardsError.value = '';
   
   try {
-    console.log('🔄 Loading user rewards for user:', authStore.user.id);
+
     await loyaltyStore.fetchUserRewards(authStore.user.id);
   } catch (error) {
     userRewardsError.value = 'Failed to load your rewards';
@@ -245,7 +245,7 @@ const loadUserRewards = async () => {
 const loadLoyaltyTiers = async () => {
   loyaltyTiersLoading.value = true;
   try {
-    console.log('🔄 Loading loyalty tiers');
+
     await loyaltyStore.fetchLoyaltyTiers();
   } catch (error) {
     console.error('❌ Error loading loyalty tiers:', error);
@@ -257,7 +257,7 @@ const loadLoyaltyTiers = async () => {
 const loadAvailableRewards = async () => {
   loadingRewards.value = true;
   try {
-    console.log('🔄 Loading available rewards');
+
     await loyaltyStore.fetchAvailableRewards();
   } catch (error) {
     console.error('❌ Error loading available rewards:', error);
@@ -298,7 +298,7 @@ const redeemReward = async (reward) => {
 
 // Initialize on mount
 onMounted(async () => {
-  console.log('🚀 LoyaltyView mounted - Starting data load...');
+
   
   // Load all data in parallel
   await Promise.all([
@@ -308,12 +308,7 @@ onMounted(async () => {
     loadAvailableRewards()
   ]);
   
-  console.log('✅ All data loaded:', {
-    loyaltyStatus: loyaltyStore.loyaltyStatus,
-    userRewards: loyaltyStore.userRewards,
-    loyaltyTiers: loyaltyStore.loyaltyTiers,
-    availableRewards: loyaltyStore.availableRewards
-  });
+
 });
 </script>
 

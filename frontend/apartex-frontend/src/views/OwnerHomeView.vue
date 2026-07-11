@@ -1,85 +1,96 @@
 <template>
-  <div class="owner-home-container">
-    <div class="welcome-header">
-      <h1>Welcome back, {{ authStore.user?.full_name }}!</h1>
-      <p>Efficiently manage your properties and maximize your earnings from one central hub.</p>
+  <div class="max-w-[1200px] mx-auto px-6 py-8">
+    <div class="mb-10">
+      <h1 class="text-4xl font-extrabold text-slate-800 mb-3">Welcome back, {{ authStore.user?.full_name }}!</h1>
+      <p class="text-lg text-slate-500 font-medium max-w-2xl leading-relaxed">Efficiently manage your properties and maximize your earnings from one central hub.</p>
     </div>
 
     <!-- Quick Action Cards -->
-    <div class="quick-actions-grid">
-      <Card class="action-card" @click="router.push('/owner/apartments')">
-        <template #content>
-          <div class="action-icon list-apt">
-            <i class="pi pi-plus-circle"></i>
-          </div>
-          <h3>List New Apartment</h3>
-          <p>Create a beautiful listing and start reaching guests instantly.</p>
-          <Button label="Add Listing" icon="pi pi-plus" class="p-button-text p-button-sm" />
-        </template>
-      </Card>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+      <div class="card-base p-6 cursor-pointer group" @click="router.push('/owner/apartments')">
+        <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+          <i class="pi pi-plus-circle text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-bold text-slate-800 mb-3">List New Apartment</h3>
+        <p class="text-slate-500 text-sm font-medium leading-relaxed mb-6">Create a beautiful listing and start reaching guests instantly.</p>
+        <span class="inline-flex items-center gap-2 text-sm font-bold text-blue-600 group-hover:text-blue-700 transition-colors">
+          <i class="pi pi-plus"></i> Add Listing
+        </span>
+      </div>
 
-      <Card class="action-card" @click="router.push('/dashboard')">
-        <template #content>
-          <div class="action-icon analytics">
-            <i class="pi pi-chart-line"></i>
-          </div>
-          <h3>View Performance</h3>
-          <p>Analyze revenue, occupancy rates, and optimization tips.</p>
-          <Button label="Open Analytics" icon="pi pi-external-link" class="p-button-text p-button-sm" />
-        </template>
-      </Card>
+      <div class="card-base p-6 cursor-pointer group" @click="router.push('/dashboard')">
+        <div class="w-14 h-14 rounded-2xl bg-orange-50 text-accent flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-accent group-hover:text-white transition-all duration-300">
+          <i class="pi pi-chart-line text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-bold text-slate-800 mb-3">View Performance</h3>
+        <p class="text-slate-500 text-sm font-medium leading-relaxed mb-6">Analyze revenue, occupancy rates, and optimization tips.</p>
+        <span class="inline-flex items-center gap-2 text-sm font-bold text-accent group-hover:text-accent-hover transition-colors">
+          <i class="pi pi-external-link"></i> Open Analytics
+        </span>
+      </div>
 
-      <Card class="action-card" @click="router.push('/owner/bookings')">
-        <template #content>
-          <div class="action-icon bookings">
-            <i class="pi pi-calendar-check"></i>
-          </div>
-          <h3>Manage Bookings</h3>
-          <p>Review incoming requests and coordinate check-ins.</p>
-          <Button label="View Bookings" icon="pi pi-arrow-right" class="p-button-text p-button-sm" />
-        </template>
-      </Card>
+      <div class="card-base p-6 cursor-pointer group" @click="router.push('/owner/bookings')">
+        <div class="w-14 h-14 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-green-600 group-hover:text-white transition-all duration-300">
+          <i class="pi pi-calendar-check text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-bold text-slate-800 mb-3">Manage Bookings</h3>
+        <p class="text-slate-500 text-sm font-medium leading-relaxed mb-6">Review incoming requests and coordinate check-ins.</p>
+        <span class="inline-flex items-center gap-2 text-sm font-bold text-green-600 group-hover:text-green-700 transition-colors">
+          <i class="pi pi-arrow-right"></i> View Bookings
+        </span>
+      </div>
     </div>
 
     <!-- Getting Started / News Section -->
-    <div class="info-grid mt-6">
-      <Card class="info-item guide">
-        <template #title>Getting Started Guide</template>
-        <template #content>
-          <ul class="guide-list">
-            <li>
-              <i class="pi pi-check-circle text-green-500"></i>
-              <span>Complete your profile and payout details</span>
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+      <!-- Getting Started Guide -->
+      <div class="lg:col-span-3 card-base">
+        <div class="p-6 border-b border-surface-border">
+          <h3 class="text-lg font-bold text-slate-800">Getting Started Guide</h3>
+        </div>
+        <div class="p-6">
+          <ul class="flex flex-col gap-4">
+            <li class="flex items-start gap-4 pb-4 border-b border-surface-border last:border-0 last:pb-0">
+              <i class="pi pi-check-circle text-green-500 text-xl mt-0.5"></i>
+              <div>
+                <h4 class="font-bold text-slate-800 mb-1">Complete your profile and payout details</h4>
+                <p class="text-sm font-medium text-slate-500 m-0">Ensure you can receive payments seamlessly.</p>
+              </div>
             </li>
-            <li>
-              <i class="pi pi-check-circle text-green-500"></i>
-              <span>Add at least 3 high-quality photos per listing</span>
+            <li class="flex items-start gap-4 pb-4 border-b border-surface-border last:border-0 last:pb-0">
+              <i class="pi pi-check-circle text-green-500 text-xl mt-0.5"></i>
+              <div>
+                <h4 class="font-bold text-slate-800 mb-1">Add high-quality photos</h4>
+                <p class="text-sm font-medium text-slate-500 m-0">Listings with 5+ professional photos get 40% more bookings.</p>
+              </div>
             </li>
-            <li>
-              <i class="pi pi-circle text-gray-400"></i>
-              <span>Verify your identity to increase guest trust</span>
-            </li>
-            <li>
-              <i class="pi pi-circle text-gray-400"></i>
-              <span>Sync with external calendars to avoid overlaps</span>
+            <li class="flex items-start gap-4 pb-4 border-b border-surface-border last:border-0 last:pb-0">
+              <i class="pi pi-circle text-slate-300 text-xl mt-0.5"></i>
+              <div>
+                <h4 class="font-bold text-slate-800 mb-1">Verify your identity</h4>
+                <p class="text-sm font-medium text-slate-500 m-0">Verified hosts increase guest trust and booking conversions.</p>
+              </div>
             </li>
           </ul>
-        </template>
-      </Card>
+        </div>
+      </div>
 
-      <Card class="info-item news">
-        <template #title>What's New</template>
-        <template #content>
-          <div class="news-item">
-            <span class="news-badge">Update</span>
-            <p>New "Instant Book" feature is now available for premium members.</p>
+      <!-- What's New -->
+      <div class="lg:col-span-2 card-base">
+        <div class="p-6 border-b border-surface-border">
+          <h3 class="text-lg font-bold text-slate-800">What's New</h3>
+        </div>
+        <div class="p-6 flex flex-col gap-6">
+          <div class="flex flex-col items-start">
+            <span class="inline-block px-2.5 py-1 bg-blue-50 text-blue-600 rounded-md text-[10px] font-bold uppercase tracking-wider mb-2">Platform Update</span>
+            <p class="text-sm font-medium text-slate-700 m-0 leading-relaxed">The new "Instant Book" feature is now available for premium members. Turn it on in your listing settings to boost visibility.</p>
           </div>
-          <div class="news-item">
-            <span class="news-badge promo">Tips</span>
-            <p>Seasonal pricing trends: How to price your city stay this summer.</p>
+          <div class="flex flex-col items-start">
+            <span class="inline-block px-2.5 py-1 bg-pink-50 text-pink-600 rounded-md text-[10px] font-bold uppercase tracking-wider mb-2">Host Tips</span>
+            <p class="text-sm font-medium text-slate-700 m-0 leading-relaxed">Seasonal pricing trends: Learn how to optimize your nightly rates during the upcoming summer peak season.</p>
           </div>
-        </template>
-      </Card>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -87,152 +98,7 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import Card from 'primevue/card'
-import Button from 'primevue/button'
 
 const router = useRouter()
 const authStore = useAuthStore()
 </script>
-
-<style scoped>
-.owner-home-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 3rem 2rem;
-}
-
-.welcome-header {
-  margin-bottom: 3.5rem;
-}
-
-.welcome-header h1 {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: #1a202c;
-  margin-bottom: 0.75rem;
-}
-
-.welcome-header p {
-  font-size: 1.15rem;
-  color: #718096;
-  max-width: 600px;
-  line-height: 1.6;
-}
-
-.quick-actions-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 2rem;
-}
-
-.action-card {
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid #f1f5f9;
-}
-
-.action-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  border-color: #6366f1;
-}
-
-.action-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1.5rem;
-}
-
-.action-icon i {
-  font-size: 1.75rem;
-}
-
-.list-apt { background-color: #e0e7ff; color: #4338ca; }
-.analytics { background-color: #fef3c7; color: #b45309; }
-.bookings { background-color: #d1fae5; color: #065f46; }
-
-.action-card h3 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin-bottom: 0.75rem;
-  color: #1a202c;
-}
-
-.action-card p {
-  color: #718096;
-  font-size: 0.95rem;
-  margin-bottom: 1.5rem;
-  line-height: 1.5;
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr;
-  gap: 2rem;
-}
-
-.info-item {
-  border-radius: 16px;
-  background: white;
-}
-
-.guide-list {
-  list-style: none;
-  padding: 0;
-}
-
-.guide-list li {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 0;
-  border-bottom: 1px solid #f8fafc;
-}
-
-.guide-list li:last-child {
-  border-bottom: none;
-}
-
-.guide-list i {
-  font-size: 1.25rem;
-}
-
-.news-item {
-  margin-bottom: 1.5rem;
-}
-
-.news-badge {
-  display: inline-block;
-  padding: 0.2rem 0.6rem;
-  background: #eff6ff;
-  color: #2563eb;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  margin-bottom: 0.5rem;
-}
-
-.news-badge.promo {
-  background: #fdf2f8;
-  color: #db2777;
-}
-
-.news-item p {
-  font-size: 0.95rem;
-  color: #4a5568;
-  margin: 0;
-}
-
-@media (max-width: 768px) {
-  .info-grid {
-    grid-template-columns: 1fr;
-  }
-}
-</style>

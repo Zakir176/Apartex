@@ -4,9 +4,7 @@ from datetime import datetime
 class WishlistBase(BaseModel):
     apartment_id: int
 
-class WishlistCreate(WishlistBase):
-    pass
-
+WishlistCreate = WishlistBase
 class WishlistRead(WishlistBase):
     id: int
     user_id: int

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, Numeric
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, Numeric, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
@@ -20,7 +20,7 @@ class Apartment(Base):
     is_available = Column(Boolean, default=True)
     latitude = Column(Numeric(10, 8), nullable=True)
     longitude = Column(Numeric(11, 8), nullable=True)
-    owner_id = Column(Integer, nullable=False)  # Simple foreign key for now
+    owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # Simple foreign key for now
     
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

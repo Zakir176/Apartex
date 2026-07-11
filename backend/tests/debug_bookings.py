@@ -1,7 +1,7 @@
 import requests
 import json
 
-BASE_URL = "http://localhost:8000"
+BASE_URL = "http://localhost:8000/api"
 
 def debug_apartment_status():
     print("=== Debugging Apartment Status ===\n")

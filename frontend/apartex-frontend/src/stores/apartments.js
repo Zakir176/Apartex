@@ -8,9 +8,13 @@ export const useApartmentsStore = defineStore('apartments', () => {
   const loading = ref(false);
   const error = ref(null);
 
-  const featuredApartments = computed(() => 
-    apartments.value.filter(apt => apt.featured).slice(0, 6)
-  );
+  const featuredApartments = computed(() => {
+    const featured = apartments.value.filter(apt => apt.featured);
+    if (featured.length > 0) {
+      return featured.slice(0, 6);
+    }
+    return apartments.value.filter(apt => apt.is_available).slice(0, 6);
+  });
 
   async function fetchApartments(params = {}) {
     loading.value = true;

@@ -1,317 +1,188 @@
 <template>
   <div class="home-container">
-    <!-- Ambient glowing backgrounds -->
-    <div class="ambient-glow bg-glow-1"></div>
-    <div class="ambient-glow bg-glow-2"></div>
     
-    <!-- 🌌 HERO SECTION -->
+    <!-- HERO SECTION -->
     <header class="hero-section">
-      <div class="hero-header-content">
-        <span class="hero-badge">✨ Discover Zambia's Premium Stays</span>
-        <h1 class="hero-title">
-          Where Comfort Meets <span class="text-gradient">Luxury</span>
-        </h1>
-        <p class="hero-subtitle">
-          Book handpicked premium apartments, boutique suites, and scenic cottages for your next getaway.
-        </p>
-      </div>
-
-      <!-- Glassmorphic Search Dashboard -->
-      <div class="search-dashboard-wrapper">
-        <div class="search-tabs">
-          <button 
-            v-for="tab in tabs" 
-            :key="tab.id" 
-            class="tab-btn" 
-            :class="{ active: activeTab === tab.id }"
-            @click="activeTab = tab.id"
-          >
-            <i :class="tab.icon"></i>
-            <span>{{ tab.label }}</span>
-          </button>
+      <div class="hero-content">
+        <h1 class="hero-title">Find Your Perfect Stay in Zambia</h1>
+        <p class="hero-subtitle">Handpicked apartments, lodges and guest houses — no hidden fees.</p>
+        
+        <div class="search-bar">
+          <div class="search-input-group">
+            <label>Location</label>
+            <select v-model="selectedCity" class="search-select">
+              <option value="">Where are you going?</option>
+              <option v-for="city in cities" :key="city" :value="city">{{ city }}</option>
+            </select>
+          </div>
+          <div class="search-divider"></div>
+          
+          <div class="search-input-group">
+            <label>Check-in</label>
+            <input type="date" v-model="checkInDate" class="search-input" :min="todayDate" />
+          </div>
+          <div class="search-divider"></div>
+          
+          <div class="search-input-group">
+            <label>Check-out</label>
+            <input type="date" v-model="checkOutDate" class="search-input" :min="checkInDate || todayDate" />
+          </div>
+          <div class="search-divider"></div>
+          
+          <div class="search-input-group">
+            <label>Guests</label>
+            <select v-model="guestCount" class="search-select">
+              <option v-for="n in 6" :key="n" :value="n">{{ n }} Guest{{ n > 1 ? 's' : '' }}</option>
+            </select>
+          </div>
+          
+          <button @click="triggerSearch" class="btn-search">Search</button>
         </div>
         
-        <div class="search-inputs-grid">
-          <!-- Destination Field -->
-          <div class="input-block">
-            <label class="input-label"><i class="pi pi-map-marker"></i> Where to?</label>
-            <div class="dropdown-wrapper">
-              <select v-model="selectedCity" class="custom-select">
-                <option value="">Select a city...</option>
-                <option v-for="city in cities" :key="city" :value="city">{{ city }}</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Check-in Date -->
-          <div class="input-block">
-            <label class="input-label"><i class="pi pi-calendar"></i> Check-in</label>
-            <input type="date" v-model="checkInDate" class="custom-date-input" :min="todayDate" />
-          </div>
-
-          <!-- Check-out Date -->
-          <div class="input-block">
-            <label class="input-label"><i class="pi pi-calendar"></i> Check-out</label>
-            <input type="date" v-model="checkOutDate" class="custom-date-input" :min="checkInDate || todayDate" />
-          </div>
-
-          <!-- Guests Selector -->
-          <div class="input-block">
-            <label class="input-label"><i class="pi pi-users"></i> Guests</label>
-            <div class="dropdown-wrapper">
-              <select v-model="guestCount" class="custom-select">
-                <option v-for="n in 6" :key="n" :value="n">{{ n }} Guest{{ n > 1 ? 's' : '' }}</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Action Button -->
-          <div class="search-action-block">
-            <button @click="triggerSearch" class="btn-search-trigger">
-              <i class="pi pi-search"></i>
-              <span>Find Stay</span>
-            </button>
-          </div>
+        <div class="trust-row">
+          <span><i class="pi pi-check"></i> No booking fees</span>
+          <span class="dot">·</span>
+          <span><i class="pi pi-check"></i> Verified properties</span>
+          <span class="dot">·</span>
+          <span><i class="pi pi-check"></i> Instant confirmation</span>
         </div>
       </div>
     </header>
 
-    <!-- 🗺️ TRENDING DESTINATIONS SECTION -->
-    <section class="home-section text-center">
+    <!-- DESTINATIONS SECTION -->
+    <section class="home-section">
       <div class="section-header">
-        <span class="section-tag">Explore Zambia</span>
-        <h2 class="section-title">Trending Destinations</h2>
-        <p class="section-subtitle">Browse properties in our most sought-after cities</p>
+        <h2 class="section-title">Explore by City</h2>
       </div>
-
+      
       <div class="destinations-grid">
         <div 
           v-for="destination in destinationList" 
           :key="destination.name" 
-          class="destination-card"
+          class="city-card"
           @click="selectTrendingCity(destination.name)"
         >
-          <div class="dest-image-wrapper">
-            <img :src="destination.image" :alt="destination.name" class="dest-image" />
-            <div class="dest-overlay">
-              <div class="dest-info">
-                <h3 class="dest-name">{{ destination.name }}</h3>
-                <span class="dest-badge">{{ destination.count }} Properties</span>
-              </div>
-              <div class="dest-arrow">
-                <i class="pi pi-arrow-up-right"></i>
-              </div>
-            </div>
+          <img :src="destination.image" :alt="destination.name" class="city-image" />
+          <div class="city-overlay">
+            <h3 class="city-name">{{ destination.name }}</h3>
+            <p class="city-count">{{ destination.count }} Properties</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 🏢 FEATURED APARTMENTS -->
-    <section class="home-section bg-gradient-alt">
-      <div class="section-header flex flex-column md:flex-row align-items-center justify-content-between mb-6 gap-3">
-        <div>
-          <span class="section-tag">Curated Collection</span>
-          <h2 class="section-title m-0">Featured Premium Stays</h2>
-          <p class="section-subtitle">Exquisite design and high-end comfort matched together</p>
-        </div>
-        <router-link to="/apartments" class="btn-secondary-custom">
-          <span>View All Apartments</span>
-          <i class="pi pi-arrow-right"></i>
-        </router-link>
+    <!-- FEATURED STAYS SECTION -->
+    <section class="home-section">
+      <div class="section-header-flex">
+        <h2 class="section-title">Featured Stays</h2>
+        <router-link to="/apartments" class="btn-view-all">View All &rarr;</router-link>
       </div>
 
-      <div v-if="apartmentsStore.loading" class="loading-grid">
-        <div v-for="i in 3" :key="i" class="loading-skeleton-card">
-          <div class="skeleton-img"></div>
-          <div class="skeleton-body">
-            <div class="skeleton-line w-8"></div>
-            <div class="skeleton-line w-6"></div>
-          </div>
+      <div v-if="apartmentsStore.loading" class="featured-grid">
+        <div v-for="i in 3" :key="i" class="skeleton-card">
+          <div class="skeleton-image pulse"></div>
+          <div class="skeleton-text pulse title"></div>
+          <div class="skeleton-text pulse desc"></div>
         </div>
       </div>
 
-      <div v-else class="apartments-grid">
-        <div 
+      <div v-else class="featured-grid">
+        <ApartmentCard 
           v-for="apartment in apartmentsStore.featuredApartments" 
           :key="apartment.id"
-          class="premium-apartment-card"
+          :apartment="apartment"
           @click="viewApartmentDetail(apartment.id)"
-        >
-          <div class="card-image-section">
-            <img 
-              :src="apartment.image_url || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=600&q=80'" 
-              :alt="apartment.title" 
-              class="card-img" 
-            />
-            <div class="card-price-pill">
-              <span class="price-val">${{ apartment.price_per_night }}</span>
-              <span class="price-unit">/ night</span>
-            </div>
-            <div class="card-badges">
-              <span class="badge-pill rating-badge">
-                <i class="pi pi-star-fill"></i>
-                <span>4.9</span>
-              </span>
-              <span class="badge-pill tag-badge">Premium</span>
-            </div>
-          </div>
-          
-          <div class="card-details-section">
-            <span class="card-location"><i class="pi pi-map-marker"></i> {{ apartment.city }}, Zambia</span>
-            <h3 class="card-title">{{ apartment.title }}</h3>
-            
-            <div class="card-amenities-strip">
-              <span><i class="pi pi-users"></i> Up to {{ apartment.capacity }} Guests</span>
-              <span class="dot-separator">•</span>
-              <span><i class="pi pi-home"></i> {{ apartment.bedrooms }} Bed{{ apartment.bedrooms > 1 ? 's' : '' }}</span>
-            </div>
+        />
+      </div>
+    </section>
 
-            <div class="card-footer-trigger">
-              <span class="btn-details">Explore Details</span>
-              <i class="pi pi-arrow-right"></i>
+    <!-- WHY APARTEX SECTION -->
+    <section class="home-section bg-alt">
+      <div class="why-grid">
+        <div v-for="perk in perks" :key="perk.title" class="feature-card">
+          <div class="feature-icon">
+            <i :class="perk.icon"></i>
+          </div>
+          <h3 class="feature-title">{{ perk.title }}</h3>
+          <p class="feature-desc">{{ perk.description }}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOYALTY TEASER SECTION -->
+    <section class="home-section loyalty-section">
+      <div class="loyalty-grid">
+        <div class="loyalty-content">
+          <h2 class="section-title">Apartex Loyalty Club</h2>
+          <p class="loyalty-desc">Unlock premium rewards with every booking. Travel more, earn more.</p>
+          <ul class="loyalty-list">
+            <li><i class="pi pi-check-circle"></i> Earn points on every night spent</li>
+            <li><i class="pi pi-check-circle"></i> Redeem rewards for discount bookings</li>
+            <li><i class="pi pi-check-circle"></i> Enjoy lifetime tier benefits</li>
+          </ul>
+          <router-link to="/loyalty" class="btn-loyalty">Join the Club</router-link>
+        </div>
+        
+        <div class="loyalty-card-wrapper">
+          <div class="membership-card">
+            <div class="card-top">
+              <span class="brand">APARTEX</span>
+              <span class="tier">GOLD MEMBER</span>
+            </div>
+            <div class="card-chip"></div>
+            <div class="card-bottom">
+              <div class="member-info">
+                <span class="label">MEMBER</span>
+                <span class="name">Demo Traveler</span>
+              </div>
+              <div class="points-info">
+                <span class="label">POINTS</span>
+                <span class="value">4,250</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
-
-      <div
-        v-if="!apartmentsStore.loading && apartmentsStore.featuredApartments.length === 0"
-        class="empty-fallback-card text-center py-8"
-      >
-        <div class="empty-icon-circle mb-4">🏠</div>
-        <h3 class="text-xl font-bold text-900 mb-2">No Featured Collections</h3>
-        <p class="text-500 max-w-sm mx-auto mb-4">We are currently curating premium properties. Check back shortly!</p>
-      </div>
     </section>
 
-    <!-- 🔑 VALUE PROPOSITIONS -->
-    <section class="home-section text-center">
+    <!-- TESTIMONIALS SECTION -->
+    <section class="home-section">
       <div class="section-header">
-        <span class="section-tag">Apartex Standard</span>
-        <h2 class="section-title">Designed for Discerning Travelers</h2>
-        <p class="section-subtitle">Experience hospitality defined by excellence and security</p>
+        <h2 class="section-title">Traveler Stories</h2>
       </div>
-
-      <div class="perks-grid">
-        <div v-for="perk in perks" :key="perk.title" class="perk-card">
-          <div class="perk-icon-circle" :style="{ background: perk.bg }">
-            <i :class="[perk.icon, perk.color]"></i>
-          </div>
-          <h3 class="perk-title">{{ perk.title }}</h3>
-          <p class="perk-desc">{{ perk.description }}</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 💎 LOYALTY CLUB PREVIEW -->
-    <section class="home-section bg-gradient-alt relative overflow-hidden">
-      <div class="loyalty-teaser-wrapper">
-        <div class="grid align-items-center gap-6">
-          <div class="col-12 lg:col-6 text-left">
-            <span class="section-tag">Apartex Club</span>
-            <h2 class="section-title text-left m-0 mb-4">Unlock Premium Rewards</h2>
-            <p class="text-600 text-lg line-height-3 mb-5">
-              Every booking unlocks points that elevate your travel tier. Progress from Bronze to Gold status and enjoy free room upgrades, late check-outs, and exclusive VIP cashbacks.
-            </p>
-            
-            <div class="loyalty-perks-list flex flex-column gap-3 mb-6">
-              <div class="loyalty-perk-item flex align-items-center gap-3">
-                <i class="pi pi-check-circle text-primary-500 text-xl"></i>
-                <span class="font-semibold text-800">Earn points on every night spent</span>
-              </div>
-              <div class="loyalty-perk-item flex align-items-center gap-3">
-                <i class="pi pi-check-circle text-primary-500 text-xl"></i>
-                <span class="font-semibold text-800">Redeem rewards for discount bookings</span>
-              </div>
-              <div class="loyalty-perk-item flex align-items-center gap-3">
-                <i class="pi pi-check-circle text-primary-500 text-xl"></i>
-                <span class="font-semibold text-800">Enjoy lifetime tier benefits</span>
-              </div>
-            </div>
-
-            <router-link to="/loyalty" class="btn-primary-custom">
-              <span>View Loyalty Perks</span>
-              <i class="pi pi-star-fill ml-2"></i>
-            </router-link>
-          </div>
-          
-          <div class="col-12 lg:col-6 flex justify-content-center">
-            <!-- Simulated Loyalty Card UI -->
-            <div class="loyalty-preview-card">
-              <div class="card-inner-glow"></div>
-              <div class="flex justify-content-between align-items-start mb-6">
-                <div>
-                  <span class="card-brand">APARTEX CLUB</span>
-                  <div class="card-tier-title">GOLD TIER</div>
-                </div>
-                <div class="card-vip-badge">VIP VIP</div>
-              </div>
-              <div class="mb-5">
-                <span class="card-holder-label">CARD HOLDER</span>
-                <div class="card-holder-name">Demo Traveler</div>
-              </div>
-              <div class="flex justify-content-between align-items-end">
-                <div>
-                  <span class="card-points-label">MEMBERSHIP POINTS</span>
-                  <div class="card-points-val">4,250 PTS</div>
-                </div>
-                <div class="card-chip-icon">
-                  <i class="pi pi-id-card text-4xl text-yellow-500"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 👤 TESTIMONIALS -->
-    <section class="home-section text-center">
-      <div class="section-header">
-        <span class="section-tag">Traveler Stories</span>
-        <h2 class="section-title">Loved by Travelers Worldwide</h2>
-        <p class="section-subtitle">Read what our guests say about their premium stays</p>
-      </div>
-
       <div class="testimonials-grid">
         <div v-for="review in reviews" :key="review.author" class="testimonial-card">
-          <div class="flex align-items-center gap-1 text-yellow-500 mb-4 justify-content-center">
-            <i v-for="star in 5" :key="star" class="pi pi-star-fill"></i>
+          <div class="stars">
+            <i v-for="s in 5" :key="s" class="pi pi-star-fill"></i>
           </div>
-          <p class="testimonial-text">"{{ review.text }}"</p>
-          <div class="flex align-items-center gap-3 justify-content-center mt-5">
-            <div class="review-avatar bg-primary-100 text-primary-700 font-bold">
-              {{ review.initials }}
-            </div>
-            <div class="text-left">
-              <h4 class="review-author m-0">{{ review.author }}</h4>
-              <span class="review-status text-500"><i class="pi pi-shield-check text-green-500"></i> Verified Guest</span>
+          <p class="quote">"{{ review.text }}"</p>
+          <div class="reviewer">
+            <div class="avatar">{{ review.initials }}</div>
+            <div class="info">
+              <h4>{{ review.author }}</h4>
+              <span>Verified Guest</span>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 📩 PREMIUM BRAND FOOTER -->
-    <footer class="app-footer">
+    <!-- FOOTER -->
+    <footer class="footer">
       <div class="footer-grid">
         <div class="footer-col brand-col">
-          <h2 class="footer-brand">Apartex</h2>
-          <p class="footer-about">
-            Redefining contemporary urban living and temporary stays with handpicked luxury collections across Zambia.
-          </p>
-          <div class="footer-socials flex gap-3 mt-4">
-            <a href="#" class="social-icon"><i class="pi pi-facebook"></i></a>
-            <a href="#" class="social-icon"><i class="pi pi-twitter"></i></a>
-            <a href="#" class="social-icon"><i class="pi pi-instagram"></i></a>
-            <a href="#" class="social-icon"><i class="pi pi-linkedin"></i></a>
+          <h3>Apartex</h3>
+          <p>Redefining temporary stays with handpicked collections across Zambia.</p>
+          <div class="socials">
+            <a href="#"><i class="pi pi-facebook"></i></a>
+            <a href="#"><i class="pi pi-twitter"></i></a>
+            <a href="#"><i class="pi pi-instagram"></i></a>
           </div>
         </div>
         
         <div class="footer-col">
-          <h3 class="footer-header">Quick Links</h3>
-          <ul class="footer-links">
+          <h4>Quick Links</h4>
+          <ul>
             <li><router-link to="/">Home</router-link></li>
             <li><router-link to="/apartments">Explore Stays</router-link></li>
             <li><router-link to="/bookings">Reservations</router-link></li>
@@ -320,29 +191,29 @@
         </div>
         
         <div class="footer-col">
-          <h3 class="footer-header">Destinations</h3>
-          <ul class="footer-links">
-            <li><a href="#" @click.prevent="selectTrendingCity('Lusaka')">Lusaka Apartments</a></li>
-            <li><a href="#" @click.prevent="selectTrendingCity('Livingstone')">Livingstone Cottages</a></li>
-            <li><a href="#" @click.prevent="selectTrendingCity('Ndola')">Ndola Business Suites</a></li>
+          <h4>Destinations</h4>
+          <ul>
+            <li><a href="#" @click.prevent="selectTrendingCity('Lusaka')">Lusaka</a></li>
+            <li><a href="#" @click.prevent="selectTrendingCity('Livingstone')">Livingstone</a></li>
+            <li><a href="#" @click.prevent="selectTrendingCity('Ndola')">Ndola</a></li>
           </ul>
         </div>
-
-        <div class="footer-col newsletter-col">
-          <h3 class="footer-header">Subscribe Newsletter</h3>
-          <p class="footer-desc">Stay updated on premium properties and exclusive member offers.</p>
-          <div class="newsletter-form mt-4">
-            <input type="email" placeholder="Your email address" class="newsletter-input" />
-            <button class="btn-newsletter-subscribe"><i class="pi pi-send"></i></button>
+        
+        <div class="footer-col">
+          <h4>Newsletter</h4>
+          <p>Stay updated on premium properties and exclusive offers.</p>
+          <div class="newsletter">
+            <input type="email" placeholder="Your email address" />
+            <button>Subscribe</button>
           </div>
         </div>
       </div>
       
-      <div class="footer-bottom flex flex-column md:flex-row align-items-center justify-content-between">
-        <p class="m-0 text-500 text-sm">&copy; 2026 Apartex Inc. All rights reserved.</p>
-        <div class="flex gap-4 mt-3 md:mt-0">
-          <a href="#" class="text-500 text-sm">Privacy Policy</a>
-          <a href="#" class="text-500 text-sm">Terms of Service</a>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Apartex Inc. All rights reserved.</p>
+        <div class="legal-links">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
         </div>
       </div>
     </footer>
@@ -353,6 +224,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useApartmentsStore } from '@/stores/apartments';
+import ApartmentCard from '@/components/ApartmentCard.vue';
 
 const router = useRouter();
 const apartmentsStore = useApartmentsStore();
@@ -385,23 +257,17 @@ const perks = [
   {
     title: 'Inspected Properties',
     description: 'Every apartment is hand-selected and verified for amenities, hygiene, and comfort.',
-    icon: 'pi pi-shield',
-    color: 'text-indigo-500',
-    bg: 'rgba(99, 102, 241, 0.1)'
+    icon: 'pi pi-shield'
   },
   {
     title: 'Zero Booking Fees',
     description: 'Direct bookings with no hidden service charges. Best price guaranteed.',
-    icon: 'pi pi-wallet',
-    color: 'text-emerald-500',
-    bg: 'rgba(16, 185, 129, 0.1)'
+    icon: 'pi pi-wallet'
   },
   {
     title: 'VIP Loyalty Program',
     description: 'Accumulate reward points with every night stay and redeem free stays/payout benefits.',
-    icon: 'pi pi-star',
-    color: 'text-amber-500',
-    bg: 'rgba(245, 158, 11, 0.1)'
+    icon: 'pi pi-star'
   }
 ];
 
@@ -453,1015 +319,553 @@ const viewApartmentDetail = (id) => {
 </script>
 
 <style scoped>
-/* Core Container with Dark elegant theme baseline */
 .home-container {
   width: 100%;
-  position: relative;
-  background-color: #0b0914; /* Deep dark purple-toned midnight */
-  color: #f4f4f5;
-  overflow: hidden;
-  font-family: 'Outfit', 'Inter', sans-serif;
-  min-height: 100%;
-  padding-bottom: 0;
 }
 
-/* Background glowing blur elements */
-.ambient-glow {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(140px);
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.15;
-}
-.bg-glow-1 {
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, #6366f1, #3b82f6);
-  top: -100px;
-  right: -50px;
-}
-.bg-glow-2 {
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, #a855f7, #6366f1);
-  top: 40%;
-  left: -150px;
-}
-
-/* 🌌 HERO SECTION */
+/* HERO SECTION */
 .hero-section {
-  position: relative;
   width: 100%;
-  padding: 8rem 2rem 6rem 2rem;
+  padding: var(--space-16) var(--space-6);
+  background: var(--color-bg);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  z-index: 2;
 }
 
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 0.5rem 1.25rem;
-  border-radius: 50px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #c084fc;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+.hero-content {
+  max-width: 1000px;
+  width: 100%;
 }
 
 .hero-title {
-  font-size: 4.25rem;
-  font-weight: 800;
-  line-height: 1.15;
-  margin: 0 0 1.5rem 0;
-  letter-spacing: -0.03em;
-  color: #ffffff;
-  max-width: 900px;
-}
-
-.text-gradient {
-  background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 900;
+  color: var(--color-text-primary);
+  letter-spacing: -0.04em;
+  margin-bottom: var(--space-4);
+  line-height: 1.1;
 }
 
 .hero-subtitle {
-  font-size: 1.35rem;
-  color: #a1a1aa;
-  max-width: 680px;
-  margin: 0 auto 4rem auto;
-  line-height: 1.6;
+  font-size: var(--font-size-xl);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-10);
+  font-weight: 500;
 }
 
-/* Glassmorphic Search Dashboard widget */
-.search-dashboard-wrapper {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 24px;
-  padding: 1.75rem;
-  width: 100%;
-  max-width: 1100px;
-  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8);
-  animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(40px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.search-tabs {
+.search-bar {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  padding-bottom: 1rem;
-}
-
-.tab-btn {
-  background: transparent;
-  border: none;
-  color: #71717a;
-  padding: 0.75rem 1.5rem;
-  border-radius: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  padding: var(--space-4) var(--space-6);
   align-items: center;
-  gap: 0.5rem;
-  transition: all 0.3s ease;
-  font-size: 0.95rem;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
 }
 
-.tab-btn i {
-  font-size: 1rem;
-}
-
-.tab-btn:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.02);
-}
-
-.tab-btn.active {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.search-inputs-grid {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr 1fr 1fr 0.8fr;
-  gap: 1.25rem;
-  align-items: end;
-  text-align: left;
-}
-
-.input-block {
+.search-input-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  text-align: left;
+  flex: 1;
+  padding: 0 var(--space-4);
 }
 
-.input-label {
-  font-size: 0.8rem;
+.search-input-group label {
+  font-size: var(--font-size-xs);
   font-weight: 700;
-  color: #a1a1aa;
+  color: var(--color-text-primary);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
+  margin-bottom: var(--space-1);
 }
 
-.dropdown-wrapper {
-  position: relative;
-  width: 100%;
-}
-
-.custom-select, .custom-date-input {
-  width: 100%;
-  padding: 0.9rem 1.2rem;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  color: #ffffff;
-  font-size: 0.95rem;
-  font-weight: 600;
-  outline: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.custom-select:focus, .custom-date-input:focus {
-  border-color: #a855f7;
-  background: rgba(255, 255, 255, 0.06);
-  box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);
-}
-
-/* Custom select dropdown styling */
-.custom-select option {
-  background: #181524;
-  color: #ffffff;
-}
-
-.btn-search-trigger {
-  width: 100%;
-  padding: 0.95rem 1.5rem;
-  background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
+.search-select, .search-input {
   border: none;
-  border-radius: 14px;
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 1rem;
+  outline: none;
+  background: transparent;
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  font-family: var(--font-family);
   cursor: pointer;
+  padding: var(--space-2) 0;
+}
+
+.search-select:focus, .search-input:focus {
+  color: var(--color-text-primary);
+}
+
+.search-divider {
+  width: 1px;
+  height: 40px;
+  background: var(--color-border);
+}
+
+.btn-search {
+  background: var(--color-accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius-full);
+  padding: var(--space-3) var(--space-6);
+  font-weight: 600;
+  font-size: var(--font-size-base);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.btn-search:hover {
+  background: var(--color-accent-hover);
+}
+
+.trust-row {
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 0.6rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
+  align-items: center;
+  gap: var(--space-4);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
 }
 
-.btn-search-trigger:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 15px 30px -5px rgba(99, 102, 241, 0.6);
-  filter: brightness(1.1);
+.trust-row i {
+  color: var(--color-success);
+  margin-right: var(--space-1);
 }
 
-.btn-search-trigger:active {
-  transform: translateY(0);
+.dot {
+  color: var(--color-border-strong);
 }
 
-/* Section styling standard */
+@media (max-width: 768px) {
+  .search-bar {
+    flex-direction: column;
+    padding: var(--space-4);
+    gap: var(--space-4);
+    border-radius: var(--radius-lg);
+  }
+  .search-input-group {
+    width: 100%;
+    padding: var(--space-2);
+  }
+  .search-divider {
+    display: none;
+  }
+  .btn-search {
+    width: 100%;
+  }
+  .trust-row {
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+}
+
+/* SECTION STANDARDS */
 .home-section {
-  width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 6rem 2rem;
-  position: relative;
-  z-index: 2;
+  padding: var(--space-12) var(--space-6);
 }
 
-.bg-gradient-alt {
-  background: linear-gradient(180deg, rgba(255,255,255,0.01) 0%, rgba(255,255,255,0) 100%);
-  border-top: 1px solid rgba(255,255,255,0.02);
-  border-bottom: 1px solid rgba(255,255,255,0.02);
+.bg-alt {
+  background: var(--color-surface-alt);
+  max-width: 100%;
 }
 
 .section-header {
-  margin-bottom: 4rem;
+  margin-bottom: var(--space-8);
 }
 
-.section-tag {
-  font-size: 0.8rem;
-  font-weight: 800;
-  letter-spacing: 0.15em;
-  color: #a855f7;
-  text-transform: uppercase;
-  margin-bottom: 0.75rem;
-  display: inline-block;
+.section-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: var(--space-8);
 }
 
 .section-title {
-  font-size: 2.75rem;
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: -0.02em;
-  margin: 0 0 1rem 0;
-}
-
-.section-subtitle {
-  font-size: 1.1rem;
-  color: #a1a1aa;
+  font-size: var(--font-size-3xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
   margin: 0;
-  font-weight: 500;
+  text-align: left;
 }
 
-/* 🗺️ TRENDING DESTINATIONS SECTION */
+.btn-view-all {
+  color: var(--color-accent);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: var(--font-size-base);
+}
+
+.btn-view-all:hover {
+  text-decoration: underline;
+}
+
+/* DESTINATIONS */
 .destinations-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 2rem;
+  gap: var(--space-6);
 }
 
-.destination-card {
-  border-radius: 20px;
-  overflow: hidden;
+.city-card {
   position: relative;
-  cursor: pointer;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-  aspect-ratio: 4 / 5;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.dest-image-wrapper {
-  position: absolute;
-  inset: 0;
+  height: 280px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
+  cursor: pointer;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
 
-.dest-image {
+.city-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+}
+
+.city-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform var(--transition-slow);
 }
 
-.dest-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0, 0, 0, 0.85) 100%);
-  padding: 1.5rem;
-  display: flex;
-  align-items: flex-end;
-  justify-content: justify;
-  transition: all 0.3s ease;
-}
-
-.dest-info {
-  flex-grow: 1;
-  text-align: left;
-}
-
-.dest-name {
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0 0 0.35rem 0;
-  letter-spacing: -0.01em;
-}
-
-.dest-badge {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #d4d4d8;
-}
-
-.dest-arrow {
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.1);
-  backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  border: 1px solid rgba(255,255,255,0.1);
-  transition: all 0.3s ease;
-  opacity: 0;
-  transform: scale(0.8);
-}
-
-.destination-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(104, 85, 247, 0.2);
-}
-
-.destination-card:hover .dest-image {
-  transform: scale(1.1);
-}
-
-.destination-card:hover .dest-overlay {
-  background: linear-gradient(180deg, rgba(0,0,0,0) 20%, rgba(10, 8, 22, 0.9) 100%);
-}
-
-.destination-card:hover .dest-arrow {
-  opacity: 1;
-  transform: scale(1);
-  background: #ffffff;
-  color: #0b0914;
-}
-
-/* Secondary Custom Button */
-.btn-secondary-custom {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.8rem 1.5rem;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 12px;
-  color: #ffffff;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.3s ease;
-}
-
-.btn-secondary-custom:hover {
-  background: rgba(255,255,255,0.08);
-  border-color: rgba(255,255,255,0.15);
-  transform: translateX(3px);
-}
-
-/* 🏢 PREMIUM APARTMENTS GRID */
-.apartments-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2.5rem;
-}
-
-.premium-apartment-card {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.card-image-section {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  overflow: hidden;
-}
-
-.card-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s ease;
-}
-
-.card-price-pill {
-  position: absolute;
-  bottom: 1.25rem;
-  left: 1.25rem;
-  background: rgba(11, 9, 20, 0.7);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.1);
-  padding: 0.45rem 1rem;
-  border-radius: 12px;
-}
-
-.price-val {
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: #ffffff;
-}
-
-.price-unit {
-  font-size: 0.75rem;
-  color: #a1a1aa;
-  font-weight: 600;
-}
-
-.card-badges {
-  position: absolute;
-  top: 1.25rem;
-  right: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.badge-pill {
-  padding: 0.4rem 0.8rem;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
-
-.rating-badge {
-  background: #ffffff;
-  color: #0b0914;
-}
-
-.rating-badge i {
-  color: #eab308;
-}
-
-.tag-badge {
-  background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
-  color: #ffffff;
-  border: 1px solid rgba(255,255,255,0.15);
-}
-
-.card-details-section {
-  padding: 1.75rem;
-  text-align: left;
-}
-
-.card-location {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #a855f7;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-.card-title {
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0.75rem 0;
-  line-height: 1.3;
-}
-
-.card-amenities-strip {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  color: #71717a;
-  font-size: 0.875rem;
-  font-weight: 600;
-  margin: 1.25rem 0 1.5rem 0;
-}
-
-.dot-separator {
-  color: rgba(255,255,255,0.1);
-}
-
-.card-footer-trigger {
-  border-top: 1px solid rgba(255,255,255,0.05);
-  padding-top: 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-}
-
-.card-footer-trigger i {
-  transition: transform 0.3s ease;
-}
-
-.premium-apartment-card:hover {
-  transform: translateY(-8px);
-  border-color: rgba(255,255,255,0.1);
-  background: rgba(255,255,255,0.03);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-}
-
-.premium-apartment-card:hover .card-img {
+.city-card:hover .city-image {
   transform: scale(1.05);
 }
 
-.premium-apartment-card:hover .card-footer-trigger {
-  color: #a855f7;
+.city-overlay {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: var(--space-6);
+  background: linear-gradient(transparent, rgba(0,0,0,0.8));
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
-.premium-apartment-card:hover .card-footer-trigger i {
-  transform: translateX(4px);
+.city-name {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  margin: 0 0 var(--space-1) 0;
 }
 
-/* Perks list value proposition */
-.perks-grid {
+.city-count {
+  font-size: var(--font-size-sm);
+  margin: 0;
+  opacity: 0.9;
+}
+
+@media (max-width: 1024px) {
+  .destinations-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .destinations-grid { grid-template-columns: 1fr; }
+}
+
+/* FEATURED STAYS */
+.featured-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 3rem;
+  gap: var(--space-6);
 }
 
-.perk-card {
-  background: rgba(255,255,255,0.015);
-  border: 1px solid rgba(255,255,255,0.04);
-  border-radius: 24px;
-  padding: 3rem 2.25rem;
-  text-align: center;
-  transition: all 0.3s ease;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+@media (max-width: 1024px) {
+  .featured-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+  .featured-grid { grid-template-columns: 1fr; }
 }
 
-.perk-icon-circle {
-  width: 4.5rem;
-  height: 4.5rem;
-  border-radius: 20px;
+.skeleton-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
   display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 2rem auto;
-  font-size: 1.85rem;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.skeleton-image { height: 200px; border-radius: var(--radius-md); background: #e2e8f0; }
+.skeleton-text { height: 20px; border-radius: var(--radius-sm); background: #e2e8f0; }
+.skeleton-text.title { width: 60%; }
+.skeleton-text.desc { width: 100%; height: 40px; }
+.pulse { animation: pulse 2s infinite ease-in-out; }
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 0.2; }
+  100% { opacity: 0.6; }
 }
 
-.perk-title {
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0 0 1rem 0;
+/* WHY APARTEX */
+.why-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-8);
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-.perk-desc {
-  color: #71717a;
-  line-height: 1.6;
-  font-size: 0.95rem;
-  font-weight: 500;
-  margin: 0;
-}
-
-.perk-card:hover {
-  transform: translateY(-5px);
-  border-color: rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.03);
-}
-
-/* 💎 LOYALTY CLUB PREVIEW */
-.loyalty-teaser-wrapper {
-  background: rgba(255, 255, 255, 0.01);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 32px;
-  padding: 4rem;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-}
-
-.btn-primary-custom {
-  display: inline-flex;
-  align-items: center;
-  padding: 1rem 2rem;
-  background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
-  border: none;
-  border-radius: 14px;
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 1rem;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.3);
-}
-
-.btn-primary-custom:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 15px 30px -5px rgba(99, 102, 241, 0.5);
-  filter: brightness(1.1);
-}
-
-/* Simulated Loyalty Card UI */
-.loyalty-preview-card {
-  width: 100%;
-  max-width: 440px;
-  aspect-ratio: 1.6 / 1;
-  background: linear-gradient(135deg, #1f1936 0%, #100b21 100%);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 24px;
-  padding: 2rem;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 25px 50px -10px rgba(0, 0, 0, 0.8), 0 0 30px rgba(104, 85, 247, 0.15);
+.feature-card {
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   text-align: left;
 }
 
-.card-inner-glow {
-  position: absolute;
-  top: -40%;
-  right: -20%;
-  width: 250px;
-  height: 250px;
-  background: radial-gradient(circle, rgba(168, 85, 247, 0.3), transparent 70%);
-  z-index: 0;
-  pointer-events: none;
+.feature-icon {
+  width: 3.5rem;
+  height: 3.5rem;
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: var(--space-4);
 }
 
-.card-brand {
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.15em;
-  color: #a1a1aa;
-}
-
-.card-tier-title {
-  font-size: 2rem;
-  font-weight: 900;
-  color: #ffffff;
-  letter-spacing: -0.02em;
-  margin-top: 0.25rem;
-  background: linear-gradient(135deg, #fef08a 0%, #eab308 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.card-vip-badge {
-  background: rgba(234, 179, 8, 0.1);
-  border: 1px solid rgba(234, 179, 8, 0.2);
-  color: #eab308;
-  padding: 0.35rem 0.75rem;
-  border-radius: 8px;
-  font-size: 0.75rem;
-  font-weight: 800;
-}
-
-.card-holder-label, .card-points-label {
-  font-size: 0.65rem;
-  font-weight: 800;
-  color: #71717a;
-  letter-spacing: 0.1em;
-}
-
-.card-holder-name {
-  font-size: 1.15rem;
+.feature-title {
+  font-size: var(--font-size-lg);
   font-weight: 700;
-  color: #ffffff;
-  margin-top: 0.25rem;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-2) 0;
 }
 
-.card-points-val {
-  font-size: 1.35rem;
-  font-weight: 800;
-  color: #ffffff;
-  margin-top: 0.25rem;
+.feature-desc {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: 0;
 }
 
-/* 👤 TESTIMONIALS */
+@media (max-width: 768px) {
+  .why-grid { grid-template-columns: 1fr; }
+}
+
+/* LOYALTY TEASER */
+.loyalty-section {
+  padding: var(--space-16) var(--space-6);
+}
+
+.loyalty-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-12);
+  align-items: center;
+}
+
+.loyalty-desc {
+  font-size: var(--font-size-xl);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-6);
+}
+
+.loyalty-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--space-8) 0;
+}
+
+.loyalty-list li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  font-weight: 500;
+  margin-bottom: var(--space-3);
+}
+
+.loyalty-list i {
+  color: var(--color-accent);
+  font-size: 1.25rem;
+}
+
+.btn-loyalty {
+  display: inline-block;
+  background: var(--color-accent);
+  color: white;
+  text-decoration: none;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  transition: background var(--transition-fast);
+}
+.btn-loyalty:hover { background: var(--color-accent-hover); }
+
+.loyalty-card-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.membership-card {
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 1.58;
+  background: linear-gradient(135deg, var(--color-navy) 0%, #102341 100%);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: white;
+  box-shadow: var(--shadow-xl);
+  position: relative;
+  overflow: hidden;
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.brand { font-weight: 800; font-size: var(--font-size-xl); letter-spacing: 0.1em; }
+.tier { color: #F59E0B; font-weight: 700; font-size: var(--font-size-sm); }
+
+.card-chip {
+  width: 45px; height: 35px;
+  background: #F59E0B;
+  border-radius: var(--radius-sm);
+  opacity: 0.8;
+  margin-top: auto;
+  margin-bottom: var(--space-4);
+}
+
+.card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.label { display: block; font-size: 0.6rem; color: rgba(255,255,255,0.6); letter-spacing: 0.1em; margin-bottom: 2px; }
+.name { font-size: var(--font-size-base); font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+.value { font-size: var(--font-size-xl); font-weight: 700; color: #F59E0B; }
+
+@media (max-width: 900px) {
+  .loyalty-grid { grid-template-columns: 1fr; }
+  .loyalty-card-wrapper { margin-top: var(--space-8); }
+}
+
+/* TESTIMONIALS */
 .testimonials-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 2.5rem;
+  gap: var(--space-6);
 }
 
 .testimonial-card {
-  background: rgba(255,255,255,0.015);
-  border: 1px solid rgba(255,255,255,0.04);
-  border-radius: 24px;
-  padding: 2.5rem;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-  text-align: center;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
-.testimonial-text {
-  font-size: 1.05rem;
-  line-height: 1.6;
-  color: #d4d4d8;
+.stars { color: var(--color-accent); margin-bottom: var(--space-4); }
+
+.quote {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
   font-style: italic;
-  margin: 0;
+  margin-bottom: var(--space-6);
+  line-height: 1.6;
 }
 
-.review-avatar {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 50%;
+.reviewer {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 1rem;
+  gap: var(--space-4);
 }
 
-.review-author {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #ffffff;
+.avatar {
+  width: 3rem; height: 3rem;
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-full);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; color: var(--color-text-primary);
 }
 
-.review-status {
-  font-size: 0.75rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
+.info h4 { margin: 0; color: var(--color-text-primary); font-size: var(--font-size-sm); }
+.info span { font-size: var(--font-size-xs); color: var(--color-success); font-weight: 600; }
 
-/* Loading skeleton styles */
-.loading-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2.5rem;
-}
+@media (max-width: 1024px) { .testimonials-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 768px) { .testimonials-grid { grid-template-columns: 1fr; } }
 
-.loading-skeleton-card {
-  background: rgba(255,255,255,0.015);
-  border: 1px solid rgba(255,255,255,0.04);
-  border-radius: 20px;
-  height: 380px;
-  overflow: hidden;
-}
-
-.skeleton-img {
-  width: 100%;
-  height: 60%;
-  background: rgba(255,255,255,0.03);
-  animation: pulse 1.5s infinite ease-in-out;
-}
-
-.skeleton-body {
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.skeleton-line {
-  height: 1rem;
-  background: rgba(255,255,255,0.03);
-  border-radius: 4px;
-  animation: pulse 1.5s infinite ease-in-out;
-}
-
-.empty-fallback-card {
-  background: rgba(255,255,255,0.015);
-  border: 1px solid rgba(255,255,255,0.04);
-  border-radius: 24px;
-}
-
-.empty-icon-circle {
-  font-size: 3rem;
-  opacity: 0.4;
-}
-
-/* 📩 PREMIUM BRAND FOOTER */
-.app-footer {
-  background: #06040a;
-  border-top: 1px solid rgba(255,255,255,0.05);
-  padding: 5rem 2rem 2rem 2rem;
-  width: 100%;
-  margin-top: 4rem;
+/* FOOTER */
+.footer {
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  padding: var(--space-12) var(--space-6) var(--space-6);
 }
 
 .footer-grid {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
-  gap: 4rem;
   max-width: 1400px;
   margin: 0 auto;
-  text-align: left;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-  padding-bottom: 4rem;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr;
+  gap: var(--space-8);
+  margin-bottom: var(--space-12);
 }
 
-.footer-brand {
-  font-size: 2rem;
-  font-weight: 800;
-  margin: 0 0 1.5rem 0;
-  color: #ffffff;
-}
+.footer-col h3 { font-size: 1.5rem; font-weight: 800; color: var(--color-navy); margin: 0 0 var(--space-4) 0; }
+.footer-col h4 { font-size: 1.125rem; font-weight: 700; color: var(--color-text-primary); margin: 0 0 var(--space-4) 0; }
+.footer-col p { color: var(--color-text-secondary); line-height: 1.6; margin-bottom: var(--space-4); }
 
-.footer-about {
-  color: #71717a;
-  line-height: 1.6;
-  font-size: 0.95rem;
-  font-weight: 500;
-}
+.socials { display: flex; gap: var(--space-4); }
+.socials a { color: var(--color-text-secondary); font-size: 1.25rem; transition: color var(--transition-fast); }
+.socials a:hover { color: var(--color-accent); }
 
-.social-icon {
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.05);
-  color: #a1a1aa;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  text-decoration: none;
-}
+.footer-col ul { list-style: none; padding: 0; margin: 0; }
+.footer-col ul li { margin-bottom: var(--space-3); }
+.footer-col ul a { color: var(--color-text-secondary); text-decoration: none; transition: color var(--transition-fast); }
+.footer-col ul a:hover { color: var(--color-accent); }
 
-.social-icon:hover {
-  background: #a855f7;
-  color: #ffffff;
-  border-color: #a855f7;
-  transform: translateY(-3px);
+.newsletter { display: flex; gap: var(--space-2); }
+.newsletter input {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-family);
 }
-
-.footer-header {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0 0 1.75rem 0;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.footer-links {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-}
-
-.footer-links a {
-  color: #71717a;
-  text-decoration: none;
-  font-size: 0.95rem;
+.newsletter button {
+  background: var(--color-accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 0 var(--space-4);
   font-weight: 600;
-  transition: color 0.3s ease;
-}
-
-.footer-links a:hover {
-  color: #a855f7;
-}
-
-.footer-desc {
-  color: #71717a;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  margin: 0;
-}
-
-.newsletter-form {
-  display: flex;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 12px;
-  overflow: hidden;
-  padding: 0.25rem;
-}
-
-.newsletter-input {
-  flex-grow: 1;
-  background: transparent;
-  border: none;
-  padding: 0.75rem 1rem;
-  color: #ffffff;
-  font-size: 0.9rem;
-  outline: none;
-}
-
-.newsletter-input::placeholder {
-  color: #52525b;
-}
-
-.btn-newsletter-subscribe {
-  padding: 0.75rem 1.25rem;
-  background: #ffffff;
-  color: #0b0914;
-  border: none;
-  border-radius: 10px;
-  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-newsletter-subscribe:hover {
-  background: #a855f7;
-  color: #ffffff;
 }
 
 .footer-bottom {
   max-width: 1400px;
   margin: 0 auto;
-  padding-top: 2rem;
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-6);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
 }
 
-.footer-bottom a {
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
+.legal-links { display: flex; gap: var(--space-4); }
+.legal-links a { color: var(--color-text-muted); text-decoration: none; }
+.legal-links a:hover { color: var(--color-text-secondary); }
 
-.footer-bottom a:hover {
-  color: #a855f7;
-}
-
-/* RESPONSIVE DESIGN */
 @media (max-width: 1024px) {
-  .search-inputs-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-  }
-  .search-action-block {
-    grid-column: span 2;
-  }
-  .destinations-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .apartments-grid, .perks-grid, .testimonials-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .footer-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 3rem;
-  }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
 }
-
-@media (max-width: 768px) {
-  .hero-title {
-    font-size: 3rem;
-  }
-  .hero-subtitle {
-    font-size: 1.1rem;
-    margin-bottom: 3rem;
-  }
-  .search-dashboard-wrapper {
-    padding: 1.25rem;
-  }
-  .loyalty-teaser-wrapper {
-    padding: 2rem;
-  }
-  .section-title {
-    font-size: 2.25rem;
-  }
-}
-
-@media (max-width: 580px) {
-  .hero-title {
-    font-size: 2.25rem;
-  }
-  .search-inputs-grid {
-    grid-template-columns: 1fr;
-  }
-  .search-action-block {
-    grid-column: span 1;
-  }
-  .destinations-grid, .apartments-grid, .perks-grid, .testimonials-grid {
-    grid-template-columns: 1fr;
-  }
-  .footer-grid {
-    grid-template-columns: 1fr;
-  }
+@media (max-width: 640px) {
+  .footer-grid { grid-template-columns: 1fr; }
+  .footer-bottom { flex-direction: column; gap: var(--space-4); text-align: center; }
 }
 </style>

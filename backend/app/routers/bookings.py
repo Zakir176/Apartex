@@ -41,15 +41,13 @@ def check_apartment_availability(apartment_id: int, check_in: date, check_out: d
         return False
 
     # Also check owner-blocked dates
-    current = check_in
-    while current < check_out:
-        blocked = db.query(BlockedDate).filter(
-            BlockedDate.apartment_id == apartment_id,
-            BlockedDate.blocked_date == current
-        ).first()
-        if blocked:
-            return False
-        current += timedelta(days=1)
+    blocked = db.query(BlockedDate).filter(
+        BlockedDate.apartment_id == apartment_id,
+        BlockedDate.blocked_date >= check_in,
+        BlockedDate.blocked_date < check_out
+    ).first()
+    if blocked:
+        return False
 
     return True
 
@@ -322,10 +320,21 @@ def check_availability(
     }
 
 @router.get("/user/{user_id}/bookings", response_model=List[BookingRead])
-def get_user_bookings(user_id: int, db: Session = Depends(get_db)):
+def get_user_bookings(
+    user_id: int, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
     """
     Get all bookings for a specific user.
     """
+    # Enforce authorization: only allow the user themselves or an admin to access these bookings
+    if current_user.id != user_id and current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not authorized to view these bookings."
+        )
+
     # Check if user exists
     user = db.query(User).filter(User.id == user_id).first()
     if not user:

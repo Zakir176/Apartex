@@ -6,9 +6,13 @@ Usage (from backend folder):
     python -m app.scripts.seed_demo_data
 """
 
+import logging
 from datetime import datetime, timedelta
 import traceback
 import json
+from passlib.context import CryptContext
+
+logger = logging.getLogger(__name__)
 
 from app.database import SessionLocal, Base, engine
 from app.core.security import hash_password
@@ -217,9 +221,8 @@ def seed_demo_data():
             print(f"Payout2 exists id={p2.id}")
 
         print("\n🎉 Seeding complete! You can now log in with demo_owner@apartex.com / owner123")
-    except Exception:
-        print("ERROR while seeding demo data:")
-        traceback.print_exc()
+    except Exception as e:
+        logger.error("ERROR while seeding demo data", exc_info=True)
     finally:
         db.close()
 

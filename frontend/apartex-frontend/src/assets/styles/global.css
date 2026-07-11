@@ -8,7 +8,7 @@
 :root {
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   
-  /* Apartex Premium Palette */
+  /* Apartex Premium Light Palette - Modern Indigo */
   --surface-0: #ffffff;
   --surface-50: #f8fafc;
   --surface-100: #f1f5f9;
@@ -21,13 +21,13 @@
   --surface-800: #1e293b;
   --surface-900: #0f172a;
   
-  --primary-color: #3b82f6;
-  --primary-50: #eff6ff;
-  --primary-100: #dbeafe;
-  --primary-200: #bfdbfe;
-  --primary-500: #3b82f6;
-  --primary-600: #2563eb;
-  --primary-700: #1d4ed8;
+  --primary-color: #6366f1;   /* Elegant Indigo */
+  --primary-50: #f5f3ff;
+  --primary-100: #ede9fe;
+  --primary-200: #ddd6fe;
+  --primary-500: #6366f1;
+  --primary-600: #4f46e5;
+  --primary-700: #4338ca;
   
   --accent-color: #f59e0b; /* Sophisticated Amber/Gold */
   
@@ -36,6 +36,33 @@
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+html.dark {
+  /* Apartex Premium Dark Palette - Midnight Space Violet */
+  --surface-0: #120e22;      /* Cards, headers, navigation widgets */
+  --surface-50: #07050f;     /* Base page background */
+  --surface-100: #1d1832;    /* Active state hover backgrounds */
+  --surface-200: #2d274c;    /* Divider/border systems */
+  --surface-300: #423c6d;
+  --surface-400: #5d5696;
+  --surface-500: #827bb0;
+  --surface-600: #a7a2c8;
+  --surface-700: #ccc9df;
+  --surface-800: #ebeaf3;
+  --surface-900: #ffffff;    /* Primary text headers */
+  
+  --primary-color: #a855f7;  /* High-end Violet/Purple */
+  --primary-50: #1b152d;
+  --primary-100: #2d214c;
+  --primary-200: #4a367c;
+  --primary-500: #a855f7;
+  --primary-600: #8b5cf6;
+  --primary-700: #7c3aed;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
 }
 
 * {
@@ -117,7 +144,7 @@ a:hover {
 
 /* 4. The Primary Button */
 .ax-button {
-  background: linear-gradient(135deg, var(--surface-900) 0%, #1e293b 100%);
+  background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-700) 100%);
   color: #fff;
   border: none;
   padding: 1rem 1.5rem;
@@ -135,7 +162,7 @@ a:hover {
 }
 
 .ax-button:hover {
-  background: linear-gradient(135deg, #000 0%, var(--surface-900) 100%);
+  filter: brightness(1.1);
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
@@ -204,3 +231,9 @@ a:hover {
 .flex-column { display: flex; flex-direction: column; }
 .align-center { display: flex; align-items: center; }
 .justify-center { display: flex; justify-content: center; }
+
+/* Leaflet Dark Map Tile Filter Overlay */
+html.dark .leaflet-container {
+  filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}
+

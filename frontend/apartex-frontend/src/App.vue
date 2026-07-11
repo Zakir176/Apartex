@@ -43,7 +43,7 @@
           
           <div class="flex align-items-center gap-2 px-2 sm:px-3 py-2 border-round-xl bg-slate-50 border-1 border-200">
             <Avatar icon="pi pi-user" shape="circle" class="bg-primary text-white" size="small" />
-            <span class="font-bold text-xs text-900 hidden sm:block">{{ authStore.user?.name }}</span>
+            <span class="font-bold text-xs text-900 hidden sm:block">{{ authStore.user?.full_name }}</span>
           </div>
           
           <Button icon="pi pi-sign-out" @click="handleLogout" class="p-button-text p-button-danger p-button-sm" v-tooltip.bottom="'Sign Out'" />
@@ -88,7 +88,7 @@
           <div class="flex align-items-center gap-3 px-3 mb-4">
             <Avatar icon="pi pi-user" shape="circle" class="bg-primary text-white" />
             <div>
-              <div class="font-bold text-900">{{ authStore.user?.name }}</div>
+              <div class="font-bold text-900">{{ authStore.user?.full_name }}</div>
               <div class="text-xs text-500 uppercase font-bold tracking-wider">{{ authStore.user?.role }} Account</div>
             </div>
           </div>

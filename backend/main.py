@@ -7,20 +7,16 @@ from app.models import user, apartment, booking, loyalty, payout, wishlist, revi
 from app.routers import apartments, bookings, loyalty as loyalty_router, dashboard, auth_enhanced, wishlist as wishlist_router, reviews, availability
 from app.routers import uploads
 
-# Create all tables
-Base.metadata.create_all(bind=engine)
+import logging
 
-# Lightweight migration: ensure apartments.image_url exists
+logger = logging.getLogger(__name__)
+
+# Create all tables securely
 try:
-    inspector = inspect(engine)
-    columns = [col['name'] for col in inspector.get_columns('apartments')]
-    if 'image_url' not in columns:
-        with engine.connect() as conn:
-            # Use SQLAlchemy 2.x compatible execution for raw SQL
-            conn.exec_driver_sql("ALTER TABLE apartments ADD COLUMN image_url VARCHAR(500)")
+    Base.metadata.create_all(bind=engine)
 except Exception as e:
-    # Non-fatal: log-like print so devs can see it
-    print(f"[startup] apartments.image_url migration check failed or unnecessary: {e}")
+    logger.error("Failed to create database tables", exc_info=True)
+    raise
 
 app = FastAPI(title="Apartex API", version="1.0.0")
 
@@ -29,8 +25,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:8080", "http://127.0.0.1:8080", "https://apartex.vercel.app"],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_headers=["Authorization", "Content-Type", "Accept"],
 )
 
 # Include routers with /api prefix

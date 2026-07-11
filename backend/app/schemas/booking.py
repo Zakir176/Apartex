@@ -8,9 +8,7 @@ class BookingBase(BaseModel):
     check_out: date
     guests: int = 1
 
-class BookingCreate(BookingBase):
-    pass
-
+BookingCreate = BookingBase
 class BookingRead(BookingBase):
     id: int
     user_id: int

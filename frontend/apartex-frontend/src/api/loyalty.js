@@ -10,12 +10,16 @@ export const loyaltyAPI = {
     return api.get(`/loyalty/users/${userId}/rewards`)
   },
   
-  redeemReward(rewardId) {
-    return api.post('/loyalty/rewards/redeem', { reward_id: rewardId })
+  redeemReward(rewardId, bookingId) {
+    return api.post('/loyalty/rewards/redeem', { reward_id: rewardId, booking_id: bookingId })
   },
 
   getLoyaltyTiers() {
     return api.get('/loyalty/tiers');
+  },
+
+  completeBooking(bookingId) {
+    return api.put(`/loyalty/bookings/${bookingId}/complete`);
   }
 }
 

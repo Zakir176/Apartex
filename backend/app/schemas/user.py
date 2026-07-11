@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 
 class UserBase(BaseModel):
@@ -9,7 +9,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     """Payload for creating a new user (includes plaintext password)."""
-    password: str
+    password: str = Field(..., min_length=8, description="Password must be at least 8 characters long")
 
 class UserRead(UserBase):
     """Public representation of a user returned by the API."""

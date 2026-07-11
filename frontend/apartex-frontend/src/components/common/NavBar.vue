@@ -1,79 +1,132 @@
 <template>
-  <nav class="navbar" :class="{ 'is-scrolled': isScrolled }">
-    <div class="nav-container">
+  <div 
+    class="sticky top-0 z-50 px-4 sm:px-6 transition-all duration-300"
+    :class="isScrolled ? 'pt-3 pb-3 bg-white/50 backdrop-blur-md' : 'pt-6 pb-4'"
+  >
+    <!-- Main Floating Pill -->
+    <nav 
+      class="max-w-[1100px] mx-auto bg-white border border-surface-border rounded-full px-5 h-16 flex items-center justify-between transition-all duration-300 relative"
+      :class="isScrolled ? 'shadow-lg bg-white/95' : 'shadow-md hover:shadow-lg'"
+    >
       <!-- Left: Logo -->
-      <router-link to="/" class="logo">APARTEX</router-link>
-      
-      <!-- Center: Desktop Links -->
-      <div class="nav-links desktop-only">
-        <router-link to="/" class="nav-link" exact-active-class="active">Home</router-link>
-        <router-link to="/apartments" class="nav-link" active-class="active">Explore Stays</router-link>
-        <router-link v-if="authStore.isAuthenticated" to="/bookings" class="nav-link" active-class="active">My Bookings</router-link>
-        <router-link v-if="authStore.isAuthenticated" to="/loyalty" class="nav-link" active-class="active">Loyalty</router-link>
+      <router-link to="/" class="flex-shrink-0 flex items-center gap-2 text-xl font-black text-navy tracking-tight no-underline pl-2 hover:opacity-80 transition-opacity">
+        <div class="w-8 h-8 rounded-lg bg-accent text-white flex items-center justify-center text-sm">
+          <i class="pi pi-home"></i>
+        </div>
+        APARTEX
+      </router-link>
+
+      <!-- Center: Nav Links (Desktop) -->
+      <div class="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2 bg-surface-alt/50 p-1 rounded-full border border-surface-border">
+        <router-link
+          to="/"
+          exact-active-class="bg-white shadow-sm text-slate-900 font-bold"
+          class="px-5 py-2 rounded-full text-sm font-semibold text-slate-500 hover:text-slate-800 transition-all duration-200 no-underline"
+        >Home</router-link>
+        <router-link
+          to="/apartments"
+          active-class="bg-white shadow-sm text-slate-900 font-bold"
+          class="px-5 py-2 rounded-full text-sm font-semibold text-slate-500 hover:text-slate-800 transition-all duration-200 no-underline"
+        >Explore</router-link>
+        <router-link
+          v-if="authStore.isAuthenticated"
+          to="/bookings"
+          active-class="bg-white shadow-sm text-slate-900 font-bold"
+          class="px-5 py-2 rounded-full text-sm font-semibold text-slate-500 hover:text-slate-800 transition-all duration-200 no-underline"
+        >Bookings</router-link>
       </div>
 
-      <!-- Right: Desktop Actions -->
-      <div class="nav-actions desktop-only">
-        <button class="theme-btn" @click="toggleTheme">
-          <i :class="theme.isDark ? 'pi pi-sun' : 'pi pi-moon'"></i>
-        </button>
+      <!-- Right: User Actions -->
+      <div class="hidden md:flex items-center gap-3">
+        <router-link
+          v-if="authStore.isAuthenticated"
+          to="/loyalty"
+          class="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold text-accent bg-accent-light hover:bg-orange-100 transition-colors no-underline border border-orange-200 mr-2"
+        >
+          <i class="pi pi-star-fill text-xs"></i> Club
+        </router-link>
 
+        <!-- Authenticated Dropdown -->
         <template v-if="authStore.isAuthenticated">
-          <div class="user-dropdown-container" ref="dropdownRef">
-            <button class="avatar-btn" @click="isDropdownOpen = !isDropdownOpen">
-              {{ userInitials }}
+          <div class="relative" ref="dropdownRef">
+            <button
+              @click="isDropdownOpen = !isDropdownOpen"
+              class="flex items-center gap-2 pl-2 pr-1.5 py-1.5 border border-surface-border rounded-full hover:shadow-md transition-all duration-200 bg-white"
+            >
+              <i class="pi pi-bars text-slate-500 text-sm ml-1"></i>
+              <div class="w-8 h-8 rounded-full bg-navy text-white font-bold text-xs flex items-center justify-center shadow-sm">
+                {{ userInitials }}
+              </div>
             </button>
-            
-            <div v-show="isDropdownOpen" class="dropdown-menu">
-              <router-link to="/profile" class="dropdown-item">Profile</router-link>
-              <router-link to="/bookings" class="dropdown-item">My Bookings</router-link>
-              <router-link v-if="authStore.user?.role === 'owner'" to="/dashboard" class="dropdown-item">Dashboard</router-link>
-              <div class="dropdown-divider"></div>
-              <button @click="logout" class="dropdown-item logout-btn text-error">Logout</button>
+
+            <!-- Dropdown Menu -->
+            <div
+              v-show="isDropdownOpen"
+              class="absolute right-0 top-[calc(100%+12px)] w-56 bg-white border border-surface-border rounded-2xl shadow-xl py-2 flex flex-col z-50 origin-top-right overflow-hidden"
+            >
+              <div class="px-4 py-3 border-b border-surface-border mb-1 bg-slate-50">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Signed in as</p>
+                <p class="text-sm font-bold text-slate-800 truncate">{{ authStore.user?.full_name || authStore.user?.email }}</p>
+              </div>
+              <router-link to="/profile" class="px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 no-underline transition-colors flex items-center gap-3"><i class="pi pi-user text-slate-400"></i> Profile</router-link>
+              <router-link to="/bookings" class="px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 no-underline transition-colors flex items-center gap-3"><i class="pi pi-calendar text-slate-400"></i> My Bookings</router-link>
+              <router-link v-if="authStore.user?.role === 'owner'" to="/dashboard" class="px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 no-underline transition-colors flex items-center gap-3"><i class="pi pi-chart-line text-slate-400"></i> Host Dashboard</router-link>
+              <div class="h-px bg-surface-border my-1"></div>
+              <button @click="logout" class="px-5 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 text-left transition-colors flex items-center gap-3 w-full"><i class="pi pi-sign-out"></i> Sign Out</button>
             </div>
           </div>
         </template>
+
+        <!-- Unauthenticated -->
         <template v-else>
-          <router-link to="/login" class="nav-link-login">Login</router-link>
-          <router-link to="/register" class="btn-signup">Sign Up</router-link>
+          <router-link to="/login" class="px-4 py-2 text-sm font-bold text-slate-600 hover:text-slate-900 no-underline transition-colors">Log In</router-link>
+          <router-link to="/register" class="px-5 py-2.5 text-sm font-bold bg-navy text-white rounded-full hover:bg-slate-800 transition-colors shadow-sm no-underline">Sign Up</router-link>
         </template>
       </div>
 
-      <!-- Mobile: Hamburger -->
-      <button class="mobile-toggle" @click="isMobileMenuOpen = !isMobileMenuOpen">
-        <i :class="isMobileMenuOpen ? 'pi pi-times' : 'pi pi-bars'"></i>
+      <!-- Mobile Hamburger -->
+      <button
+        class="md:hidden w-10 h-10 flex items-center justify-center text-slate-700 rounded-full hover:bg-surface-alt transition-colors duration-150 border border-transparent hover:border-surface-border"
+        @click="isMobileMenuOpen = !isMobileMenuOpen"
+      >
+        <i :class="isMobileMenuOpen ? 'pi pi-times' : 'pi pi-bars'" class="text-xl"></i>
       </button>
-    </div>
+    </nav>
 
-    <!-- Mobile Menu -->
-    <div v-show="isMobileMenuOpen" class="mobile-menu">
-      <router-link to="/" class="mobile-link" exact-active-class="active" @click="isMobileMenuOpen = false">Home</router-link>
-      <router-link to="/apartments" class="mobile-link" active-class="active" @click="isMobileMenuOpen = false">Explore Stays</router-link>
-      
-      <template v-if="authStore.isAuthenticated">
-        <router-link to="/bookings" class="mobile-link" active-class="active" @click="isMobileMenuOpen = false">My Bookings</router-link>
-        <router-link to="/loyalty" class="mobile-link" active-class="active" @click="isMobileMenuOpen = false">Loyalty</router-link>
-        <router-link to="/profile" class="mobile-link" active-class="active" @click="isMobileMenuOpen = false">Profile</router-link>
-        <router-link v-if="authStore.user?.role === 'owner'" to="/dashboard" class="mobile-link" active-class="active" @click="isMobileMenuOpen = false">Dashboard</router-link>
-        <button @click="toggleTheme" class="mobile-link text-left">Toggle Theme</button>
-        <button @click="logoutAndClose" class="mobile-link text-left text-error">Logout</button>
-      </template>
-      <template v-else>
-        <button @click="toggleTheme" class="mobile-link text-left">Toggle Theme</button>
-        <router-link to="/login" class="mobile-link" @click="isMobileMenuOpen = false">Login</router-link>
-        <router-link to="/register" class="mobile-link text-accent font-bold" @click="isMobileMenuOpen = false">Sign Up</router-link>
-      </template>
+    <!-- Mobile Menu Floating Card -->
+    <div 
+      v-show="isMobileMenuOpen" 
+      class="md:hidden absolute top-[calc(100%+8px)] left-4 right-4 bg-white border border-surface-border rounded-2xl shadow-xl overflow-hidden flex flex-col z-50 origin-top"
+    >
+      <div class="p-2 flex flex-col gap-1">
+        <router-link to="/" @click="isMobileMenuOpen = false" class="px-4 py-3 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3"><i class="pi pi-home text-slate-400"></i> Home</router-link>
+        <router-link to="/apartments" @click="isMobileMenuOpen = false" class="px-4 py-3 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3"><i class="pi pi-search text-slate-400"></i> Explore Stays</router-link>
+        
+        <template v-if="authStore.isAuthenticated">
+          <div class="h-px bg-surface-border mx-2 my-1"></div>
+          <router-link to="/loyalty" @click="isMobileMenuOpen = false" class="px-4 py-3 rounded-xl text-sm font-bold text-accent bg-accent-light/50 hover:bg-accent-light no-underline transition-colors flex items-center gap-3"><i class="pi pi-star-fill"></i> Apartex Club</router-link>
+          <router-link to="/bookings" @click="isMobileMenuOpen = false" class="px-4 py-3 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3"><i class="pi pi-calendar text-slate-400"></i> My Bookings</router-link>
+          <router-link to="/profile" @click="isMobileMenuOpen = false" class="px-4 py-3 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3"><i class="pi pi-user text-slate-400"></i> Profile</router-link>
+          <router-link v-if="authStore.user?.role === 'owner'" to="/dashboard" @click="isMobileMenuOpen = false" class="px-4 py-3 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3"><i class="pi pi-chart-line text-slate-400"></i> Host Dashboard</router-link>
+          <div class="h-px bg-surface-border mx-2 my-1"></div>
+          <button @click="logoutAndClose" class="px-4 py-3 rounded-xl text-sm font-bold text-red-600 hover:bg-red-50 text-left transition-colors flex items-center gap-3 w-full"><i class="pi pi-sign-out"></i> Sign Out</button>
+        </template>
+        
+        <template v-else>
+          <div class="h-px bg-surface-border mx-2 my-1"></div>
+          <router-link to="/login" @click="isMobileMenuOpen = false" class="px-4 py-3 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3"><i class="pi pi-sign-in text-slate-400"></i> Log In</router-link>
+          <router-link to="/register" @click="isMobileMenuOpen = false" class="px-4 py-3 rounded-xl text-sm font-bold text-accent hover:bg-accent-light no-underline transition-colors flex items-center gap-3"><i class="pi pi-user-plus text-accent/70"></i> Sign Up</router-link>
+        </template>
+      </div>
     </div>
-  </nav>
+  </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useAuthStore } from '@/stores/auth';
-import { useThemeStore } from '@/stores/theme';
 
 const authStore = useAuthStore();
-const theme = useThemeStore();
 
 const isScrolled = ref(false);
 const isDropdownOpen = ref(false);
@@ -105,8 +158,6 @@ onUnmounted(() => {
   window.removeEventListener('click', closeDropdown);
 });
 
-const toggleTheme = () => theme.toggle();
-
 const logout = () => {
   authStore.logout();
   window.location.href = '/';
@@ -117,236 +168,3 @@ const logoutAndClose = () => {
   logout();
 };
 </script>
-
-<style scoped>
-.navbar {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--color-border);
-  transition: box-shadow var(--transition-base);
-}
-
-.navbar.is-scrolled {
-  box-shadow: var(--shadow-sm);
-}
-
-.nav-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 var(--space-6);
-  height: 4.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.logo {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--color-navy);
-  text-decoration: none;
-  letter-spacing: -0.02em;
-}
-
-.nav-links {
-  display: flex;
-  gap: var(--space-8);
-  align-items: center;
-}
-
-.nav-link {
-  text-decoration: none;
-  color: var(--color-text-secondary);
-  font-weight: 500;
-  font-size: var(--font-size-sm);
-  padding: var(--space-2) 0;
-  border-bottom: 2px solid transparent;
-  transition: color var(--transition-fast), border-color var(--transition-fast);
-}
-
-.nav-link:hover {
-  color: var(--color-text-primary);
-}
-
-.nav-link.active {
-  color: var(--color-accent);
-  border-bottom-color: var(--color-accent);
-}
-
-.nav-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-6);
-}
-
-.theme-btn {
-  background: none;
-  border: none;
-  color: var(--color-text-secondary);
-  font-size: 1.125rem;
-  cursor: pointer;
-  padding: var(--space-2);
-  border-radius: var(--radius-full);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background var(--transition-fast), color var(--transition-fast);
-}
-
-.theme-btn:hover {
-  background: var(--color-surface-alt);
-  color: var(--color-text-primary);
-}
-
-.user-dropdown-container {
-  position: relative;
-}
-
-.avatar-btn {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: var(--radius-full);
-  background: var(--color-navy);
-  color: white;
-  border: none;
-  font-weight: 700;
-  font-size: var(--font-size-sm);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform var(--transition-fast);
-}
-
-.avatar-btn:hover {
-  transform: scale(1.05);
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: calc(100% + var(--space-2));
-  right: 0;
-  width: 200px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
-  padding: var(--space-2) 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.dropdown-item {
-  text-decoration: none;
-  color: var(--color-text-primary);
-  padding: var(--space-3) var(--space-4);
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  transition: background var(--transition-fast);
-  background: transparent;
-  border: none;
-  text-align: left;
-  cursor: pointer;
-  width: 100%;
-}
-
-.dropdown-item:hover {
-  background: var(--color-surface-alt);
-}
-
-.dropdown-divider {
-  height: 1px;
-  background: var(--color-border);
-  margin: var(--space-2) 0;
-}
-
-.text-error {
-  color: var(--color-error);
-}
-
-.nav-link-login {
-  text-decoration: none;
-  color: var(--color-text-primary);
-  font-weight: 600;
-  font-size: var(--font-size-sm);
-}
-
-.btn-signup {
-  text-decoration: none;
-  background: var(--color-accent);
-  color: white;
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-full);
-  font-weight: 600;
-  font-size: var(--font-size-sm);
-  transition: background var(--transition-fast);
-}
-
-.btn-signup:hover {
-  background: var(--color-accent-hover);
-}
-
-.mobile-toggle {
-  display: none;
-  background: none;
-  border: none;
-  color: var(--color-text-primary);
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: var(--space-2);
-}
-
-.mobile-menu {
-  display: none;
-  flex-direction: column;
-  background: var(--color-surface);
-  border-top: 1px solid var(--color-border);
-  padding: var(--space-4) var(--space-6);
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  box-shadow: var(--shadow-md);
-}
-
-.mobile-link {
-  text-decoration: none;
-  color: var(--color-text-primary);
-  font-weight: 500;
-  font-size: var(--font-size-base);
-  padding: var(--space-3) 0;
-  border-bottom: 1px solid var(--color-border);
-  background: transparent;
-  border-top: none;
-  border-left: none;
-  border-right: none;
-  cursor: pointer;
-}
-
-.mobile-link:last-child {
-  border-bottom: none;
-}
-
-.text-left {
-  text-align: left;
-}
-
-.text-accent {
-  color: var(--color-accent);
-}
-
-@media (max-width: 768px) {
-  .desktop-only {
-    display: none;
-  }
-  .mobile-toggle {
-    display: flex;
-  }
-  .mobile-menu {
-    display: flex;
-  }
-}
-</style>

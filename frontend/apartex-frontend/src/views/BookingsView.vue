@@ -1,144 +1,140 @@
 <template>
-  <div class="ax-container py-8 fadein animation-duration-500">
+  <div class="max-w-[1400px] mx-auto px-6 py-8 min-h-screen">
     <!-- Page Header -->
-    <div class="flex flex-column md:flex-row md:align-items-end justify-content-between mb-8 gap-4">
+    <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
       <div>
-        <h1 class="text-5xl font-bold text-900 mb-2">My Reservations</h1>
-        <p class="text-500 font-medium text-lg m-0">Track and manage all your upcoming and past stays</p>
+        <h1 class="text-4xl font-extrabold text-slate-800 mb-2 m-0">My Reservations</h1>
+        <p class="text-slate-500 font-medium text-lg m-0">Track and manage all your upcoming and past stays</p>
       </div>
-      <div class="flex gap-2 align-items-center">
-        <SelectButton v-model="activeFilter" :options="filterOptions" optionLabel="label" optionValue="value" class="filter-select" />
+      <div class="flex gap-2 items-center">
+        <SelectButton v-model="activeFilter" :options="filterOptions" optionLabel="label" optionValue="value" class="[&_.p-button]:rounded-lg" />
       </div>
     </div>
 
     <!-- Stats Row -->
-    <div class="grid mb-6" v-if="!bookingsStore.loading && bookings.length > 0">
-      <div class="col-6 md:col-3 p-2">
-        <div class="stat-card">
-          <div class="stat-icon bg-blue-50"><i class="pi pi-calendar text-blue-500"></i></div>
-          <div class="stat-value">{{ stats.total }}</div>
-          <div class="stat-label">Total Trips</div>
-        </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" v-if="!bookingsStore.loading && bookings.length > 0">
+      <div class="bg-white border border-surface-border rounded-2xl p-5 flex flex-col gap-2 transition-all duration-250 hover:shadow-md hover:-translate-y-1">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-50 text-blue-500 text-sm mb-1"><i class="pi pi-calendar"></i></div>
+        <div class="text-2xl font-extrabold text-slate-800 tracking-tight">{{ stats.total }}</div>
+        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Trips</div>
       </div>
-      <div class="col-6 md:col-3 p-2">
-        <div class="stat-card">
-          <div class="stat-icon bg-green-50"><i class="pi pi-check-circle text-green-500"></i></div>
-          <div class="stat-value">{{ stats.upcoming }}</div>
-          <div class="stat-label">Upcoming</div>
-        </div>
+      <div class="bg-white border border-surface-border rounded-2xl p-5 flex flex-col gap-2 transition-all duration-250 hover:shadow-md hover:-translate-y-1">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-green-50 text-green-500 text-sm mb-1"><i class="pi pi-check-circle"></i></div>
+        <div class="text-2xl font-extrabold text-slate-800 tracking-tight">{{ stats.upcoming }}</div>
+        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Upcoming</div>
       </div>
-      <div class="col-6 md:col-3 p-2">
-        <div class="stat-card">
-          <div class="stat-icon bg-purple-50"><i class="pi pi-history text-purple-500"></i></div>
-          <div class="stat-value">{{ stats.completed }}</div>
-          <div class="stat-label">Completed</div>
-        </div>
+      <div class="bg-white border border-surface-border rounded-2xl p-5 flex flex-col gap-2 transition-all duration-250 hover:shadow-md hover:-translate-y-1">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-50 text-slate-500 text-sm mb-1"><i class="pi pi-history"></i></div>
+        <div class="text-2xl font-extrabold text-slate-800 tracking-tight">{{ stats.completed }}</div>
+        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Completed</div>
       </div>
-      <div class="col-6 md:col-3 p-2">
-        <div class="stat-card">
-          <div class="stat-icon bg-orange-50"><i class="pi pi-wallet text-orange-500"></i></div>
-          <div class="stat-value">${{ stats.totalSpent }}</div>
-          <div class="stat-label">Total Spent</div>
-        </div>
+      <div class="bg-white border border-surface-border rounded-2xl p-5 flex flex-col gap-2 transition-all duration-250 hover:shadow-md hover:-translate-y-1">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-orange-50 text-orange-500 text-sm mb-1"><i class="pi pi-wallet"></i></div>
+        <div class="text-2xl font-extrabold text-slate-800 tracking-tight">${{ stats.totalSpent }}</div>
+        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Spent</div>
       </div>
     </div>
 
     <!-- Loading State -->
-    <div v-if="bookingsStore.loading" class="flex flex-column gap-4 mt-4">
+    <div v-if="bookingsStore.loading" class="flex flex-col gap-4 mt-4">
       <Skeleton v-for="i in 3" :key="i" width="100%" height="160px" class="border-round-xl" />
     </div>
 
     <!-- Error State -->
-    <div v-else-if="bookingsStore.error" class="empty-state-card">
-      <i class="pi pi-exclamation-triangle text-5xl mb-4" style="color: var(--surface-300)"></i>
-      <h3 class="text-xl font-bold text-900 mb-2">Something went wrong</h3>
-      <p class="text-500 font-medium mb-4">{{ bookingsStore.error }}</p>
-      <button @click="loadBookings" class="ax-button">
+    <div v-else-if="bookingsStore.error" class="flex flex-col items-center justify-center text-center py-20 px-8 bg-white border border-surface-border rounded-3xl mt-4">
+      <i class="pi pi-exclamation-triangle text-5xl mb-4 text-slate-300"></i>
+      <h3 class="text-xl font-bold text-slate-800 mb-2">Something went wrong</h3>
+      <p class="text-slate-500 font-medium mb-6">{{ bookingsStore.error }}</p>
+      <button @click="loadBookings" class="btn-accent inline-flex items-center gap-2">
         <i class="pi pi-refresh"></i><span>Try Again</span>
       </button>
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="filteredBookings.length === 0 && bookings.length === 0" class="empty-state-card">
-      <div class="empty-icon-circle mb-5">
-        <i class="pi pi-calendar text-4xl" style="color: var(--surface-300)"></i>
+    <div v-else-if="filteredBookings.length === 0 && bookings.length === 0" class="flex flex-col items-center justify-center text-center py-20 px-8 bg-white border border-surface-border rounded-3xl mt-4">
+      <div class="w-20 h-20 rounded-full bg-slate-50 border border-surface-border flex items-center justify-center mb-6">
+        <i class="pi pi-calendar text-4xl text-slate-300"></i>
       </div>
-      <h3 class="text-2xl font-bold text-900 mb-2">No reservations yet</h3>
-      <p class="text-500 font-medium mb-5">Your journey starts here — explore premium stays and book your first experience.</p>
-      <router-link to="/apartments" class="ax-button" style="text-decoration: none">
+      <h3 class="text-2xl font-bold text-slate-800 mb-2">No reservations yet</h3>
+      <p class="text-slate-500 font-medium mb-8">Your journey starts here — explore premium stays and book your first experience.</p>
+      <router-link to="/apartments" class="btn-accent inline-flex items-center gap-2 no-underline">
         <i class="pi pi-search"></i><span>Discover Properties</span>
       </router-link>
     </div>
 
     <!-- No results for filter -->
-    <div v-else-if="filteredBookings.length === 0" class="empty-state-card">
-      <i class="pi pi-filter-slash text-4xl mb-4" style="color: var(--surface-300)"></i>
-      <h3 class="text-xl font-bold text-900 mb-2">No {{ activeFilter }} bookings</h3>
-      <p class="text-500 font-medium">Try selecting a different filter above.</p>
+    <div v-else-if="filteredBookings.length === 0" class="flex flex-col items-center justify-center text-center py-20 px-8 bg-white border border-surface-border rounded-3xl mt-4">
+      <i class="pi pi-filter-slash text-4xl mb-4 text-slate-300"></i>
+      <h3 class="text-xl font-bold text-slate-800 mb-2">No {{ activeFilter }} bookings</h3>
+      <p class="text-slate-500 font-medium">Try selecting a different filter above.</p>
     </div>
 
     <!-- Bookings List -->
-    <div v-else class="flex flex-column gap-4">
+    <div v-else class="flex flex-col gap-4">
       <div
         v-for="booking in filteredBookings"
         :key="booking.id"
-        class="booking-card"
-        :class="{'card-upcoming': isUpcoming(booking), 'card-completed': isCompleted(booking), 'card-cancelled': booking.status === 'cancelled'}"
+        class="bg-white border border-surface-border rounded-2xl overflow-hidden transition-all duration-250 hover:shadow-lg hover:-translate-y-1 hover:border-surface-border-strong relative"
+        :class="{
+          'border-l-[4px] border-l-green-500': isUpcoming(booking), 
+          'border-l-[4px] border-l-slate-400': isCompleted(booking), 
+          'border-l-[4px] border-l-red-500 opacity-70 hover:opacity-90': booking.status === 'cancelled'
+        }"
       >
-        <div class="booking-card-inner">
+        <div class="flex flex-col md:flex-row justify-between gap-6 p-6">
           <!-- Left: Image + Info -->
-          <div class="booking-main">
-            <div class="booking-thumbnail">
+          <div class="flex flex-col md:flex-row gap-6 flex-1 min-w-0">
+            <div class="relative w-full md:w-[160px] h-[160px] md:h-[120px] rounded-xl overflow-hidden shrink-0">
               <img
                 :src="booking.apartment?.image_url || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=300&q=80'"
                 :alt="booking.apartment?.title || 'Apartment'"
+                class="w-full h-full object-cover"
               >
-              <div class="status-pill" :class="booking.status">
-                <i :class="statusIcon(booking.status)"></i>
+              <div class="absolute top-2 left-2 flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold capitalize backdrop-blur-md text-white"
+                   :class="booking.status === 'confirmed' ? 'bg-green-500/90' : booking.status === 'completed' ? 'bg-slate-500/90' : 'bg-red-500/90'">
+                <i :class="statusIcon(booking.status)" class="text-[10px]"></i>
                 {{ booking.status }}
               </div>
             </div>
 
-            <div class="booking-info">
-              <h3 class="booking-title">{{ booking.apartment?.title || 'Premium Stay' }}</h3>
-              <div class="booking-location">
-                <i class="pi pi-map-marker"></i>
+            <div class="flex flex-col justify-center gap-2 min-w-0">
+              <h3 class="text-lg font-extrabold text-slate-800 m-0 truncate">{{ booking.apartment?.title || 'Premium Stay' }}</h3>
+              <div class="flex items-center gap-1.5 text-sm font-semibold text-slate-500">
+                <i class="pi pi-map-marker text-accent text-xs"></i>
                 <span>{{ booking.apartment?.city || 'Zambia' }}</span>
               </div>
 
-              <div class="booking-dates-row">
-                <div class="date-block">
-                  <span class="date-label">Check-in</span>
-                  <span class="date-value">{{ formatDate(booking.check_in) }}</span>
+              <div class="flex items-center gap-4 mt-2">
+                <div class="flex flex-col">
+                  <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Check-in</span>
+                  <span class="text-sm font-bold text-slate-700">{{ formatDate(booking.check_in) }}</span>
                 </div>
-                <div class="date-arrow">
-                  <i class="pi pi-arrow-right"></i>
-                </div>
-                <div class="date-block">
-                  <span class="date-label">Check-out</span>
-                  <span class="date-value">{{ formatDate(booking.check_out) }}</span>
+                <i class="pi pi-arrow-right text-slate-300 text-xs mt-3"></i>
+                <div class="flex flex-col">
+                  <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Check-out</span>
+                  <span class="text-sm font-bold text-slate-700">{{ formatDate(booking.check_out) }}</span>
                 </div>
               </div>
             </div>
           </div>
 
           <!-- Right: Price + Actions -->
-          <div class="booking-actions-col">
-            <div class="booking-price">
-              <span class="price-label">Total</span>
-              <span class="price-value">${{ booking.total_price }}</span>
-            </div>
-            <div class="booking-guests">
-              <i class="pi pi-users"></i>
-              <span>{{ booking.guests }} guest{{ booking.guests > 1 ? 's' : '' }}</span>
+          <div class="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-between gap-4 md:gap-2 min-w-[150px] flex-wrap">
+            <div class="flex flex-col md:items-end">
+              <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Total</span>
+              <span class="text-2xl font-extrabold text-slate-800 tracking-tight">${{ booking.total_price }}</span>
+              <div class="flex items-center gap-1.5 text-xs font-semibold text-slate-500 mt-1">
+                <i class="pi pi-users text-[10px]"></i>
+                <span>{{ booking.guests }} guest{{ booking.guests > 1 ? 's' : '' }}</span>
+              </div>
             </div>
 
-            <div class="action-buttons">
+            <div class="flex gap-2 flex-wrap md:justify-end w-full md:w-auto mt-2 md:mt-0">
               <button
                 v-if="canCancel(booking)"
                 @click="handleCancel(booking.id)"
                 :disabled="cancellingId === booking.id"
-                class="btn-action btn-cancel-action"
+                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-150 border bg-red-50 text-red-600 border-red-200 hover:bg-red-100 hover:-translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <i class="pi pi-times"></i>
                 {{ cancellingId === booking.id ? 'Cancelling...' : 'Cancel' }}
@@ -146,7 +142,7 @@
               <button
                 v-if="canComplete(booking)"
                 @click="handleComplete(booking.id)"
-                class="btn-action btn-complete-action"
+                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-150 border bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:-translate-y-px"
               >
                 <i class="pi pi-check"></i>
                 Complete Stay
@@ -154,7 +150,7 @@
               <router-link
                 v-if="booking.status === 'confirmed'"
                 :to="`/apartments/${booking.apartment_id}`"
-                class="btn-action btn-view-action"
+                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-150 border bg-slate-50 text-slate-600 border-surface-border hover:bg-slate-100 hover:text-slate-900 hover:-translate-y-px no-underline"
               >
                 <i class="pi pi-eye"></i>
                 View Property
@@ -173,11 +169,11 @@
             <i class="pi pi-exclamation-triangle text-red-500 text-xl"></i>
           </div>
           <div>
-            <p class="font-bold text-900 m-0">Are you sure?</p>
-            <p class="text-500 text-sm m-0 mt-1">This action cannot be undone.</p>
+            <p class="font-bold text-slate-800 m-0">Are you sure?</p>
+            <p class="text-slate-500 text-sm m-0 mt-1">This action cannot be undone.</p>
           </div>
         </div>
-        <p class="text-600 text-sm line-height-3">Your reservation will be cancelled and the dates will become available for others. Any applicable refund will be processed according to the cancellation policy.</p>
+        <p class="text-slate-600 text-sm leading-relaxed">Your reservation will be cancelled and the dates will become available for others. Any applicable refund will be processed according to the cancellation policy.</p>
       </div>
       <template #footer>
         <div class="flex gap-2 justify-content-end">
@@ -307,374 +303,3 @@ const loadBookings = async () => {
 
 onMounted(loadBookings);
 </script>
-
-<style scoped>
-/* Stats cards */
-.stat-card {
-  background: var(--surface-0);
-  border: 1px solid var(--surface-100);
-  border-radius: 1rem;
-  padding: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  transition: var(--transition);
-}
-
-.stat-card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-}
-
-.stat-icon {
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.875rem;
-}
-
-.stat-value {
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: var(--surface-900);
-  letter-spacing: -0.025em;
-}
-
-.stat-label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--surface-400);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* Empty state */
-.empty-state-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 5rem 2rem;
-  background: var(--surface-0);
-  border: 1px solid var(--surface-100);
-  border-radius: 1.5rem;
-  margin-top: 1rem;
-}
-
-.empty-icon-circle {
-  width: 5rem;
-  height: 5rem;
-  border-radius: 50%;
-  background: var(--surface-50);
-  border: 1px solid var(--surface-100);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Booking card */
-.booking-card {
-  background: var(--surface-0);
-  border: 1px solid var(--surface-100);
-  border-radius: 1.25rem;
-  overflow: hidden;
-  transition: var(--transition);
-}
-
-.booking-card:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
-  border-color: var(--surface-200);
-}
-
-.booking-card.card-upcoming {
-  border-left: 4px solid #22c55e;
-}
-
-.booking-card.card-completed {
-  border-left: 4px solid var(--surface-300);
-}
-
-.booking-card.card-cancelled {
-  border-left: 4px solid #ef4444;
-  opacity: 0.7;
-}
-
-.booking-card.card-cancelled:hover {
-  opacity: 0.85;
-}
-
-.booking-card-inner {
-  display: flex;
-  justify-content: space-between;
-  gap: 1.5rem;
-  padding: 1.5rem;
-}
-
-/* Left section */
-.booking-main {
-  display: flex;
-  gap: 1.5rem;
-  flex: 1;
-  min-width: 0;
-}
-
-.booking-thumbnail {
-  position: relative;
-  width: 140px;
-  min-width: 140px;
-  height: 120px;
-  border-radius: 1rem;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.booking-thumbnail img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.status-pill {
-  position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.625rem;
-  border-radius: 999px;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  text-transform: capitalize;
-  backdrop-filter: blur(8px);
-}
-
-.status-pill.confirmed {
-  background: rgba(34, 197, 94, 0.9);
-  color: #fff;
-}
-
-.status-pill.completed {
-  background: rgba(100, 116, 139, 0.85);
-  color: #fff;
-}
-
-.status-pill.cancelled {
-  background: rgba(239, 68, 68, 0.85);
-  color: #fff;
-}
-
-.status-pill i {
-  font-size: 0.625rem;
-}
-
-.booking-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.5rem;
-  min-width: 0;
-}
-
-.booking-title {
-  font-size: 1.125rem;
-  font-weight: 800;
-  color: var(--surface-900);
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.booking-location {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--surface-400);
-}
-
-.booking-location i {
-  color: var(--primary-500);
-  font-size: 0.75rem;
-}
-
-.booking-dates-row {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-top: 0.25rem;
-}
-
-.date-block {
-  display: flex;
-  flex-direction: column;
-}
-
-.date-label {
-  font-size: 0.625rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--surface-400);
-}
-
-.date-value {
-  font-size: 0.8125rem;
-  font-weight: 700;
-  color: var(--surface-700);
-}
-
-.date-arrow {
-  color: var(--surface-300);
-  font-size: 0.75rem;
-  margin-top: 0.625rem;
-}
-
-/* Right section */
-.booking-actions-col {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 0.5rem;
-  min-width: 150px;
-}
-
-.booking-price {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
-
-.price-label {
-  font-size: 0.625rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--surface-400);
-}
-
-.price-value {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--surface-900);
-  letter-spacing: -0.025em;
-}
-
-.booking-guests {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--surface-400);
-}
-
-.action-buttons {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.btn-action {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.5rem 0.875rem;
-  border-radius: 0.625rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition);
-  border: 1px solid transparent;
-  text-decoration: none;
-}
-
-.btn-cancel-action {
-  background: #fef2f2;
-  color: #dc2626;
-  border-color: #fecaca;
-}
-
-.btn-cancel-action:hover:not(:disabled) {
-  background: #fee2e2;
-  transform: translateY(-1px);
-}
-
-.btn-cancel-action:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn-complete-action {
-  background: #f0fdf4;
-  color: #16a34a;
-  border-color: #bbf7d0;
-}
-
-.btn-complete-action:hover {
-  background: #dcfce7;
-  transform: translateY(-1px);
-}
-
-.btn-view-action {
-  background: var(--surface-50);
-  color: var(--surface-600);
-  border-color: var(--surface-200);
-}
-
-.btn-view-action:hover {
-  background: var(--surface-100);
-  color: var(--surface-900);
-  transform: translateY(-1px);
-}
-
-/* Filter override */
-.filter-select :deep(.p-selectbutton) {
-  border-radius: 0.75rem;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .booking-card-inner {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .booking-main {
-    flex-direction: column;
-  }
-
-  .booking-thumbnail {
-    width: 100%;
-    height: 160px;
-  }
-
-  .booking-actions-col {
-    flex-direction: row;
-    align-items: center;
-    flex-wrap: wrap;
-    min-width: 0;
-  }
-
-  .booking-price {
-    align-items: flex-start;
-  }
-
-  .action-buttons {
-    justify-content: flex-start;
-  }
-
-  .stat-value {
-    font-size: 1.375rem;
-  }
-}
-</style>

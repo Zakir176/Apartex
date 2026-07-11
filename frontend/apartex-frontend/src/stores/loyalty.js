@@ -63,7 +63,7 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
 
   // Simple mock functions that always work
   async function fetchLoyaltyStatus(userId) {
-    console.log('🔄 Fetching loyalty status for user:', userId);
+
     loading.value = true;
     error.value = null;
     try {
@@ -90,7 +90,7 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
         bookings_needed: Math.max(0, bookingsRequired - data.total_bookings)
       };
       
-      console.log('✅ Loyalty status set:', loyaltyStatus.value);
+
       return loyaltyStatus.value;
     } catch (err) {
       error.value = err.response?.data?.detail || 'Failed to fetch loyalty status';
@@ -101,7 +101,7 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
   }
 
   async function fetchUserRewards(userId) {
-    console.log('🔄 Fetching user rewards for user:', userId);
+
     loading.value = true;
     error.value = null;
     try {
@@ -114,7 +114,7 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
         used: reward.status === 'used',
         redemption_code: `CODE-${reward.reward_type === 'percentage_discount' ? 'DISC' : 'FREE'}-${reward.id}`
       }));
-      console.log('✅ User rewards set:', userRewards.value);
+
       return userRewards.value;
     } catch (err) {
       error.value = err.response?.data?.detail || 'Failed to fetch user rewards';
@@ -125,13 +125,13 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
   }
 
   async function fetchLoyaltyTiers() {
-    console.log('🔄 Fetching loyalty tiers');
+
     loading.value = true;
     error.value = null;
     try {
       const response = await loyaltyAPI.getLoyaltyTiers();
       loyaltyTiers.value = response.data.tiers;
-      console.log('✅ Loyalty tiers set:', loyaltyTiers.value);
+
       return response.data;
     } catch (err) {
       error.value = err.response?.data?.detail || 'Failed to fetch loyalty tiers';
@@ -142,47 +142,52 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
   }
 
   async function fetchAvailableRewards() {
-    console.log('🔄 Fetching available rewards');
+
     
-    await new Promise(resolve => setTimeout(resolve, 400));
-    
+    // Fallback to mock data synchronously instead of hallucinated setTimeout delay
+    // Note: The backend /tiers endpoint provides reward frequencies instead of a 'catalog'.
     availableRewards.value = mockAvailableRewards;
-    console.log('✅ Available rewards set:', availableRewards.value);
+
     return mockAvailableRewards;
   }
 
   async function redeemReward(rewardData) {
-    console.log('🔄 Redeeming reward:', rewardData);
+
     loading.value = true;
     error.value = null;
     
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Create new reward
-    const newReward = {
-      id: Date.now(),
-      name: mockAvailableRewards.find(r => r.id === rewardData.reward_id)?.name || 'Reward',
-      description: mockAvailableRewards.find(r => r.id === rewardData.reward_id)?.description || '',
-      redeemed_at: new Date().toISOString().split('T')[0],
-      used: false,
-      redemption_code: `CODE-${Math.random().toString(36).substr(2, 8).toUpperCase()}`
-    };
-    
-    userRewards.value.unshift(newReward);
-    console.log('✅ Reward redeemed:', newReward);
-    loading.value = false;
-    return newReward;
+    try {
+      // In a real flow, the user would select a booking to apply the reward to.
+      // We pass the data to the API. If booking_id is missing, it will throw a 422/400.
+      const response = await loyaltyAPI.redeemReward(rewardData.reward_id, rewardData.booking_id);
+      
+      // Refresh user rewards after redemption
+      if (loyaltyStatus.value) {
+        await fetchUserRewards(loyaltyStatus.value.user_id || rewardData.user_id);
+      }
+      return response.data;
+    } catch (err) {
+      error.value = err.response?.data?.detail || 'Failed to redeem reward';
+      throw err;
+    } finally {
+      loading.value = false;
+    }
   }
 
   async function completeBooking(bookingId) {
-    console.log('🔄 Completing booking:', bookingId);
+
     loading.value = true;
     error.value = null;
     
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    loading.value = false;
-    return { success: true, points_earned: 100 };
+    try {
+      const response = await loyaltyAPI.completeBooking(bookingId);
+      return response.data;
+    } catch (err) {
+      error.value = err.response?.data?.detail || 'Failed to complete booking';
+      throw err;
+    } finally {
+      loading.value = false;
+    }
   }
 
   return {

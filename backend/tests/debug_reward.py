@@ -1,7 +1,7 @@
 # debug_reward.py
 import requests
 
-BASE_URL = "http://localhost:8000"
+BASE_URL = "http://localhost:8000/api"
 
 def debug_reward():
     print("=== Debugging Reward Data ===\n")

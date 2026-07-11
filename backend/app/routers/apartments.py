@@ -96,6 +96,16 @@ def get_apartments(
         
     return prepared
 
+@router.get("/me", response_model=list[ApartmentRead])
+def get_my_apartments(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_active_user),
+):
+    if current_user.role != "owner":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only owners can view their apartments")
+    apartments = db.query(Apartment).where(Apartment.owner_id == current_user.id).all()
+    return [_prepare_apartment(apt) for apt in apartments]
+
 @router.get("/{apartment_id}", response_model=ApartmentRead)
 def get_apartment(apartment_id: int, db: Session = Depends(get_db)):
     apartment = db.query(Apartment).filter(Apartment.id == apartment_id).first()
@@ -141,13 +151,3 @@ def delete_apartment(
     db.delete(apartment)
     db.commit()
     return None
-
-@router.get("/me", response_model=list[ApartmentRead])
-def get_my_apartments(
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_active_user),
-):
-    if current_user.role != "owner":
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only owners can view their apartments")
-    apartments = db.query(Apartment).where(Apartment.owner_id == current_user.id).all()
-    return [_prepare_apartment(apt) for apt in apartments]

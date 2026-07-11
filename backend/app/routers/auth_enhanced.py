@@ -90,21 +90,21 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
 @router.post("/login")
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     """Enhanced login with refresh token (OAuth2 form)."""
-    print(f"🔐 Login attempt for username: {form_data.username}")
+
     
     user = db.query(User).filter(User.email == form_data.username).first()
     
     if not user:
-        print("❌ User not found")
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
         )
     
-    print(f"✅ User found: {user.email}, role: {user.role}")
+
     
     if not verify_password(form_data.password, user.hashed_password):
-        print("❌ Password verification failed")
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
@@ -120,7 +120,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     access_token = create_access_token(data={"sub": user.email})
     refresh_token = create_refresh_token(data={"sub": user.email})
     
-    print("✅ Login successful, tokens generated")
+
     
     return {
         "access_token": access_token,
@@ -138,21 +138,21 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 @router.post("/simple-login")
 def simple_login(login_data: SimpleLoginRequest, db: Session = Depends(get_db)):
     """Simplified login without OAuth2 form (JSON body)."""
-    print(f"🔐 Simple login attempt for email: {login_data.email}")
+
     
     user = db.query(User).filter(User.email == login_data.email).first()
     
     if not user:
-        print("❌ User not found")
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
         )
     
-    print(f"✅ User found: {user.email}, role: {user.role}")
+
     
     if not verify_password(login_data.password, user.hashed_password):
-        print("❌ Password verification failed")
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
@@ -168,7 +168,7 @@ def simple_login(login_data: SimpleLoginRequest, db: Session = Depends(get_db)):
     access_token = create_access_token(data={"sub": user.email})
     refresh_token = create_refresh_token(data={"sub": user.email})
     
-    print("✅ Simple login successful, tokens generated")
+
     
     return {
         "access_token": access_token,
@@ -186,7 +186,7 @@ def simple_login(login_data: SimpleLoginRequest, db: Session = Depends(get_db)):
 @router.post("/refresh")
 def refresh_token(request: RefreshTokenRequest, db: Session = Depends(get_db)):
     """Refresh access token using refresh token (JSON body)."""
-    print("🔄 Refresh token request received")
+
     
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -195,25 +195,25 @@ def refresh_token(request: RefreshTokenRequest, db: Session = Depends(get_db)):
     
     payload = verify_token(request.refresh_token)
     if payload is None:
-        print("❌ Invalid refresh token")
+
         raise credentials_exception
     
     if payload.get("type") != "refresh":
-        print("❌ Not a refresh token")
+
         raise credentials_exception
     
     email: str = payload.get("sub")
     if email is None:
-        print("❌ No email in refresh token")
+
         raise credentials_exception
     
     user = db.query(User).filter(User.email == email).first()
     if user is None:
-        print("❌ User not found for refresh token")
+
         raise credentials_exception
     
     new_access_token = create_access_token(data={"sub": user.email})
-    print("✅ Refresh token successful, new access token generated")
+
     
     return {
         "access_token": new_access_token,
@@ -223,13 +223,13 @@ def refresh_token(request: RefreshTokenRequest, db: Session = Depends(get_db)):
 @router.get("/me", response_model=UserRead)
 def get_current_user_info(current_user: User = Depends(get_current_active_user)):
     """Get current user information."""
-    print(f"📋 User info requested for: {current_user.email}")
+
     return current_user
 
 @router.post("/logout")
 def logout():
     """Logout user (client should discard tokens)."""
-    print("🚪 Logout request received")
+
     return {"message": "Successfully logged out"}
 
 @router.put("/me", response_model=UserRead)

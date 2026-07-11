@@ -112,7 +112,7 @@ const form = ref({
 
 const guestOptions = computed(() => {
   const options = [];
-  for (let i = 1; i <= (props.apartment.max_guests || 4); i++) {
+  for (let i = 1; i <= (props.apartment.capacity || 4); i++) {
     options.push({ label: `${i} ${i === 1 ? 'Guest' : 'Guests'}`, value: i });
   }
   return options;

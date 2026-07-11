@@ -16,9 +16,7 @@ class ApartmentBase(BaseModel):
     latitude: Optional[float] = None
     longitude: Optional[float] = None
 
-class ApartmentCreate(ApartmentBase):
-    pass
-
+ApartmentCreate = ApartmentBase
 class ApartmentUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None

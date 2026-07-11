@@ -63,12 +63,6 @@ apartex-frontend/
 │   │   └── DebugState.vue
 │   ├── router/
 │   │   └── index.js           # Vue Router configuration
-│   ├── services/              # Service layer
-│   │   ├── api.js             # Base API service
-│   │   ├── auth.js            # Authentication service
-│   │   ├── apartments.js      # Apartment service
-│   │   ├── bookings.js        # Booking service
-│   │   └── loyalty.js         # Loyalty service
 │   ├── stores/                # Pinia state management
 │   │   ├── index.js           # Store configuration
 │   │   ├── auth.js            # Authentication store

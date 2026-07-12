@@ -1,24 +1,24 @@
 <template>
   <div class="availability-calendar">
-    <div class="cal-header flex align-items-center justify-content-between mb-4">
+    <div class="cal-header flex items-center justify-between mb-4">
       <div>
-        <h3 class="text-xl font-bold text-900 m-0">Manage Availability</h3>
-        <p class="text-muted text-sm mt-1">Click dates to toggle blocking. Drag across multiple dates to block a range.</p>
+        <h3 class="text-xl font-bold text-slate-800 m-0">Manage Availability</h3>
+        <p class="text-slate-400 text-sm mt-1">Click dates to toggle blocking. Drag across multiple dates to block a range.</p>
       </div>
-      <div class="flex gap-2 align-items-center">
-        <span class="legend-dot" style="background:#3b82f6"></span><span class="text-xs text-muted mr-3">Guest Booking</span>
-        <span class="legend-dot" style="background:#f97316"></span><span class="text-xs text-muted mr-3">Maintenance</span>
-        <span class="legend-dot" style="background:#64748b"></span><span class="text-xs text-muted">Off-market</span>
+      <div class="flex gap-2 items-center">
+        <span class="legend-dot" style="background:#3b82f6"></span><span class="text-xs text-slate-400 mr-3">Guest Booking</span>
+        <span class="legend-dot" style="background:#f97316"></span><span class="text-xs text-slate-400 mr-3">Maintenance</span>
+        <span class="legend-dot" style="background:#64748b"></span><span class="text-xs text-slate-400">Off-market</span>
       </div>
     </div>
 
     <!-- Reason Picker -->
-    <div class="reason-bar flex gap-2 mb-4 p-3 border-round-xl bg-gray-50 border-1 border-gray-100">
-      <span class="text-sm font-bold text-muted mr-2 align-self-center">Block as:</span>
+    <div class="reason-bar flex gap-2 mb-4 p-3 rounded-xl bg-slate-50 border border-slate-100">
+      <span class="text-sm font-bold text-slate-400 mr-2 align-self-center">Block as:</span>
       <div
         v-for="r in reasons"
         :key="r.value"
-        class="reason-chip px-3 py-2 border-round-2xl cursor-pointer text-sm font-bold transition-all transition-duration-200 border-1"
+        class="reason-chip px-3 py-2 rounded-2xl cursor-pointer text-sm font-bold transition-all transition-duration-200 border-1"
         :class="selectedReason === r.value ? r.activeClass : 'border-gray-200 text-gray-500 bg-white'"
         @click="selectedReason = r.value"
       >
@@ -27,15 +27,15 @@
     </div>
 
     <!-- Calendar Grid -->
-    <div v-if="loading" class="flex justify-content-center py-6">
+    <div v-if="loading" class="flex justify-center py-6">
       <ProgressSpinner style="width:40px; height:40px" strokeWidth="4" />
     </div>
 
     <div v-else class="month-grid">
       <!-- Month Navigator -->
-      <div class="flex align-items-center justify-content-between mb-4">
+      <div class="flex items-center justify-between mb-4">
         <Button icon="pi pi-chevron-left" class="p-button-rounded p-button-text p-button-secondary" @click="prevMonth" />
-        <span class="text-lg font-bold text-900">{{ currentMonthLabel }}</span>
+        <span class="text-lg font-bold text-slate-800">{{ currentMonthLabel }}</span>
         <Button icon="pi pi-chevron-right" class="p-button-rounded p-button-text p-button-secondary" @click="nextMonth" />
       </div>
 
@@ -63,8 +63,8 @@
     </div>
 
     <!-- Action Bar -->
-    <div v-if="pendingDates.length > 0" class="action-bar mt-4 p-4 border-round-xl border-1 border-primary bg-blue-50 flex align-items-center justify-content-between">
-      <span class="text-sm font-bold text-primary">
+    <div v-if="pendingDates.length > 0" class="action-bar mt-4 p-4 rounded-xl border border-accent bg-accent-subtle flex items-center justify-between">
+      <span class="text-sm font-bold text-accent">
         <i class="pi pi-calendar mr-2"></i>
         {{ pendingDates.length }} date{{ pendingDates.length > 1 ? 's' : '' }} selected
       </span>
@@ -83,8 +83,8 @@
 
     <!-- Blocked Dates List -->
     <div v-if="blockedDates.length > 0" class="blocked-list mt-5">
-      <h4 class="font-bold text-900 mb-3 flex align-items-center gap-2">
-        <i class="pi pi-list text-primary"></i> All Blocked Dates ({{ blockedDates.length }})
+      <h4 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
+        <i class="pi pi-list text-accent"></i> All Blocked Dates ({{ blockedDates.length }})
       </h4>
       <DataTable
         :value="groupedBlocked"

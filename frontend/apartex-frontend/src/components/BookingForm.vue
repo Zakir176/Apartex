@@ -1,32 +1,34 @@
 <template>
-  <div class="surface-0 p-4 border-round-xl border-1 border-200 shadow-4">
-    <!-- Pricing -->
-    <div class="flex align-items-baseline gap-2 mb-4">
-      <span class="text-3xl font-bold text-900">${{ apartment.price_per_night }}</span>
-      <span class="text-500 font-medium">/ night</span>
+  <div class="bg-white border border-surface-border rounded-xl p-5 shadow-lg">
+
+    <!-- Price -->
+    <div class="flex items-baseline gap-2 mb-5">
+      <span class="text-3xl font-black text-slate-800">${{ apartment.price_per_night }}</span>
+      <span class="text-sm font-medium text-slate-400">/ night</span>
     </div>
 
-    <!-- Controls Stack -->
-    <div class="flex flex-column gap-3 mb-4">
-      <div class="ax-field-group mb-0">
-        <label class="ax-label">Dates</label>
-        <Calendar 
-          v-model="dates" 
-          selectionMode="range" 
-          :minDate="minDate" 
+    <!-- Fields -->
+    <div class="flex flex-col gap-4 mb-5">
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Dates</label>
+        <Calendar
+          v-model="dates"
+          selectionMode="range"
+          :minDate="minDate"
           placeholder="Check-in — Check-out"
           iconDisplay="input"
-          inputClass="ax-input"
+          inputClass="w-full border border-surface-border rounded-md px-4 py-3 text-sm text-slate-800 outline-none focus:border-accent focus:ring-2 focus:ring-accent-light"
           :manualInput="false"
           :disabledDates="disabledDates"
+          class="w-full"
         />
       </div>
 
-      <div class="ax-field-group mb-0">
-        <label class="ax-label">Guests</label>
-        <Dropdown 
-          v-model="form.guests" 
-          :options="guestOptions" 
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Guests</label>
+        <Dropdown
+          v-model="form.guests"
+          :options="guestOptions"
           optionLabel="label"
           optionValue="value"
           placeholder="Number of guests"
@@ -36,47 +38,48 @@
       </div>
     </div>
 
-    <!-- Action -->
-    <button 
-      class="ax-button w-full mb-3 shadow-lg" 
+    <!-- Book Button -->
+    <button
+      class="w-full bg-accent hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-lg text-sm transition-colors duration-150 mb-2 flex items-center justify-center gap-2 shadow-accent"
       :disabled="isOverlapping || loading"
       @click="handleBooking"
     >
-      <i class="pi pi-bolt mr-2"></i>
+      <i class="pi pi-bolt"></i>
       {{ isValidRange ? 'Reserve Property' : 'Check Availability' }}
     </button>
 
-    <p class="text-center text-xs text-500 font-medium mb-4">Secure hold — you won't be charged yet</p>
+    <p class="text-center text-xs text-slate-400 font-medium mb-4">Secure hold — you won't be charged yet</p>
 
     <!-- Price Breakdown -->
     <Transition name="fade">
-      <div v-if="isValidRange" class="pt-4 border-top-1 border-100 flex flex-column gap-3">
-        <div class="flex justify-content-between text-sm">
-          <span class="text-600 underline">${{ apartment.price_per_night }} x {{ nights }} nights</span>
-          <span class="font-bold text-900">${{ subtotal }}</span>
+      <div v-if="isValidRange" class="pt-4 border-t border-surface-border flex flex-col gap-3">
+        <div class="flex justify-between text-sm">
+          <span class="text-slate-500 underline">${{ apartment.price_per_night }} × {{ nights }} nights</span>
+          <span class="font-bold text-slate-800">${{ subtotal }}</span>
         </div>
-        <div class="flex justify-content-between text-sm">
-          <span class="text-600 underline">Cleaning fee</span>
-          <span class="font-bold text-900">$45.00</span>
+        <div class="flex justify-between text-sm">
+          <span class="text-slate-500 underline">Cleaning fee</span>
+          <span class="font-bold text-slate-800">$45.00</span>
         </div>
-        <div class="flex justify-content-between text-sm">
-          <span class="text-600 underline">Service fee</span>
-          <span class="font-bold text-900">${{ serviceFee }}</span>
+        <div class="flex justify-between text-sm">
+          <span class="text-slate-500 underline">Service fee</span>
+          <span class="font-bold text-slate-800">${{ serviceFee }}</span>
         </div>
-        
-        <div class="surface-50 p-3 border-round-lg flex justify-content-between align-items-center mt-2">
-          <span class="font-bold text-900">Total</span>
-          <span class="text-xl font-black text-900">${{ total }}</span>
+        <div class="bg-[#F8F7F4] rounded-lg px-4 py-3 flex justify-between items-center mt-1">
+          <span class="font-bold text-slate-800">Total</span>
+          <span class="text-xl font-black text-slate-800">${{ total }}</span>
         </div>
       </div>
     </Transition>
 
+    <!-- Overlap Warning -->
     <Transition name="fade">
-      <div v-if="isOverlapping" class="mt-4 p-3 bg-red-50 text-red-600 border-round-lg text-xs font-bold flex align-items-center gap-2">
+      <div v-if="isOverlapping" class="mt-4 bg-red-50 border border-red-200 text-red-600 rounded-lg px-4 py-3 text-xs font-bold flex items-center gap-2">
         <i class="pi pi-exclamation-circle"></i>
-        <span>Dates are unavailable.</span>
+        <span>These dates are unavailable. Please choose different dates.</span>
       </div>
     </Transition>
+
   </div>
 </template>
 
@@ -190,7 +193,4 @@ const handleBooking = () => {
   });
 };
 </script>
-
-<style scoped>
-/* Styling removed */
-</style>
+

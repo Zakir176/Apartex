@@ -72,13 +72,30 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
             detail=f"Role must be one of: {', '.join(valid_roles)}"
         )
     
+    referred_by_id = None
+    if user_data.referral_code:
+        referrer = db.query(User).filter(User.referral_code == user_data.referral_code).first()
+        if referrer:
+            referred_by_id = referrer.id
+            referrer.loyalty_points += 500
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid referral code"
+            )
+
+    import uuid
+    new_referral_code = str(uuid.uuid4())[:8].upper()
+    
     # Create user
     hashed_password = hash_password(user_data.password)
     db_user = User(
         email=user_data.email,
         hashed_password=hashed_password,
         full_name=user_data.full_name,
-        role=user_data.role
+        role=user_data.role,
+        referral_code=new_referral_code,
+        referred_by_id=referred_by_id
     )
     
     db.add(db_user)

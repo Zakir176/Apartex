@@ -125,6 +125,20 @@ def create_booking(
             detail=f"Error calculating price: {str(e)}"
         )
     
+    if booking.points_applied and booking.points_applied > 0:
+        if current_user.loyalty_points < booking.points_applied:
+            raise HTTPException(
+                status_code=400, 
+                detail="Not enough loyalty points"
+            )
+        discount = booking.points_applied / 100.0
+        if discount > total_price:
+            discount = total_price
+            booking.points_applied = int(total_price * 100)
+            
+        current_user.loyalty_points -= booking.points_applied
+        total_price -= discount
+
     # Create booking
     db_booking = Booking(
         apartment_id=booking.apartment_id,

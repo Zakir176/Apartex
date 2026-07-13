@@ -10,7 +10,9 @@ class LoyaltyService:
     @staticmethod
     def calculate_loyalty_tier(total_bookings: int) -> LoyaltyTier:
         """Calculate user's loyalty tier based on total bookings."""
-        if total_bookings >= 10:
+        if total_bookings >= 20:
+            return LoyaltyTier.PLATINUM
+        elif total_bookings >= 10:
             return LoyaltyTier.GOLD
         elif total_bookings >= 3:
             return LoyaltyTier.SILVER
@@ -26,7 +28,8 @@ class LoyaltyService:
         multipliers = {
             LoyaltyTier.BRONZE: 1.0,
             LoyaltyTier.SILVER: 1.5, 
-            LoyaltyTier.GOLD: 2.0
+            LoyaltyTier.GOLD: 2.0,
+            LoyaltyTier.PLATINUM: 2.5
         }
         
         return int(base_points * multipliers[user_tier])

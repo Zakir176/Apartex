@@ -67,6 +67,34 @@
       <div v-else class="card-base p-10 text-center text-slate-500 font-medium">Unable to load loyalty status</div>
     </div>
 
+    <!-- Referral Section -->
+    <div class="mb-16" v-if="authStore.user?.referral_code">
+      <div class="card-base p-8 md:p-10 bg-gradient-to-r from-slate-800 to-slate-900 text-white relative overflow-hidden">
+        <div class="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4">
+          <i class="pi pi-users text-[10rem]"></i>
+        </div>
+        <div class="relative z-10 flex flex-col md:flex-row gap-8 items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-black mb-2 flex items-center gap-3">
+              <i class="pi pi-gift text-accent"></i> Refer a Friend
+            </h2>
+            <p class="text-slate-300 font-medium max-w-md">
+              Share your unique referral code with friends. When they sign up, you'll instantly receive <span class="text-accent font-bold">500 Bonus Points</span>!
+            </p>
+          </div>
+          <div class="w-full md:w-auto bg-slate-950/50 border border-slate-700/50 rounded-xl p-4 flex flex-col gap-2">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Your Code</span>
+            <div class="flex items-center gap-4">
+              <span class="font-mono text-2xl font-black text-white tracking-widest">{{ authStore.user.referral_code }}</span>
+              <button @click="copyReferralCode" class="w-10 h-10 rounded-lg bg-accent text-white flex items-center justify-center hover:bg-orange-600 transition-colors shadow-lg" title="Copy Code">
+                <i :class="copied ? 'pi pi-check' : 'pi pi-copy'"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Tiers Info -->
     <div class="mb-16">
       <h2 class="text-2xl font-black text-slate-800 mb-6">Program Tiers</h2>
@@ -173,6 +201,14 @@ const loyaltyStore = useLoyaltyStore();
 const authStore = useAuthStore();
 
 const redeemingId = ref(null);
+const copied = ref(false);
+
+const copyReferralCode = () => {
+  if (!authStore.user?.referral_code) return;
+  navigator.clipboard.writeText(authStore.user.referral_code);
+  copied.value = true;
+  setTimeout(() => { copied.value = false; }, 2000);
+};
 
 const loyaltyStatus = computed(() => loyaltyStore.loyaltyStatus);
 const userRewards = computed(() => loyaltyStore.userRewards || []);

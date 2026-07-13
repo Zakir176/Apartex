@@ -88,7 +88,7 @@
               :class="{ 'opacity-50 cursor-not-allowed': !isFormValid }"
             >
               <i class="pi pi-lock"></i>
-              Confirm & Pay ${{ route.query.total }}
+              Confirm & Pay ${{ finalTotal.toFixed(2) }}
             </button>
           </div>
         </div>
@@ -121,13 +121,29 @@
                 <span class="font-bold text-slate-800">{{ route.query.nights }}</span>
               </div>
             </div>
+
+            <!-- Loyalty Points -->
+            <div class="mb-6 pb-6 border-b border-surface-border" v-if="authStore.user?.loyalty_points > 0">
+              <div class="flex justify-between items-center mb-2">
+                <span class="font-bold text-slate-800 flex items-center gap-2"><i class="pi pi-star-fill text-accent"></i> Apply Points</span>
+                <span class="text-xs font-bold bg-amber-100 text-amber-800 px-2 py-1 rounded-md">{{ authStore.user.loyalty_points }} Available</span>
+              </div>
+              <p class="text-xs text-slate-500 mb-3 font-medium">100 points = $1.00</p>
+              
+              <div class="flex gap-3">
+                <input type="number" v-model.number="pointsApplied" min="0" :max="maxPointsToApply" class="input-base flex-1 py-2 text-sm" placeholder="0" />
+                <button @click="pointsApplied = maxPointsToApply" class="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-200 transition-colors">Max</button>
+              </div>
+              <p v-if="pointsApplied > 0" class="text-green-600 text-sm font-bold mt-2 text-right">-${{ pointsDiscount.toFixed(2) }}</p>
+            </div>
             
             <div class="flex justify-between items-center">
               <span class="text-lg font-bold text-slate-800">Total</span>
-              <span class="text-2xl font-black text-slate-900 tracking-tight">${{ route.query.total }}</span>
+              <span class="text-2xl font-black text-slate-900 tracking-tight">${{ finalTotal.toFixed(2) }}</span>
             </div>
           </div>
         </div>
+
         
       </div>
     </div>
@@ -138,6 +154,7 @@
 import { ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useBookingsStore } from '@/stores/bookings';
+import { useAuthStore } from '@/stores/auth';
 
 import InputMask from 'primevue/inputmask';
 import ProgressSpinner from 'primevue/progressspinner';
@@ -145,10 +162,23 @@ import ProgressSpinner from 'primevue/progressspinner';
 const router = useRouter();
 const route = useRoute();
 const bookingsStore = useBookingsStore();
+const authStore = useAuthStore();
 
 const loading = ref(false);
 const success = ref(false);
 const bookingError = ref('');
+
+const pointsApplied = ref(0);
+
+const baseTotal = computed(() => parseFloat(route.query.total) || 0);
+const maxPointsToApply = computed(() => {
+  if (!authStore.user) return 0;
+  // User cannot apply more points than they have, OR more points than the cost of the booking
+  const maxForTotal = Math.floor(baseTotal.value * 100);
+  return Math.min(authStore.user.loyalty_points, maxForTotal);
+});
+const pointsDiscount = computed(() => (pointsApplied.value || 0) / 100);
+const finalTotal = computed(() => Math.max(0, baseTotal.value - pointsDiscount.value));
 
 const form = ref({
     name: '',
@@ -176,7 +206,8 @@ const processPayment = () => {
                 apartment_id: parseInt(route.query.apartment_id),
                 check_in: route.query.check_in,
                 check_out: route.query.check_out,
-                guests: parseInt(route.query.guests)
+                guests: parseInt(route.query.guests),
+                points_applied: pointsApplied.value || 0
             };
             await bookingsStore.createBooking(bookingData);
             loading.value = false;

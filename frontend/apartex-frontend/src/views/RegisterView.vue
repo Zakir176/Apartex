@@ -46,6 +46,17 @@
         </div>
         
         <div>
+          <label for="referral" class="label-base">Referral Code (Optional)</label>
+          <input 
+            id="referral" 
+            v-model="form.referral_code" 
+            type="text" 
+            placeholder="e.g. A1B2C3D4" 
+            class="input-base uppercase" 
+          />
+        </div>
+        
+        <div>
           <label for="password" class="label-base">Create Password</label>
           <Password 
             id="password" 
@@ -115,7 +126,7 @@ const roleOptions = [
   { label: 'Host', value: 'owner' }
 ];
 
-const form = ref({ name: '', email: '', password: '' });
+const form = ref({ name: '', email: '', password: '', referral_code: '' });
 const loading = ref(false);
 const error = ref('');
 

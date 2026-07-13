@@ -15,7 +15,8 @@ class RewardStatus(str, Enum):
 class LoyaltyTier(str, Enum):
     BRONZE = "bronze"    # 0-2 bookings
     SILVER = "silver"    # 3-9 bookings  
-    GOLD = "gold"        # 10+ bookings
+    GOLD = "gold"        # 10-19 bookings
+    PLATINUM = "platinum" # 20+ bookings
 
 class LoyaltyStatus(BaseModel):
     user_id: int

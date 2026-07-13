@@ -201,8 +201,15 @@ def get_loyalty_tiers():
             {
                 "name": "gold",
                 "min_bookings": 10,
+                "max_bookings": 19,
                 "point_multiplier": 2.0,
                 "benefits": ["Double points", "Priority support", "Exclusive deals"]
+            },
+            {
+                "name": "platinum",
+                "min_bookings": 20,
+                "point_multiplier": 2.5,
+                "benefits": ["2.5x points", "Late checkout", "Free upgrades"]
             }
         ],
         "rewards": [

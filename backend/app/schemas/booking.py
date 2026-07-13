@@ -7,6 +7,7 @@ class BookingBase(BaseModel):
     check_in: date
     check_out: date
     guests: int = 1
+    points_applied: Optional[int] = 0
 
 BookingCreate = BookingBase
 class BookingRead(BookingBase):

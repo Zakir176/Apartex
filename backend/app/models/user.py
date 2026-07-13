@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
@@ -16,8 +16,12 @@ class User(Base):
     # Loyalty system fields
     total_bookings = Column(Integer, default=0)
     loyalty_points = Column(Integer, default=0)
-    loyalty_tier = Column(String, default="bronze")  # bronze, silver, gold
+    loyalty_tier = Column(String, default="bronze")  # bronze, silver, gold, platinum
     has_pending_reward = Column(Boolean, default=False)
+    
+    # Referral system
+    referral_code = Column(String, unique=True, index=True, nullable=True)
+    referred_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

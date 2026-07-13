@@ -1,4 +1,4 @@
-﻿# Byte-compiled / optimized / DLL files
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *.class
@@ -27,3 +27,6 @@ dist/
 
 # Pytest cache
 .pytest_cache/
+
+# Databases
+*.db

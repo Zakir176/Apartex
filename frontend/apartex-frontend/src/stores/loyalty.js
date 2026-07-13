@@ -79,6 +79,9 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
       } else if (data.loyalty_tier === 'silver') {
         nextTier = 'Gold';
         bookingsRequired = 10;
+      } else if (data.loyalty_tier === 'gold') {
+        nextTier = 'Platinum';
+        bookingsRequired = 20;
       }
       
       loyaltyStatus.value = {

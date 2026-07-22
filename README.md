@@ -6,15 +6,15 @@
 
 ## ✨ Project Showcase
 
-![Hero Section](docs/screenshots/hero.png)
-*Modern search and discovery interface featuring glassmorphism elements.*
+![Apartex Animated Public Landing Page Hero](docs/screenshots/hero.png)
+*State-of-the-art public landing page showcasing luxury accommodations across Zambia with animated ambient gradients, live ecosystem badges, and direct booking CTAs.*
 
 <div align="center">
+  <img src="docs/screenshots/landing_features.png" width="48%" />
   <img src="docs/screenshots/apartments.png" width="48%" />
-  <img src="docs/screenshots/dashboard.png" width="48%" />
 </div>
 
-*Left: Premium apartment listing grid. Right: Comprehensive owner analytics dashboard.*
+*Left: Platform value pillars and feature highlights ("Why Apartex"). Right: Interactive luxury stay exploration grid.*
 
 ---
 

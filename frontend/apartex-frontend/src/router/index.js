@@ -146,6 +146,12 @@ router.beforeEach(async (to, from, next) => {
   const isAuth = authStore.isAuthenticated
   const role = authStore.user?.role
 
+  // If on root landing page and authenticated, redirect to role home
+  if (to.path === '/' && isAuth) {
+    if (role === 'owner') return next('/owner')
+    return next('/home')
+  }
+
   // Require authentication
   if (to.meta.requiresAuth && !isAuth) {
     if (to.meta.role === 'owner') return next('/owner/login')
@@ -155,13 +161,13 @@ router.beforeEach(async (to, from, next) => {
   // Prevent authenticated users from accessing guest routes
   if (to.meta.requiresGuest && isAuth) {
     if (role === 'owner') return next('/owner')
-    return next('/')
+    return next('/home')
   }
 
   // Enforce role restrictions for authenticated users
   if (to.meta.role && isAuth && role !== to.meta.role) {
     if (role === 'owner') return next('/owner')
-    return next('/')
+    return next('/home')
   }
 
   next()

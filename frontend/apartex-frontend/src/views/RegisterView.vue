@@ -56,15 +56,34 @@
           />
         </div>
         
-        <div>
-          <label for="referral" class="label-base">Referral Code (Optional)</label>
-          <input 
-            id="referral" 
-            v-model="form.referral_code" 
-            type="text" 
-            placeholder="e.g. A1B2C3D4" 
-            class="input-base uppercase" 
-          />
+        <!-- Optional Referral Code Expandable for Guests Only -->
+        <div v-if="targetRole === 'renter'">
+          <div v-if="!showReferralInput" class="flex justify-start">
+            <button 
+              type="button" 
+              @click="showReferralInput = true" 
+              class="text-xs font-extrabold text-accent hover:underline border-none bg-transparent cursor-pointer p-0 inline-flex items-center gap-1"
+            >
+              <i class="pi pi-tag text-[11px]"></i>
+              <span>Have a referral code?</span>
+            </button>
+          </div>
+
+          <div v-else class="flex flex-col gap-1">
+            <div class="flex items-center justify-between">
+              <label for="referral" class="label-base !mb-0">Referral Code</label>
+              <button type="button" @click="showReferralInput = false; form.referral_code = ''" class="text-[10px] font-bold text-slate-400 hover:text-slate-600 border-none bg-transparent cursor-pointer">
+                Remove
+              </button>
+            </div>
+            <input 
+              id="referral" 
+              v-model="form.referral_code" 
+              type="text" 
+              placeholder="e.g. A1B2C3D4" 
+              class="input-base uppercase" 
+            />
+          </div>
         </div>
         
         <div>
@@ -137,6 +156,7 @@ const authStore = useAuthStore();
 
 const targetRole = ref('renter');
 const acceptTerms = ref(false);
+const showReferralInput = ref(false);
 const roleOptions = [
   { label: 'Guest', value: 'renter' },
   { label: 'Host', value: 'owner' }

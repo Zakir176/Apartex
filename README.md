@@ -6,15 +6,23 @@
 
 ## ✨ Project Showcase
 
+### 🌟 Public Landing Page
 ![Apartex Animated Public Landing Page Hero](docs/screenshots/hero.png)
-*State-of-the-art public landing page showcasing luxury accommodations across Zambia with animated ambient gradients, live ecosystem badges, and direct booking CTAs.*
+*State-of-the-art public landing page featuring animated mesh gradients, live trust counters, and zero-markup guarantees.*
 
 <div align="center">
   <img src="docs/screenshots/landing_features.png" width="48%" />
-  <img src="docs/screenshots/apartments.png" width="48%" />
+  <img src="docs/screenshots/home_app.png" width="48%" />
 </div>
 
-*Left: Platform value pillars and feature highlights ("Why Apartex"). Right: Interactive luxury stay exploration grid.*
+*Left: Platform value pillars & comparison matrix ("Why Apartex"). Right: Interactive guest stay search & discovery engine.*
+
+<div align="center">
+  <img src="docs/screenshots/loyalty.png" width="48%" />
+  <img src="docs/screenshots/dashboard.png" width="48%" />
+</div>
+
+*Left: Apartex VIP Club rewards & tier benefits dashboard. Right: Comprehensive host revenue & occupancy analytics dashboard.*
 
 ---
 

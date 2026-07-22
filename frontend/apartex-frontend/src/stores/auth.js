@@ -19,6 +19,10 @@ export const useAuthStore = defineStore('auth', () => {
         role: userData.role || 'renter'
       };
 
+      if (userData.referral_code && userData.referral_code.trim()) {
+        payload.referral_code = userData.referral_code.trim().toUpperCase();
+      }
+
       await authApi.register(payload);
       // Auto-login after successful registration to populate token and user state
       const loginResponse = await authApi.login({ email: payload.email, password: payload.password });

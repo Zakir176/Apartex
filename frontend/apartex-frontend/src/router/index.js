@@ -3,9 +3,22 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const routes = [
-  // Renter-facing routes
+  // Public Landing Page for unauthenticated visitors
   {
     path: '/',
+    name: 'Landing',
+    component: () => import('@/views/LandingView.vue'),
+    meta: { allowGuest: true }
+  },
+  {
+    path: '/landing',
+    name: 'LandingDirect',
+    component: () => import('@/views/LandingView.vue'),
+    meta: { allowGuest: true }
+  },
+  // Renter-facing routes
+  {
+    path: '/home',
     name: 'Home',
     component: () => import('@/views/HomeView.vue'),
     meta: { requiresAuth: true, role: 'renter' }

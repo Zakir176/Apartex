@@ -123,9 +123,16 @@ const handleLogin = async () => {
       await authStore.logout();
       return;
     }
-    router.push(authStore.user?.role === 'owner' ? '/owner' : '/');
+    router.push(authStore.user?.role === 'owner' ? '/owner' : '/home');
   } catch (err) {
-    error.value = err.response?.data?.detail || 'Identity verification failed.';
+    const detail = err.response?.data?.detail;
+    if (Array.isArray(detail)) {
+      error.value = detail.map(d => d.msg || d.detail).join('. ');
+    } else if (typeof detail === 'string') {
+      error.value = detail;
+    } else {
+      error.value = 'Identity verification failed. Please check your credentials.';
+    }
   } finally {
     loading.value = false;
   }

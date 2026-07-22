@@ -27,10 +27,11 @@
           
           <h2 class="text-2xl font-black text-slate-800 mb-2">{{ authStore.user?.full_name || 'Anonymous' }}</h2>
           <span 
-            class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-8 inline-block"
-            :class="authStore.user?.role === 'owner' ? 'bg-orange-100 text-orange-800' : 'bg-blue-100 text-blue-800'"
+            class="px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider mb-8 inline-block"
+            :class="authStore.user?.role === 'owner' ? 'bg-accent-light text-accent border border-orange-200' : 'bg-navy-50 text-navy border border-navy-100'"
           >
-            {{ authStore.user?.role || 'User' }}
+            <i :class="authStore.user?.role === 'owner' ? 'pi pi-building' : 'pi pi-user'" class="mr-1 text-[10px]"></i>
+            {{ authStore.user?.role === 'owner' ? 'Host / Owner' : 'Guest / Renter' }}
           </span>
           
           <div class="w-full pt-6 border-t border-surface-border flex flex-col gap-4 text-left">

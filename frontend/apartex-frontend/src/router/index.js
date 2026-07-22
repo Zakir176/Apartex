@@ -3,9 +3,22 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const routes = [
-  // Renter-facing routes
+  // Public Landing Page for unauthenticated visitors
   {
     path: '/',
+    name: 'Landing',
+    component: () => import('@/views/LandingView.vue'),
+    meta: { allowGuest: true }
+  },
+  {
+    path: '/landing',
+    name: 'LandingDirect',
+    component: () => import('@/views/LandingView.vue'),
+    meta: { allowGuest: true }
+  },
+  // Renter-facing routes
+  {
+    path: '/home',
     name: 'Home',
     component: () => import('@/views/HomeView.vue'),
     meta: { requiresAuth: true, role: 'renter' }
@@ -107,6 +120,12 @@ const routes = [
     name: 'OwnerPayouts',
     component: () => import('@/views/OwnerPayoutsView.vue'),
     meta: { requiresAuth: true, role: 'owner' }
+  },
+  // Catch-all 404 route
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('@/views/NotFoundView.vue')
   }
 ]
 
@@ -127,6 +146,12 @@ router.beforeEach(async (to, from, next) => {
   const isAuth = authStore.isAuthenticated
   const role = authStore.user?.role
 
+  // If on root landing page and authenticated, redirect to role home
+  if (to.path === '/' && isAuth) {
+    if (role === 'owner') return next('/owner')
+    return next('/home')
+  }
+
   // Require authentication
   if (to.meta.requiresAuth && !isAuth) {
     if (to.meta.role === 'owner') return next('/owner/login')
@@ -136,13 +161,13 @@ router.beforeEach(async (to, from, next) => {
   // Prevent authenticated users from accessing guest routes
   if (to.meta.requiresGuest && isAuth) {
     if (role === 'owner') return next('/owner')
-    return next('/')
+    return next('/home')
   }
 
   // Enforce role restrictions for authenticated users
   if (to.meta.role && isAuth && role !== to.meta.role) {
     if (role === 'owner') return next('/owner')
-    return next('/')
+    return next('/home')
   }
 
   next()

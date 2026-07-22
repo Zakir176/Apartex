@@ -155,10 +155,26 @@ const handleRegister = async () => {
   loading.value = true;
   error.value = '';
   try {
-    await authStore.register({ ...form.value, role: targetRole.value });
-    router.push(targetRole.value === 'owner' ? '/owner' : '/');
+    const payload = {
+      full_name: form.value.name,
+      email: form.value.email,
+      password: form.value.password,
+      role: targetRole.value
+    };
+    if (form.value.referral_code && form.value.referral_code.trim()) {
+      payload.referral_code = form.value.referral_code.trim().toUpperCase();
+    }
+    await authStore.register(payload);
+    router.push(targetRole.value === 'owner' ? '/owner' : '/home');
   } catch (err) {
-    error.value = err.response?.data?.detail || 'Account creation failed.';
+    const detail = err.response?.data?.detail;
+    if (Array.isArray(detail)) {
+      error.value = detail.map(d => d.msg || d.detail).join('. ');
+    } else if (typeof detail === 'string') {
+      error.value = detail;
+    } else {
+      error.value = 'Account creation failed. Please check your information.';
+    }
   } finally {
     loading.value = false;
   }

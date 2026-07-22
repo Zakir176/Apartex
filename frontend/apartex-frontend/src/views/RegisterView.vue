@@ -4,20 +4,31 @@
       <!-- Decorative element -->
       <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-accent to-orange-400"></div>
 
-      <div class="text-accent font-black text-2xl mb-4 tracking-tight flex items-center justify-center gap-2">
-        <i class="pi pi-compass text-xl"></i> APARTEX
+      <div @click="router.push('/')" class="text-accent font-black text-2xl mb-4 tracking-tight flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
+        <i class="pi pi-building text-xl"></i> APARTEX
       </div>
       <h1 class="text-3xl font-extrabold text-slate-800 mb-6">Create your account</h1>
       
       <div class="text-left mb-6">
         <label class="label-base">I want to be a</label>
-        <SelectButton 
-          v-model="targetRole" 
-          :options="roleOptions" 
-          optionLabel="label" 
-          optionValue="value" 
-          class="w-full [&_.p-button]:flex-1"
-        />
+        <div class="grid grid-cols-2 gap-1 bg-slate-100 p-1 rounded-xl border border-surface-border">
+          <button
+            type="button"
+            @click="targetRole = 'renter'"
+            class="py-2.5 px-4 rounded-lg text-xs sm:text-sm font-extrabold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer border-none"
+            :class="targetRole === 'renter' ? 'bg-navy text-white shadow-md' : 'text-slate-500 hover:text-slate-900 bg-transparent'"
+          >
+            <i class="pi pi-user text-xs"></i> Guest
+          </button>
+          <button
+            type="button"
+            @click="targetRole = 'owner'"
+            class="py-2.5 px-4 rounded-lg text-xs sm:text-sm font-extrabold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer border-none"
+            :class="targetRole === 'owner' ? 'bg-navy text-white shadow-md' : 'text-slate-500 hover:text-slate-900 bg-transparent'"
+          >
+            <i class="pi pi-building text-xs"></i> Host / Owner
+          </button>
+        </div>
       </div>
 
       <form @submit.prevent="handleRegister" class="flex flex-col text-left gap-5">
@@ -79,11 +90,16 @@
           </Password>
         </div>
 
-        <div class="flex items-center mb-2 mt-1">
-          <Checkbox id="terms" v-model="acceptTerms" :binary="true" class="mr-2" />
-          <label for="terms" class="text-sm font-bold text-slate-600 ml-2 cursor-pointer">
-            I agree to the <a href="#" class="text-accent no-underline hover:underline">Membership Terms</a>
-          </label>
+        <div class="flex items-center mb-2 mt-1 cursor-pointer select-none" @click="acceptTerms = !acceptTerms">
+          <div 
+            class="w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-200 shrink-0"
+            :class="acceptTerms ? 'bg-accent border-accent text-white shadow-sm' : 'bg-white border-slate-300 hover:border-slate-400'"
+          >
+            <i v-if="acceptTerms" class="pi pi-check text-xs font-black"></i>
+          </div>
+          <span class="text-sm font-bold text-slate-700 ml-2.5">
+            I agree to the <a href="#" @click.stop class="text-accent no-underline hover:underline">Membership Terms</a>
+          </span>
         </div>
         
         <button type="submit" :disabled="loading || !acceptTerms" class="btn-accent shadow-accent w-full justify-center py-3.5 text-base mt-2">

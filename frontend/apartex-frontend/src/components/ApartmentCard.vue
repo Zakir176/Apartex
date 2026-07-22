@@ -9,7 +9,7 @@
     <!-- Image -->
     <div class="relative aspect-[4/3] overflow-hidden">
       <img
-        :src="apartment.image_url || '/placeholder-apartment.png'"
+        :src="imageUrl"
         :alt="apartment.title"
         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
       />
@@ -99,6 +99,13 @@ const amenityIcons = computed(() => {
   const icons = ['pi-wifi', 'pi-car'];
   if (props.apartment.bedrooms > 2) icons.push('pi-video');
   return icons;
+});
+
+const imageUrl = computed(() => {
+  const url = props.apartment.image_url;
+  if (!url) return '/placeholder-apartment.png';
+  if (url.startsWith('http') || url.startsWith('data:')) return url;
+  return `http://localhost:8000${url}`;
 });
 
 const viewApartment = () => {

@@ -9,10 +9,8 @@
       :class="isScrolled ? 'shadow-xl bg-white/90 border-slate-200/80' : ''"
     >
       <!-- Left: Logo -->
-      <router-link to="/" class="flex-shrink-0 flex items-center gap-2.5 text-xl font-black text-navy tracking-tight pl-2 hover:opacity-85 transition-all group no-underline">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-accent via-orange-500 to-amber-400 text-white flex items-center justify-center text-base shadow-md group-hover:scale-105 transition-transform duration-300">
-          <i class="pi pi-building"></i>
-        </div>
+      <router-link to="/" class="flex-shrink-0 flex items-center gap-2.5 text-xl font-black text-navy tracking-tight pl-1 hover:opacity-85 transition-all group no-underline">
+        <img src="/logo.svg" alt="Apartex Logo" class="w-9 h-9 rounded-xl shadow-md group-hover:scale-105 transition-transform duration-300" />
         <span class="tracking-wider text-slate-900 font-black text-lg">APARTEX</span>
       </router-link>
 

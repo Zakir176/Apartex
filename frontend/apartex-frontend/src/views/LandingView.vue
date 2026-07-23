@@ -970,11 +970,9 @@
     <!-- FOOTER -->
     <footer class="bg-slate-950 text-white border-t border-slate-800 py-12">
       <div class="max-w-content mx-auto px-4 sm:px-6 flex flex-col sm:flex-row justify-between items-center gap-6">
-        <div class="flex items-center gap-2 text-xl font-black text-white">
-          <div class="w-8 h-8 rounded-lg bg-accent text-white flex items-center justify-center text-sm">
-            <i class="pi pi-building"></i>
-          </div>
-          APARTEX
+        <div class="flex items-center gap-2.5 text-xl font-black text-white">
+          <img src="/logo.svg" alt="Apartex Logo" class="w-8 h-8 rounded-lg shadow-sm" />
+          <span>APARTEX</span>
         </div>
 
         <p class="text-xs text-slate-500">&copy; 2026 Apartex Ecosystem. All rights reserved. Created by Zakir Motala.</p>

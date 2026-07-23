@@ -24,9 +24,10 @@ def create_review(
     # Check if user has booked this apartment before
     booking = db.query(Booking).filter(
         Booking.user_id == current_user.id,
-        Booking.apartment_id == review.apartment_id,
+        Booking.property_id == review.apartment_id,
         Booking.status.in_(["confirmed", "completed"])
     ).first()
+
 
     if not booking:
         raise HTTPException(

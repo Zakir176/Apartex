@@ -3,11 +3,17 @@ from datetime import date, datetime
 from typing import Optional
 
 class BookingBase(BaseModel):
-    apartment_id: int
+    property_id: int
     check_in: date
     check_out: date
     guests: int = 1
     points_applied: Optional[int] = 0
+    is_walk_in: bool = False
+    payment_method: Optional[str] = None
+    walk_in_guest_name: Optional[str] = None
+    walk_in_guest_phone: Optional[str] = None
+    created_by_owner: bool = False
+
 
 BookingCreate = BookingBase
 class BookingRead(BookingBase):
@@ -21,4 +27,4 @@ class BookingRead(BookingBase):
         from_attributes = True
 
 class BookingUpdate(BaseModel):
-    status: Optional[str] = None
+    status: Optional[str] = None

@@ -30,3 +30,6 @@ dist/
 
 # Databases
 *.db
+
+# Alembic
+alembic/

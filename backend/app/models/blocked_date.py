@@ -6,8 +6,10 @@ class BlockedDate(Base):
     __tablename__ = "blocked_dates"
 
     id = Column(Integer, primary_key=True, index=True)
-    apartment_id = Column(Integer, ForeignKey("apartments.id"), nullable=False)
+    apartment_id = Column(Integer, ForeignKey("properties.id"), nullable=False)
     blocked_date = Column(Date, nullable=False)
+
     reason = Column(String, default="maintenance")  # "maintenance" | "off-market" | "personal"
 
-    apartment = relationship("Apartment", back_populates="blocked_dates")
+    apartment = relationship("Property", back_populates="blocked_dates")
+

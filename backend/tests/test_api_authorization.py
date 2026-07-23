@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from main import app
 from app.database import SessionLocal, engine, Base
-from app.models import User, Booking, Apartment, LoyaltyReward
+from app.models import User, Booking, Property, LoyaltyReward
 from app.core.security import create_access_token
 
 client = TestClient(app)
@@ -102,7 +102,7 @@ def test_secured_api_authorization():
         # -------------------------------------------------------------
         
         # Create a test apartment owned by host ID 1
-        apartment = Apartment(
+        apartment = Property(
             title="Authorization Test Villa",
             address="123 Auth St",
             city="Lusaka",
@@ -118,12 +118,13 @@ def test_secured_api_authorization():
         # Create booking for user A
         booking_a = Booking(
             user_id=user_a.id,
-            apartment_id=apartment.id,
+            property_id=apartment.id,
             check_in=datetime.now().date(),
             check_out=(datetime.now() + timedelta(days=2)).date(),
             total_price=200.0,
             status="confirmed"
         )
+
         db.add(booking_a)
         db.flush()
         
@@ -177,7 +178,7 @@ def test_apartment_availability_blocked_dates():
     
     try:
         # Create a test apartment
-        apartment = Apartment(
+        apartment = Property(
             title="Availability Test Apt",
             address="456 Availability St",
             city="Lusaka",
@@ -224,3 +225,4 @@ def test_apartment_availability_blocked_dates():
         print("🚀 Range-based BlockedDate checks successful!")
     finally:
         db.close()
+

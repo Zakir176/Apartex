@@ -2,14 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from typing import Optional, List
 from app.database import get_db
-from app.models.apartment import Apartment
+from app.models.apartment import Property
 from app.schemas.apartment import ApartmentCreate, ApartmentRead, ApartmentUpdate
 from app.routers.auth_enhanced import get_current_active_user
 import json
 
 router = APIRouter()
 
-def _prepare_apartment(apt: Apartment):
+def _prepare_apartment(apt: Property):
     if not apt: return apt
     if not apt.amenities:
         apt.amenities = []
@@ -34,7 +34,7 @@ def create_apartment(
     if isinstance(apt_data.get('amenities'), list):
         apt_data['amenities'] = json.dumps(apt_data['amenities'])
         
-    db_apartment = Apartment(**apt_data, owner_id=current_user.id)
+    db_apartment = Property(**apt_data, owner_id=current_user.id)
     db.add(db_apartment)
     db.commit()
     db.refresh(db_apartment)
@@ -59,29 +59,29 @@ def get_apartments(
     max_lng: Optional[float] = None,
     db: Session = Depends(get_db)
 ):
-    query = db.query(Apartment)
+    query = db.query(Property)
     if owner_id is not None:
-        query = query.filter(Apartment.owner_id == owner_id)
+        query = query.filter(Property.owner_id == owner_id)
     if city:
-        query = query.filter(Apartment.city.ilike(f"%{city}%"))
+        query = query.filter(Property.city.ilike(f"%{city}%"))
     if min_price is not None:
-        query = query.filter(Apartment.price_per_night >= min_price)
+        query = query.filter(Property.price_per_night >= min_price)
     if max_price is not None:
-        query = query.filter(Apartment.price_per_night <= max_price)
+        query = query.filter(Property.price_per_night <= max_price)
     if capacity is not None:
-        query = query.filter(Apartment.capacity >= capacity)
+        query = query.filter(Property.capacity >= capacity)
     if bedrooms is not None:
-        query = query.filter(Apartment.bedrooms >= bedrooms)
+        query = query.filter(Property.bedrooms >= bedrooms)
     
     # Bounding box filters
     if min_lat is not None:
-        query = query.filter(Apartment.latitude >= min_lat)
+        query = query.filter(Property.latitude >= min_lat)
     if max_lat is not None:
-        query = query.filter(Apartment.latitude <= max_lat)
+        query = query.filter(Property.latitude <= max_lat)
     if min_lng is not None:
-        query = query.filter(Apartment.longitude >= min_lng)
+        query = query.filter(Property.longitude >= min_lng)
     if max_lng is not None:
-        query = query.filter(Apartment.longitude <= max_lng)
+        query = query.filter(Property.longitude <= max_lng)
     
     apartments = query.offset(skip).limit(limit).all()
     
@@ -103,12 +103,12 @@ def get_my_apartments(
 ):
     if current_user.role != "owner":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only owners can view their apartments")
-    apartments = db.query(Apartment).where(Apartment.owner_id == current_user.id).all()
+    apartments = db.query(Property).where(Property.owner_id == current_user.id).all()
     return [_prepare_apartment(apt) for apt in apartments]
 
 @router.get("/{apartment_id}", response_model=ApartmentRead)
 def get_apartment(apartment_id: int, db: Session = Depends(get_db)):
-    apartment = db.query(Apartment).filter(Apartment.id == apartment_id).first()
+    apartment = db.query(Property).filter(Property.id == apartment_id).first()
     if not apartment:
         raise HTTPException(status_code=404, detail="Apartment not found")
     return _prepare_apartment(apartment)
@@ -120,7 +120,7 @@ def update_apartment(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_active_user),
 ):
-    apartment = db.query(Apartment).filter(Apartment.id == apartment_id).first()
+    apartment = db.query(Property).filter(Property.id == apartment_id).first()
     if not apartment:
         raise HTTPException(status_code=404, detail="Apartment not found")
     if current_user.role != "owner" or apartment.owner_id != current_user.id:
@@ -143,7 +143,7 @@ def delete_apartment(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_active_user),
 ):
-    apartment = db.query(Apartment).filter(Apartment.id == apartment_id).first()
+    apartment = db.query(Property).filter(Property.id == apartment_id).first()
     if not apartment:
         raise HTTPException(status_code=404, detail="Apartment not found")
     if current_user.role != "owner" or apartment.owner_id != current_user.id:

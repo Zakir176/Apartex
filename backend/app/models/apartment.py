@@ -3,8 +3,8 @@ from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
 
-class Apartment(Base):
-    __tablename__ = "apartments"
+class Property(Base):
+    __tablename__ = "properties"
     
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(200), nullable=False)
@@ -21,6 +21,8 @@ class Apartment(Base):
     latitude = Column(Numeric(10, 8), nullable=True)
     longitude = Column(Numeric(11, 8), nullable=True)
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # Simple foreign key for now
+    property_type = Column(String(20), nullable=False, default="apartment")  # "apartment" | "hotel" | "lodge" | "guest_house"
+    star_rating = Column(Integer, nullable=True)  # 1-5, hotels and lodges only
     
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -28,4 +30,5 @@ class Apartment(Base):
     wishlists = relationship("Wishlist", back_populates="apartment")
     reviews = relationship("Review", back_populates="apartment", cascade="all, delete-orphan")
     apartment_images = relationship("ApartmentImage", back_populates="apartment", cascade="all, delete-orphan")
-    blocked_dates = relationship("BlockedDate", back_populates="apartment", cascade="all, delete-orphan")
+    blocked_dates = relationship("BlockedDate", back_populates="apartment", cascade="all, delete-orphan")
+

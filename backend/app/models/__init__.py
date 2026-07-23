@@ -3,7 +3,7 @@
 This ensures `from app.models import User` (and others) works reliably.
 """
 from .user import User
-from .apartment import Apartment
+from .apartment import Property
 from .booking import Booking
 from .loyalty import LoyaltyReward
 from .payout import Payout
@@ -14,7 +14,8 @@ from .blocked_date import BlockedDate
 from .apartment_image import ApartmentImage
 
 __all__ = [
-    "User", "Apartment", "Booking", "LoyaltyReward", 
+    "User", "Property", "Booking", "LoyaltyReward", 
     "Payout", "Review", "ReviewImage", "Wishlist", 
     "BlockedDate", "ApartmentImage"
 ]
+

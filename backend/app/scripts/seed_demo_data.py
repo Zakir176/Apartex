@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 from app.database import SessionLocal, Base, engine
 from app.core.security import hash_password
 from app.models.user import User
-from app.models.apartment import Apartment
+from app.models.apartment import Property
 from app.models.booking import Booking
 from app.models.payout import Payout
 from app.models.wishlist import Wishlist
@@ -74,9 +74,9 @@ def seed_demo_data():
         apt1_title = "Luxury City Apartment"
         apt2_title = "Cozy Riverside Cottage"
 
-        apt1 = db.query(Apartment).filter(Apartment.title == apt1_title).first()
+        apt1 = db.query(Property).filter(Property.title == apt1_title).first()
         if not apt1:
-            apt1 = Apartment(
+            apt1 = Property(
                 title=apt1_title,
                 description="Modern apartment with city view",
                 address="123 Independence Ave",
@@ -97,9 +97,9 @@ def seed_demo_data():
         else:
             print(f"Apt1 already exists id={apt1.id}")
 
-        apt2 = db.query(Apartment).filter(Apartment.title == apt2_title).first()
+        apt2 = db.query(Property).filter(Property.title == apt2_title).first()
         if not apt2:
-            apt2 = Apartment(
+            apt2 = Property(
                 title=apt2_title,
                 description="Peaceful cottage near the river",
                 address="456 River Bank Road",
@@ -120,18 +120,19 @@ def seed_demo_data():
         else:
             print(f"Apt2 already exists id={apt2.id}")
 
+
         # --- 4) bookings (some completed, some upcoming) ---
         today = datetime.utcnow().date()
 
         # Completed booking on apt1
         b1 = db.query(Booking).filter(
-            Booking.apartment_id == apt1.id,
+            Booking.property_id == apt1.id,
             Booking.check_in == today - timedelta(days=30),
             Booking.check_out == today - timedelta(days=25)
         ).first()
         if not b1:
             b1 = Booking(
-                apartment_id=apt1.id,
+                property_id=apt1.id,
                 user_id=renter.id,
                 check_in=today - timedelta(days=30),
                 check_out=today - timedelta(days=25),
@@ -146,13 +147,13 @@ def seed_demo_data():
 
         # Completed booking on apt2
         b2 = db.query(Booking).filter(
-            Booking.apartment_id == apt2.id,
+            Booking.property_id == apt2.id,
             Booking.check_in == today - timedelta(days=10),
             Booking.check_out == today - timedelta(days=7)
         ).first()
         if not b2:
             b2 = Booking(
-                apartment_id=apt2.id,
+                property_id=apt2.id,
                 user_id=renter.id,
                 check_in=today - timedelta(days=10),
                 check_out=today - timedelta(days=7),
@@ -167,13 +168,13 @@ def seed_demo_data():
 
         # Upcoming booking on apt1
         b3 = db.query(Booking).filter(
-            Booking.apartment_id == apt1.id,
+            Booking.property_id == apt1.id,
             Booking.check_in == today + timedelta(days=5),
             Booking.check_out == today + timedelta(days=8)
         ).first()
         if not b3:
             b3 = Booking(
-                apartment_id=apt1.id,
+                property_id=apt1.id,
                 user_id=renter.id,
                 check_in=today + timedelta(days=5),
                 check_out=today + timedelta(days=8),
@@ -182,6 +183,7 @@ def seed_demo_data():
             )
             db.add(b3)
             db.commit()
+
             print(f"Created booking 3 id={b3.id}")
         else:
             print(f"booking3 exists id={b3.id}")

@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.database import SessionLocal, engine, Base
-from app.models import User, Apartment, Booking, Review, ReviewImage, Wishlist, LoyaltyReward, Payout
+from app.models import User, Property, Booking, Review, ReviewImage, Wishlist, LoyaltyReward, Payout
 
 def test_advanced_reviews():
     # Ensure tables exist
@@ -27,7 +27,7 @@ def test_advanced_reviews():
         db.flush()
 
         # 2. Create a test apartment
-        apartment = Apartment(
+        apartment = Property(
             title="Luxury Test Villa",
             address="123 Test St",
             city="Lusaka",
@@ -40,15 +40,17 @@ def test_advanced_reviews():
         db.add(apartment)
         db.flush()
 
+
         # 3. Create a booking for this user and apartment (needed for review)
         booking = Booking(
             user_id=user.id,
-            apartment_id=apartment.id,
+            property_id=apartment.id,
             check_in=datetime.now().date(),
             check_out=(datetime.now() + timedelta(days=2)).date(),
             total_price=500.0,
             status="completed"
         )
+
         db.add(booking)
         db.flush()
 

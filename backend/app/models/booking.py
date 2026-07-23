@@ -7,8 +7,9 @@ class Booking(Base):
     __tablename__ = "bookings"
     
     id = Column(Integer, primary_key=True, index=True)
-    apartment_id = Column(Integer, ForeignKey("apartments.id"), nullable=False)
+    property_id = Column(Integer, ForeignKey("properties.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
     check_in = Column(Date, nullable=False)
     check_out = Column(Date, nullable=False)
     total_price = Column(Numeric(10, 2), nullable=False)
@@ -19,9 +20,17 @@ class Booking(Base):
     earned_loyalty_points = Column(Integer, default=0)
     used_reward_id = Column(Integer, ForeignKey("loyalty_rewards.id"), nullable=True)
     
+    # Walk-in booking fields (v2)
+    is_walk_in = Column(Boolean, default=False, nullable=False)
+    payment_method = Column(String(50), nullable=True)  # "cash" | "mobile_money" | "card" | "bank_transfer"
+    walk_in_guest_name = Column(String(200), nullable=True)
+    walk_in_guest_phone = Column(String(50), nullable=True)
+    created_by_owner = Column(Boolean, default=False, nullable=False)
+    
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Add relationships
     user = relationship("User", back_populates="bookings")
-    apartment = relationship("Apartment")
+    property = relationship("Property")
+

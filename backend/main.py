@@ -11,14 +11,17 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Create all tables securely
-try:
-    Base.metadata.create_all(bind=engine)
-except Exception as e:
-    logger.error("Failed to create database tables", exc_info=True)
-    raise
-
 app = FastAPI(title="Apartex API", version="1.0.0")
+
+@app.on_event("startup")
+async def startup_event():
+    """Run Alembic migrations on startup."""
+    from alembic.config import Config
+    from alembic import command
+    alembic_cfg = Config("alembic.ini")
+    command.upgrade(alembic_cfg, "head")
+    logger.info("Database migrations applied.")
+
 
 # Configure CORS
 app.add_middleware(
@@ -32,7 +35,7 @@ app.add_middleware(
 
 # Include routers with /api prefix
 app.include_router(auth_enhanced.router, prefix="/api/auth-enhanced", tags=["authentication-enhanced"])
-app.include_router(apartments.router, prefix="/api/apartments", tags=["apartments"])
+app.include_router(apartments.router, prefix="/api/properties", tags=["properties"])
 app.include_router(bookings.router, prefix="/api/bookings", tags=["bookings"])
 app.include_router(loyalty_router.router, prefix="/api/loyalty", tags=["loyalty"])
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["dashboard"])
@@ -40,6 +43,11 @@ app.include_router(uploads.router, prefix="/api/upload", tags=["uploads"])
 app.include_router(wishlist_router.router, prefix="/api/wishlist", tags=["wishlist"])
 app.include_router(reviews.router, prefix="/api/reviews", tags=["reviews"])
 app.include_router(availability.router, prefix="/api/availability", tags=["availability"])
+
+# v1 backwards compatibility alias — keep /api/apartments/ working
+from app.routers import apartments as apartments_v1_alias
+app.include_router(apartments_v1_alias.router, prefix="/api/apartments", tags=["apartments-v1-alias"], include_in_schema=False)
+
 # Static files for uploads (ONLY point to uploads directory for security)
 import os
 uploads_dir = os.path.join(os.getcwd(), "uploads")

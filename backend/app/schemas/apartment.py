@@ -11,6 +11,8 @@ class ApartmentBase(BaseModel):
     capacity: int
     bedrooms: int
     bathrooms: int
+    property_type: str = "apartment"
+    star_rating: Optional[int] = None
     amenities: Optional[List[str]] = None
     image_url: Optional[str] = None
     latitude: Optional[float] = None
@@ -26,6 +28,8 @@ class ApartmentUpdate(BaseModel):
     capacity: Optional[int] = None
     bedrooms: Optional[int] = None
     bathrooms: Optional[int] = None
+    property_type: Optional[str] = None
+    star_rating: Optional[int] = None
     amenities: Optional[List[str]] = None
     image_url: Optional[str] = None
     latitude: Optional[float] = None
@@ -39,4 +43,4 @@ class ApartmentRead(ApartmentBase):
     updated_at: datetime
 
     class Config:
-        from_attributes = True
+        from_attributes = True

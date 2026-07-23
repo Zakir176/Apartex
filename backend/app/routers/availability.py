@@ -5,7 +5,7 @@ from typing import List
 from pydantic import BaseModel
 from app.database import get_db
 from app.models.blocked_date import BlockedDate
-from app.models.apartment import Apartment
+from app.models.apartment import Property
 from app.models.user import User
 from app.routers.auth_enhanced import get_current_active_user
 
@@ -37,7 +37,7 @@ def block_date_range(
 ):
     """Block a range of dates for an apartment. Owner-only."""
     # Verify ownership
-    apartment = db.query(Apartment).filter(Apartment.id == payload.apartment_id).first()
+    apartment = db.query(Property).filter(Property.id == payload.apartment_id).first()
     if not apartment:
         raise HTTPException(status_code=404, detail="Apartment not found")
     if apartment.owner_id != current_user.id:
@@ -89,10 +89,11 @@ def unblock_date(
     if not bd:
         raise HTTPException(status_code=404, detail="Blocked date not found")
 
-    apartment = db.query(Apartment).filter(Apartment.id == bd.apartment_id).first()
+    apartment = db.query(Property).filter(Property.id == bd.apartment_id).first()
     if not apartment or apartment.owner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
     db.delete(bd)
     db.commit()
     return None
+

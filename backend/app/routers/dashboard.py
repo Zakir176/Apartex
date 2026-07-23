@@ -7,7 +7,7 @@ from app.services.dashboard_service import DashboardService
 from app.schemas.dashboard import OwnerDashboard, PayoutRead
 from app.models.payout import Payout
 from app.models.booking import Booking
-from app.models.apartment import Apartment
+from app.models.apartment import Property
 from app.models.user import User
 from app.routers.auth_enhanced import get_current_user
 from fastapi import status
@@ -80,10 +80,11 @@ def request_payout(
         )
     
     # Calculate pending revenue
-    pending_revenue = db.query(func.sum(Booking.total_price)).join(Apartment).filter(
-        Apartment.owner_id == owner_id,
+    pending_revenue = db.query(func.sum(Booking.total_price)).join(Property).filter(
+        Property.owner_id == owner_id,
         Booking.status == "confirmed"
     ).scalar() or 0
+
     
     if pending_revenue <= 0:
         raise HTTPException(status_code=400, detail="No pending revenue available for payout")

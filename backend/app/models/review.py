@@ -7,8 +7,9 @@ class Review(Base):
     __tablename__ = "reviews"
 
     id = Column(Integer, primary_key=True, index=True)
-    apartment_id = Column(Integer, ForeignKey("apartments.id"), nullable=False)
+    apartment_id = Column(Integer, ForeignKey("properties.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
     
     rating = Column(Integer, nullable=False) # 1-5 scale
     comment = Column(Text, nullable=True)
@@ -18,6 +19,7 @@ class Review(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    apartment = relationship("Apartment", back_populates="reviews")
+    apartment = relationship("Property", back_populates="reviews")
+
     user = relationship("User", back_populates="reviews")
     images = relationship("ReviewImage", back_populates="review", cascade="all, delete-orphan")

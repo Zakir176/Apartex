@@ -7,7 +7,9 @@ class Wishlist(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    apartment_id = Column(Integer, ForeignKey("apartments.id"))
+    apartment_id = Column(Integer, ForeignKey("properties.id"))
+
 
     user = relationship("User", back_populates="wishlists")
-    apartment = relationship("Apartment", back_populates="wishlists")
+    apartment = relationship("Property", back_populates="wishlists")
+

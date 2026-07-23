@@ -4,7 +4,7 @@ from datetime import date, timedelta
 from typing import List
 from app.database import get_db
 from app.models.booking import Booking
-from app.models.apartment import Apartment
+from app.models.apartment import Property
 from app.models.user import User
 from app.models.blocked_date import BlockedDate
 from app.schemas.booking import BookingCreate, BookingRead, BookingUpdate
@@ -22,7 +22,7 @@ def check_apartment_availability(apartment_id: int, check_in: date, check_out: d
         return False
     
     # Check if apartment exists and is available
-    apartment = db.query(Apartment).filter(Apartment.id == apartment_id).first()
+    apartment = db.query(Property).filter(Property.id == apartment_id).first()
     if not apartment:
         return False
     
@@ -31,7 +31,7 @@ def check_apartment_availability(apartment_id: int, check_in: date, check_out: d
 
     # Check for overlapping bookings (only consider confirmed and completed bookings)
     overlapping_bookings = db.query(Booking).filter(
-        Booking.apartment_id == apartment_id,
+        Booking.property_id == apartment_id,
         Booking.status.in_(["confirmed", "completed"]),
         Booking.check_in < check_out,
         Booking.check_out > check_in
@@ -55,7 +55,7 @@ def calculate_booking_price(apartment_id: int, check_in: date, check_out: date, 
     """
     Calculate total price for a booking based on apartment price and number of nights.
     """
-    apartment = db.query(Apartment).filter(Apartment.id == apartment_id).first()
+    apartment = db.query(Property).filter(Property.id == apartment_id).first()
     if not apartment:
         raise HTTPException(status_code=404, detail="Apartment not found")
     
@@ -75,7 +75,7 @@ def create_booking(
     Create a new booking with availability checks and price calculation.
     """
     # Check if apartment exists
-    apartment = db.query(Apartment).filter(Apartment.id == booking.apartment_id).first()
+    apartment = db.query(Property).filter(Property.id == booking.property_id).first()
     if not apartment:
         raise HTTPException(status_code=404, detail="Apartment not found")
     
@@ -85,7 +85,7 @@ def create_booking(
     
     # Check availability for specific dates
     is_available = check_apartment_availability(
-        booking.apartment_id, booking.check_in, booking.check_out, db
+        booking.property_id, booking.check_in, booking.check_out, db
     )
     if not is_available:
         raise HTTPException(
@@ -115,7 +115,7 @@ def create_booking(
     # Calculate total price
     try:
         total_price = calculate_booking_price(
-            booking.apartment_id, booking.check_in, booking.check_out, db
+            booking.property_id, booking.check_in, booking.check_out, db
         )
     except HTTPException:
         raise
@@ -141,13 +141,18 @@ def create_booking(
 
     # Create booking
     db_booking = Booking(
-        apartment_id=booking.apartment_id,
+        property_id=booking.property_id,
         user_id=current_user.id,
         check_in=booking.check_in,
         check_out=booking.check_out,
         guests=booking.guests,
         total_price=total_price,
-        status="confirmed"  # Auto-confirm for now, later add payment processing
+        status="confirmed",  # Auto-confirm for now, later add payment processing
+        is_walk_in=booking.is_walk_in or False,
+        payment_method=booking.payment_method,
+        walk_in_guest_name=booking.walk_in_guest_name,
+        walk_in_guest_phone=booking.walk_in_guest_phone,
+        created_by_owner=booking.created_by_owner or False,
     )
     
     try:
@@ -167,24 +172,24 @@ def create_booking(
 def get_bookings(
     skip: int = 0, 
     limit: int = 100, 
-    apartment_id: int = None,
+    property_id: int = None,
     user_id: int = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
     """
-    Get bookings. Owners see bookings for their apartments; renters see only their own.
-    Admins can optionally filter by apartment_id or user_id.
+    Get bookings. Owners see bookings for their properties; renters see only their own.
+    Admins can optionally filter by property_id or user_id.
     """
     query = db.query(Booking)
 
     if current_user.role == "owner":
-        # Owners can only see bookings for apartments they own
-        query = query.join(Apartment, Booking.apartment_id == Apartment.id).filter(
-            Apartment.owner_id == current_user.id
+        # Owners can only see bookings for properties they own
+        query = query.join(Property, Booking.property_id == Property.id).filter(
+            Property.owner_id == current_user.id
         )
-        if apartment_id is not None:
-            query = query.filter(Booking.apartment_id == apartment_id)
+        if property_id is not None:
+            query = query.filter(Booking.property_id == property_id)
     else:
         # Renters can only see their own bookings
         query = query.filter(Booking.user_id == current_user.id)
@@ -210,7 +215,7 @@ def get_booking(
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
 
-    apartment = db.query(Apartment).filter(Apartment.id == booking.apartment_id).first()
+    apartment = db.query(Property).filter(Property.id == booking.property_id).first()
     is_renter = booking.user_id == current_user.id
     is_apartment_owner = apartment and apartment.owner_id == current_user.id
 
@@ -236,7 +241,7 @@ def update_booking(
     if not db_booking:
         raise HTTPException(status_code=404, detail="Booking not found")
 
-    apartment = db.query(Apartment).filter(Apartment.id == db_booking.apartment_id).first()
+    apartment = db.query(Property).filter(Property.id == db_booking.property_id).first()
     is_renter = db_booking.user_id == current_user.id
     is_apartment_owner = apartment and apartment.owner_id == current_user.id
 
@@ -305,7 +310,7 @@ def check_availability(
     Check availability for specific dates for an apartment.
     """
     # Check if apartment exists
-    apartment = db.query(Apartment).filter(Apartment.id == apartment_id).first()
+    apartment = db.query(Property).filter(Property.id == apartment_id).first()
     if not apartment:
         raise HTTPException(status_code=404, detail="Apartment not found")
     
@@ -369,7 +374,8 @@ def get_owner_bookings(
     """
     if current_user.id != owner_id and current_user.role != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You can only access your own bookings")
-    bookings = db.query(Booking).join(Apartment, Booking.apartment_id == Apartment.id).filter(
-        Apartment.owner_id == owner_id
+    bookings = db.query(Booking).join(Property, Booking.property_id == Property.id).filter(
+        Property.owner_id == owner_id
     ).all()
     return bookings
+

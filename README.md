@@ -6,7 +6,7 @@
 
 ## ✨ Project Showcase
 
-### 🌟 Public Landing Page
+### 🌟 Public Landing Page & Guest Discovery
 ![Apartex Animated Public Landing Page Hero](docs/screenshots/hero.png)
 *State-of-the-art public landing page featuring animated mesh gradients, live trust counters, and zero-markup guarantees.*
 
@@ -17,12 +17,20 @@
 
 *Left: Platform value pillars & comparison matrix ("Why Apartex"). Right: Interactive guest stay search & discovery engine.*
 
+### 🏢 Executive Host Portal & Referral Engine
 <div align="center">
-  <img src="docs/screenshots/loyalty.png" width="48%" />
+  <img src="docs/screenshots/owner_overview.png" width="48%" />
+  <img src="docs/screenshots/owner_apartments.png" width="48%" />
+</div>
+
+*Left: Executive Host Overview with live KPI stats & upcoming check-ins. Right: Property portfolio management & drag-and-drop photo upload wizard.*
+
+<div align="center">
+  <img src="docs/screenshots/profile_rewards.png" width="48%" />
   <img src="docs/screenshots/dashboard.png" width="48%" />
 </div>
 
-*Left: Apartex VIP Club rewards & tier benefits dashboard. Right: Comprehensive host revenue & occupancy analytics dashboard.*
+*Left: Account Dashboard with shareable referral code & points redemption. Right: Host RevPAR analytics & Mobile Money (MTN/Airtel) settlement portal.*
 
 ---
 

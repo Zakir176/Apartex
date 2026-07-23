@@ -175,11 +175,13 @@
 
     <Toast position="bottom-right" />
     <ConfirmDialog />
+    <Analytics />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { Analytics } from '@vercel/analytics/vue';
 import { useAuthStore } from './stores/auth';
 import { useRouter, useRoute } from 'vue-router';
 import { useThemeStore } from './stores/theme';

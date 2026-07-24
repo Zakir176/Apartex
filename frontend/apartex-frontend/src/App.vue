@@ -279,6 +279,16 @@
       </div>
     </div>
 
+    <!-- Floating Offline Status Banner -->
+    <div 
+      v-if="isOffline" 
+      class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[200] bg-slate-900/95 text-white backdrop-blur-xl px-5 py-2.5 rounded-full shadow-2xl border border-slate-700 text-xs font-bold flex items-center gap-3 animate-bounce"
+    >
+      <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
+      <span>Offline Mode — Browsing Cached Apartex Content</span>
+      <button @click="isOffline = false" class="text-slate-400 hover:text-white bg-transparent border-0 cursor-pointer ml-1">✕</button>
+    </div>
+
     <main class="min-h-screen">
       <router-view />
     </main>
@@ -392,6 +402,8 @@ const closeDropdown = (e) => {
 onMounted(() => {
   window.addEventListener('scroll', handleScroll);
   window.addEventListener('click', closeDropdown);
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
   if (route.query.scrollTo) {
     setTimeout(() => {
       performSmoothScroll(route.query.scrollTo);
@@ -402,6 +414,8 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll);
   window.removeEventListener('click', closeDropdown);
+  window.removeEventListener('online', updateOnlineStatus);
+  window.removeEventListener('offline', updateOnlineStatus);
 });
 
 watch(() => route.query.scrollTo, (newAnchor) => {

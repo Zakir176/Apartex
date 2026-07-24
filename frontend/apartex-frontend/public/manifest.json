@@ -1,0 +1,17 @@
+{
+  "name": "Apartex — Executive Apartments & Luxury Stays",
+  "short_name": "Apartex",
+  "description": "The luxury ecosystem for short-term accommodation & executive apartment discovery across Zambia.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8F7F4",
+  "theme_color": "#0F172A",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

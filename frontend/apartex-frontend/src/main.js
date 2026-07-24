@@ -23,3 +23,12 @@ app.use(ConfirmationService);
 app.use(ToastService);
 
 app.mount('#app');
+
+// Register Service Worker for PWA support
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then((reg) => console.log('⚡ Apartex Service Worker active:', reg.scope))
+      .catch((err) => console.warn('⚠️ Service Worker registration failed:', err));
+  });
+}

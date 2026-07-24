@@ -32,4 +32,4 @@ dist/
 *.db
 
 # Alembic
-alembic/
+# (Do not ignore alembic/ migrations folder)

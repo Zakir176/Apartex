@@ -15,12 +15,29 @@ app = FastAPI(title="Apartex API", version="1.0.0")
 
 @app.on_event("startup")
 async def startup_event():
-    """Run Alembic migrations on startup."""
-    from alembic.config import Config
-    from alembic import command
-    alembic_cfg = Config("alembic.ini")
-    command.upgrade(alembic_cfg, "head")
-    logger.info("Database migrations applied.")
+    """Run Alembic migrations safely on startup."""
+    import os
+    try:
+        from alembic.config import Config
+        from alembic import command
+        
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        ini_path = os.path.join(base_dir, "alembic.ini")
+        if os.path.exists(ini_path):
+            alembic_cfg = Config(ini_path)
+            alembic_cfg.set_main_option("script_location", os.path.join(base_dir, "alembic"))
+            command.upgrade(alembic_cfg, "head")
+            logger.info("Database migrations applied successfully.")
+        else:
+            logger.warning(f"alembic.ini not found at {ini_path}, falling back to create_all.")
+            Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        logger.error("Error during startup migrations", exc_info=True)
+        try:
+            Base.metadata.create_all(bind=engine)
+            logger.info("Fallback Base.metadata.create_all completed.")
+        except Exception as fallback_err:
+            logger.error("Fallback create_all failed", exc_info=fallback_err)
 
 
 # Configure CORS

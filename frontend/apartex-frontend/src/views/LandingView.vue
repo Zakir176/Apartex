@@ -295,6 +295,215 @@
       </div>
     </div>
 
+    <!-- INTERACTIVE MAP & STAYS EXPLORER SECTION -->
+    <section id="map-explorer" class="bg-white border-b border-surface-border py-20 relative overflow-hidden">
+      <div class="max-w-content mx-auto px-4 sm:px-6">
+        
+        <!-- Header & View Switcher -->
+        <div class="flex flex-col lg:flex-row lg:items-end justify-between mb-10 gap-6">
+          <div>
+            <span class="section-tag flex items-center gap-1.5 inline-flex">
+              <i class="pi pi-map-marker text-accent"></i> Real-Time Location Explorer
+            </span>
+            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 mt-2">
+              Explore Available Stays Across Zambia
+            </h2>
+            <p class="text-slate-600 text-sm sm:text-base mt-2 font-medium max-w-2xl">
+              Click price markers to preview executive penthouses, safari lodges, and luxury suites with live direct host rates.
+            </p>
+          </div>
+
+          <!-- Controls: City Selector & View Mode Switcher -->
+          <div class="flex flex-wrap items-center gap-3">
+            <!-- City Pills -->
+            <div class="flex items-center gap-1 bg-slate-100 p-1.5 rounded-full border border-slate-200">
+              <button 
+                v-for="c in heroCities" 
+                :key="c.value"
+                @click="heroSearchCity = c.value"
+                class="px-3.5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 border-0 cursor-pointer"
+                :class="heroSearchCity === c.value ? 'bg-navy text-white shadow-sm font-black' : 'text-slate-600 hover:text-slate-900 bg-transparent'"
+              >
+                {{ c.name }}
+              </button>
+            </div>
+
+            <!-- Layout View Mode Switcher -->
+            <div class="flex items-center gap-1 bg-slate-900 p-1.5 rounded-full text-white shadow-sm">
+              <button 
+                @click="mapExplorerMode = 'split'" 
+                class="px-3 py-1.5 rounded-full text-xs font-bold border-0 cursor-pointer flex items-center gap-1.5 transition-all"
+                :class="mapExplorerMode === 'split' ? 'bg-accent text-white shadow-sm' : 'text-slate-400 hover:text-white bg-transparent'"
+                title="Split Map & List"
+              >
+                <i class="pi pi-th-large text-xs"></i>
+                <span class="hidden sm:inline">Split</span>
+              </button>
+              <button 
+                @click="mapExplorerMode = 'map'" 
+                class="px-3 py-1.5 rounded-full text-xs font-bold border-0 cursor-pointer flex items-center gap-1.5 transition-all"
+                :class="mapExplorerMode === 'map' ? 'bg-accent text-white shadow-sm' : 'text-slate-400 hover:text-white bg-transparent'"
+                title="Map View Only"
+              >
+                <i class="pi pi-map text-xs"></i>
+                <span class="hidden sm:inline">Map</span>
+              </button>
+              <button 
+                @click="mapExplorerMode = 'grid'" 
+                class="px-3 py-1.5 rounded-full text-xs font-bold border-0 cursor-pointer flex items-center gap-1.5 transition-all"
+                :class="mapExplorerMode === 'grid' ? 'bg-accent text-white shadow-sm' : 'text-slate-400 hover:text-white bg-transparent'"
+                title="Cards Grid Only"
+              >
+                <i class="pi pi-list text-xs"></i>
+                <span class="hidden sm:inline">Grid</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- EXPLORER LAYOUT CONTENT -->
+        
+        <!-- Mode 1: SPLIT VIEW (Map Left/Top, List Right/Bottom) -->
+        <div v-if="mapExplorerMode === 'split'" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          <!-- Left: Leaflet Map -->
+          <div class="lg:col-span-7 bg-slate-100 rounded-3xl overflow-hidden border border-surface-border shadow-lg relative h-[520px]">
+            <MapComponent 
+              :city="heroSearchCity === 'All' ? 'Lusaka' : heroSearchCity"
+              height="520px"
+              :markers="filteredHeroProperties"
+              :selectedId="selectedMarkerId"
+              @marker-click="handleMapMarkerClick"
+            />
+            
+            <!-- Map Overlay Quick Info Badge -->
+            <div class="absolute bottom-4 left-4 z-[400] bg-slate-900/90 text-white backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10 text-xs font-bold flex items-center gap-2 shadow-lg pointer-events-none">
+              <i class="pi pi-info-circle text-accent"></i>
+              <span>Click markers to highlight property details</span>
+            </div>
+          </div>
+
+          <!-- Right: Interactive Property List / Selected Card Drawer -->
+          <div class="lg:col-span-5 space-y-4 max-h-[520px] overflow-y-auto pr-1">
+            <div 
+              v-for="prop in filteredHeroProperties" 
+              :key="prop.id"
+              @click="selectedMarkerId = prop.id"
+              class="bg-white rounded-2xl p-4 border transition-all duration-300 cursor-pointer group flex items-center gap-4"
+              :class="selectedMarkerId === prop.id 
+                ? 'border-accent shadow-xl ring-2 ring-accent/20 bg-accent/5' 
+                : 'border-surface-border hover:border-slate-300 shadow-sm hover:shadow-md'"
+            >
+              <img :src="prop.image" :alt="prop.title" class="w-24 h-24 rounded-xl object-cover shrink-0 group-hover:scale-105 transition-transform duration-300" />
+              
+              <div class="grow min-w-0">
+                <div class="flex items-center justify-between gap-2 mb-1">
+                  <span class="text-[10px] font-black uppercase tracking-wider bg-slate-100 px-2 py-0.5 rounded-full text-slate-700">
+                    {{ prop.city }}
+                  </span>
+                  <span class="text-xs font-black text-amber-500 flex items-center gap-1">
+                    <i class="pi pi-star-fill text-[10px]"></i> {{ prop.rating }}
+                  </span>
+                </div>
+                <h4 class="font-black text-sm text-slate-900 truncate group-hover:text-accent transition-colors mb-1">
+                  {{ prop.title }}
+                </h4>
+                <p class="text-xs text-slate-500 font-medium mb-2">
+                  {{ prop.bedrooms }} Beds · {{ prop.maxGuests }} Guests max
+                </p>
+                <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                  <span class="text-sm font-black text-slate-900">${{ prop.price }} <span class="text-[10px] font-medium text-slate-400">/ night</span></span>
+                  <button @click.stop="executeHeroSearch" class="btn-accent text-[11px] font-bold px-3 py-1 rounded-lg border-0 cursor-pointer">
+                    Book Stay
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Mode 2: MAP ONLY -->
+        <div v-else-if="mapExplorerMode === 'map'" class="bg-slate-100 rounded-3xl overflow-hidden border border-surface-border shadow-xl relative h-[600px]">
+          <MapComponent 
+            :city="heroSearchCity === 'All' ? 'Lusaka' : heroSearchCity"
+            height="600px"
+            :markers="filteredHeroProperties"
+            :selectedId="selectedMarkerId"
+            @marker-click="handleMapMarkerClick"
+          />
+          
+          <!-- Selected Floating Drawer on Map -->
+          <div v-if="selectedProperty" class="absolute bottom-6 left-6 right-6 sm:left-auto sm:right-6 sm:w-96 z-[400] bg-white/95 backdrop-blur-2xl p-5 rounded-3xl border border-surface-border shadow-2xl animate-fade-in">
+            <div class="flex items-start justify-between gap-3 mb-2">
+              <div>
+                <span class="bg-accent/10 text-accent text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full">
+                  {{ selectedProperty.city }}
+                </span>
+                <h4 class="text-base font-black text-slate-900 mt-1 leading-snug">{{ selectedProperty.title }}</h4>
+              </div>
+              <span class="text-lg font-black text-slate-900">${{ selectedProperty.price }}<span class="text-xs font-normal text-slate-400">/nt</span></span>
+            </div>
+            
+            <p class="text-xs text-slate-500 font-medium mb-3">
+              <i class="pi pi-star-fill text-amber-400 text-xs mr-1"></i> {{ selectedProperty.rating }} rating · {{ selectedProperty.bedrooms }} Bedrooms · {{ selectedProperty.maxGuests }} Guests max
+            </p>
+
+            <div class="flex items-center gap-2">
+              <button @click="executeHeroSearch" class="grow btn-accent text-xs font-black py-2.5 rounded-xl shadow-accent border-0 cursor-pointer text-center">
+                Reserve Stay Now
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mode 3: GRID ONLY -->
+        <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div 
+            v-for="prop in filteredHeroProperties" 
+            :key="prop.id"
+            class="bg-white rounded-3xl p-5 border border-surface-border shadow-card hover:shadow-card-hover transition-all duration-300 group flex flex-col justify-between"
+          >
+            <div>
+              <div class="relative rounded-2xl overflow-hidden aspect-[16/10] mb-4">
+                <img :src="prop.image" :alt="prop.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <span class="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-md text-white text-xs font-black px-3 py-1 rounded-full">
+                  {{ prop.city }}
+                </span>
+                <span class="absolute top-3 right-3 bg-emerald-500 text-white text-xs font-black px-2.5 py-1 rounded-full flex items-center gap-1">
+                  <i class="pi pi-star-fill text-[10px]"></i> {{ prop.rating }}
+                </span>
+              </div>
+              <h3 class="font-black text-lg text-slate-900 group-hover:text-accent transition-colors mb-2 leading-snug">
+                {{ prop.title }}
+              </h3>
+              <p class="text-xs text-slate-500 font-medium mb-4">
+                {{ prop.bedrooms }} Bedrooms · Up to {{ prop.maxGuests }} Guests · Direct Host Rates
+              </p>
+              
+              <!-- Amenities Badges -->
+              <div class="flex flex-wrap gap-1.5 mb-6">
+                <span v-for="am in prop.amenities" :key="am" class="bg-slate-100 text-slate-600 text-[10px] font-bold px-2.5 py-1 rounded-lg">
+                  {{ am }}
+                </span>
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+              <div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Direct Price</span>
+                <span class="text-xl font-black text-slate-900">${{ prop.price }} <span class="text-xs font-normal text-slate-400">/ night</span></span>
+              </div>
+              <button @click="executeHeroSearch" class="btn-accent text-xs font-extrabold px-5 py-2.5 rounded-xl border-0 cursor-pointer">
+                View Stay
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
     <!-- PLATFORM PILLARS & FEATURES ("WHY APARTEX") -->
 
     <section id="why-apartex" class="max-w-content mx-auto px-4 sm:px-6 py-24">
@@ -991,6 +1200,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import MapComponent from '../components/MapComponent.vue';
 
 const router = useRouter();
 
@@ -998,6 +1208,10 @@ const router = useRouter();
 const heroSearchCity = ref('Lusaka');
 const heroSearchGuests = ref(2);
 const isPreviewOpen = ref(false);
+
+// Map Explorer State
+const mapExplorerMode = ref('split'); // 'split', 'map', 'grid'
+const selectedMarkerId = ref(1);
 
 const heroCities = [
   { name: 'All Cities', value: 'All', icon: 'pi pi-globe', label: 'Nationwide' },
@@ -1016,6 +1230,9 @@ const sampleProperties = [
     rating: 4.96,
     maxGuests: 4,
     bedrooms: 3,
+    latitude: -15.3875,
+    longitude: 28.3228,
+    price_per_night: 125,
     image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80',
     amenities: ['Solar Backup', 'Private Pool', 'High-Speed Wi-Fi']
   },
@@ -1027,6 +1244,9 @@ const sampleProperties = [
     rating: 4.98,
     maxGuests: 6,
     bedrooms: 4,
+    latitude: -16.8561,
+    longitude: 25.8528,
+    price_per_night: 185,
     image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
     amenities: ['River View', 'Solar Power', 'Airport Shuttle']
   },
@@ -1038,6 +1258,9 @@ const sampleProperties = [
     rating: 4.90,
     maxGuests: 2,
     bedrooms: 1,
+    latitude: -12.9686,
+    longitude: 28.6366,
+    price_per_night: 95,
     image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
     amenities: ['Generator Backup', 'Secured Parking', 'Workspace']
   },
@@ -1049,6 +1272,9 @@ const sampleProperties = [
     rating: 4.92,
     maxGuests: 5,
     bedrooms: 3,
+    latitude: -12.8167,
+    longitude: 28.2000,
+    price_per_night: 110,
     image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=800&q=80',
     amenities: ['Solar Inverter', 'Gym Access', 'Smart TV']
   },
@@ -1060,6 +1286,9 @@ const sampleProperties = [
     rating: 4.94,
     maxGuests: 4,
     bedrooms: 2,
+    latitude: -15.4050,
+    longitude: 28.3150,
+    price_per_night: 140,
     image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80',
     amenities: ['Rooftop Pool', 'Solar Backup', 'Concierge']
   }
@@ -1072,6 +1301,16 @@ const filteredHeroProperties = computed(() => {
     return matchesCity && matchesGuests;
   });
 });
+
+const selectedProperty = computed(() => {
+  return sampleProperties.find(p => p.id === selectedMarkerId.value) || sampleProperties[0];
+});
+
+const handleMapMarkerClick = (markerRaw) => {
+  if (markerRaw && markerRaw.id) {
+    selectedMarkerId.value = markerRaw.id;
+  }
+};
 
 const executeHeroSearch = () => {
   router.push({

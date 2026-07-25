@@ -22,7 +22,17 @@
           </button>
         </div>
 
-        <button @click="openPayoutModal" class="btn-accent shadow-accent inline-flex items-center gap-2 text-xs font-bold px-5 py-2.5 rounded-full">
+        <button 
+          @click="downloadCsvReport" 
+          :disabled="downloadingCsv"
+          class="btn-outline font-bold inline-flex items-center gap-2 text-xs px-4 py-2.5 rounded-full border-slate-300 hover:bg-slate-50 cursor-pointer"
+        >
+          <i class="pi pi-download" v-if="!downloadingCsv"></i>
+          <i class="pi pi-spinner pi-spin" v-else></i>
+          <span>Export CSV</span>
+        </button>
+
+        <button @click="openPayoutModal" class="btn-accent shadow-accent inline-flex items-center gap-2 text-xs font-bold px-5 py-2.5 rounded-full cursor-pointer">
           <i class="pi pi-wallet"></i>
           Request Settlement
         </button>
@@ -93,7 +103,7 @@
           </div>
         </div>
         <div>
-          <div class="text-3xl font-black text-emerald-600 tracking-tight">$98.50</div>
+          <div class="text-3xl font-black text-emerald-600 tracking-tight">{{ formatCurrency(store.overview?.revpar || 98.50) }}</div>
           <p class="text-slate-500 text-xs font-medium mt-1">Revenue per available room / night</p>
         </div>
       </div>
@@ -105,12 +115,24 @@
       <!-- Revenue Trend Chart -->
       <div class="lg:col-span-8">
         <div class="bg-white rounded-3xl border border-surface-border p-6 sm:p-8 shadow-sm h-full flex flex-col">
-          <div class="flex items-center justify-between mb-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3">
             <div>
-              <h3 class="text-lg font-black text-slate-900">Revenue Performance Trend</h3>
-              <p class="text-xs text-slate-500 font-medium">Monthly gross revenue generation</p>
+              <h3 class="text-lg font-black text-slate-900">Financial Performance Analytics</h3>
+              <p class="text-xs text-slate-500 font-medium">Interactive metric series breakdown</p>
             </div>
-            <span class="text-xs font-bold text-accent bg-accent-light px-3 py-1 rounded-full">Live Synchronized</span>
+            
+            <!-- Metric Series Selector Pills -->
+            <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-full border border-slate-200 self-start sm:self-auto">
+              <button 
+                v-for="m in chartMetrics" 
+                :key="m.id"
+                @click="activeChartMetric = m.id"
+                class="px-3 py-1 rounded-full text-xs font-bold transition-all border-0 cursor-pointer"
+                :class="activeChartMetric === m.id ? 'bg-navy text-white shadow-sm font-black' : 'text-slate-600 hover:text-slate-900 bg-transparent'"
+              >
+                {{ m.label }}
+              </button>
+            </div>
           </div>
 
           <div class="h-72 w-full mt-auto">
@@ -223,6 +245,8 @@
 <script setup>
 import { onMounted, computed, ref } from 'vue';
 import { useDashboardStore } from '@/stores/dashboard';
+import { useAuthStore } from '@/stores/auth';
+import { exportFinancialReportCSV } from '@/api/dashboard';
 
 // PrimeVue components
 import Button from 'primevue/button';
@@ -233,10 +257,19 @@ import InputNumber from 'primevue/inputnumber';
 import Dropdown from 'primevue/dropdown';
 
 const store = useDashboardStore();
+const authStore = useAuthStore();
 
 const payoutModal = ref(false);
 const submitting = ref(false);
+const downloadingCsv = ref(false);
 const payoutForm = ref({ amount: 500, method: 'mtn', details: '' });
+
+const activeChartMetric = ref('revenue'); // 'revenue', 'revpar', 'occupancy'
+const chartMetrics = [
+  { id: 'revenue', label: 'Revenue ($)' },
+  { id: 'revpar', label: 'RevPAR ($)' },
+  { id: 'occupancy', label: 'Occupancy (%)' }
+];
 
 const selectedTimeframe = ref('6m');
 const timeframeOptions = [
@@ -263,6 +296,25 @@ onMounted(async () => {
 
 async function refreshData() {
   await Promise.all([store.loadOverview(), store.loadPayouts()]);
+}
+
+async function downloadCsvReport() {
+  const userId = authStore.user?.id || 1;
+  downloadingCsv.value = true;
+  try {
+    const blob = await exportFinancialReportCSV(userId);
+    const url = window.URL.createObjectURL(new Blob([blob], { type: 'text/csv' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `apartex_financial_report_owner_${userId}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } catch (err) {
+    console.error('CSV Export Error:', err);
+  } finally {
+    downloadingCsv.value = false;
+  }
 }
 
 function openPayoutModal() {
@@ -292,30 +344,44 @@ async function submitPayout() {
 }
 
 const chartData = computed(() => {
-  const monthly = store.overview?.monthly_revenue || [
-    { month: 'Jan', revenue: 1800 },
-    { month: 'Feb', revenue: 2400 },
-    { month: 'Mar', revenue: 2100 },
-    { month: 'Apr', revenue: 3200 },
-    { month: 'May', revenue: 3900 },
-    { month: 'Jun', revenue: 4850 }
+  const trends = store.overview?.booking_trends || [
+    { period: 'Jan', revenue: 1800, revpar: 60, occupancy_rate: 65 },
+    { period: 'Feb', revenue: 2400, revpar: 80, occupancy_rate: 72 },
+    { period: 'Mar', revenue: 2100, revpar: 70, occupancy_rate: 68 },
+    { period: 'Apr', revenue: 3200, revpar: 106, occupancy_rate: 82 },
+    { period: 'May', revenue: 3900, revpar: 130, occupancy_rate: 88 },
+    { period: 'Jun', revenue: 4850, revpar: 161, occupancy_rate: 94 }
   ];
   
+  let labelText = 'Monthly Revenue ($)';
+  let datasetData = trends.map((t) => t.revenue);
+  let color = '#E8621A';
+
+  if (activeChartMetric.value === 'revpar') {
+    labelText = 'RevPAR ($/night)';
+    datasetData = trends.map((t) => t.revpar || (t.revenue / 30));
+    color = '#10B981';
+  } else if (activeChartMetric.value === 'occupancy') {
+    labelText = 'Occupancy Rate (%)';
+    datasetData = trends.map((t) => t.occupancy_rate || (t.bookings * 3.3));
+    color = '#3B82F6';
+  }
+  
   return {
-    labels: monthly.map((m) => m.month),
+    labels: trends.map((t) => t.period || t.month),
     datasets: [
       {
-        label: 'Monthly Revenue ($)',
-        data: monthly.map((m) => m.revenue),
+        label: labelText,
+        data: datasetData,
         fill: true,
-        borderColor: '#E8621A',
+        borderColor: color,
         borderWidth: 3,
         pointRadius: 5,
-        pointBackgroundColor: '#E8621A',
+        pointBackgroundColor: color,
         pointBorderColor: '#FFFFFF',
         pointBorderWidth: 2,
         tension: 0.4,
-        backgroundColor: 'rgba(232, 98, 26, 0.08)'
+        backgroundColor: color === '#E8621A' ? 'rgba(232, 98, 26, 0.08)' : color === '#10B981' ? 'rgba(16, 185, 129, 0.08)' : 'rgba(59, 130, 246, 0.08)'
       }
     ]
   };

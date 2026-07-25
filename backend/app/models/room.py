@@ -8,17 +8,16 @@ class Room(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     property_id = Column(Integer, ForeignKey("properties.id"), nullable=False)
-    room_type = Column(String(100), nullable=False)  # e.g. "Standard", "Deluxe", "Suite", "Chalet"
+    room_type = Column(String(100), nullable=False)
     description = Column(Text, nullable=True)
     price_per_night = Column(Numeric(10, 2), nullable=False)
     capacity = Column(Integer, nullable=False)
-    total_units = Column(Integer, nullable=False, default=1)  # How many physical rooms of this type
-    amenities = Column(Text, nullable=True)  # JSON string
+    total_units = Column(Integer, nullable=False, default=1)
+    amenities = Column(Text, nullable=True)
     image_url = Column(String(500), nullable=True)
     is_available = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relationships
     property = relationship("Property", back_populates="rooms")
     bookings = relationship("Booking", back_populates="room")

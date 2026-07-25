@@ -7,6 +7,7 @@ from app.models.booking import Booking
 from app.models.apartment import Property
 from app.models.user import User
 from app.models.blocked_date import BlockedDate
+from app.models.room import Room
 from app.schemas.booking import BookingCreate, BookingRead, BookingUpdate
 from app.routers.auth_enhanced import get_current_active_user
 
@@ -48,8 +49,30 @@ def check_apartment_availability(apartment_id: int, check_in: date, check_out: d
     ).first()
     if blocked:
         return False
-
     return True
+
+def check_room_availability(room_id: int, check_in: date, check_out: date, db: Session) -> bool:
+    """
+    Check if a room type has available units for the given dates.
+    A room type with total_units=5 can have up to 5 overlapping bookings.
+    """
+    if check_in >= check_out:
+        return False
+
+    room = db.query(Room).filter(Room.id == room_id).first()
+    if not room or not room.is_available:
+        return False
+
+    # Count confirmed/pending bookings for this room type in the date range
+    overlapping_count = db.query(Booking).filter(
+        Booking.room_id == room_id,
+        Booking.status.in_(["confirmed", "pending"]),
+        Booking.check_in < check_out,
+        Booking.check_out > check_in
+    ).count()
+
+    # Available if booked count is less than total physical units
+    return overlapping_count < room.total_units
 
 def calculate_booking_price(apartment_id: int, check_in: date, check_out: date, db: Session) -> float:
     """
@@ -60,10 +83,21 @@ def calculate_booking_price(apartment_id: int, check_in: date, check_out: date, 
         raise HTTPException(status_code=404, detail="Apartment not found")
     
     nights = (check_out - check_in).days
-    if nights <= 0:
-        raise HTTPException(status_code=400, detail="Check-out date must be after check-in date")
-    
     return nights * float(apartment.price_per_night)
+
+def calculate_room_price(room_id: int, check_in: date, check_out: date, db: Session) -> float:
+    """
+    Calculate total price for a room booking.
+    """
+    room = db.query(Room).filter(Room.id == room_id).first()
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found")
+
+    nights = (check_out - check_in).days
+    if nights <= 0:
+        raise HTTPException(status_code=400, detail="Check-out must be after check-in")
+
+    return nights * float(room.price_per_night)
 
 @router.post("/", response_model=BookingRead, status_code=status.HTTP_201_CREATED)
 def create_booking(
@@ -71,101 +105,156 @@ def create_booking(
     db: Session = Depends(get_db), 
     current_user: User = Depends(get_current_active_user)
 ):
-    """
-    Create a new booking with availability checks and price calculation.
-    """
-    # Check if apartment exists
-    apartment = db.query(Property).filter(Property.id == booking.property_id).first()
-    if not apartment:
-        raise HTTPException(status_code=404, detail="Apartment not found")
-    
-    # Check if apartment is available (general availability)
-    if not apartment.is_available:
-        raise HTTPException(status_code=400, detail="Apartment is not available for booking")
-    
-    # Check availability for specific dates
-    is_available = check_apartment_availability(
-        booking.property_id, booking.check_in, booking.check_out, db
-    )
-    if not is_available:
-        raise HTTPException(
-            status_code=400, 
-            detail="Apartment is not available for the selected dates"
-        )
-    
-    # Validate dates
+    property = db.query(Property).filter(Property.id == booking.property_id).first()
+    if not property:
+        raise HTTPException(status_code=404, detail="Property not found")
+
+    if not property.is_available:
+        raise HTTPException(status_code=400, detail="Property is not available for booking")
+
     if booking.check_in >= booking.check_out:
-        raise HTTPException(
-            status_code=400, 
-            detail="Check-out date must be after check-in date"
-        )    
-    # Check capacity
-    if booking.guests > apartment.capacity:
-        raise HTTPException(
-            status_code=400, 
-            detail=f"Apartment can only accommodate {apartment.capacity} guests"
-        )
-    
+        raise HTTPException(status_code=400, detail="Check-out date must be after check-in date")
+
+    # Branch: room-based booking (hotel/lodge) vs direct property booking (apartment)
+    if booking.room_id:
+        room = db.query(Room).filter(
+            Room.id == booking.room_id,
+            Room.property_id == booking.property_id
+        ).first()
+        if not room:
+            raise HTTPException(status_code=404, detail="Room not found on this property")
+
+        if not check_room_availability(booking.room_id, booking.check_in, booking.check_out, db):
+            raise HTTPException(status_code=400, detail="Room is not available for the selected dates")
+
+        if booking.guests > room.capacity:
+            raise HTTPException(status_code=400, detail=f"Room capacity is {room.capacity} guests")
+
+        total_price = calculate_room_price(booking.room_id, booking.check_in, booking.check_out, db)
+    else:
+        if not check_apartment_availability(booking.property_id, booking.check_in, booking.check_out, db):
+            raise HTTPException(status_code=400, detail="Property is not available for the selected dates")
+
+        if booking.guests > property.capacity:
+            raise HTTPException(status_code=400, detail=f"Property can only accommodate {property.capacity} guests")
+
+        total_price = calculate_booking_price(booking.property_id, booking.check_in, booking.check_out, db)
+
     if booking.guests < 1:
-        raise HTTPException(
-            status_code=400, 
-            detail="Number of guests must be at least 1"
-        )
-    
-    # Calculate total price
-    try:
-        total_price = calculate_booking_price(
-            booking.property_id, booking.check_in, booking.check_out, db
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=400, 
-            detail=f"Error calculating price: {str(e)}"
-        )
-    
+        raise HTTPException(status_code=400, detail="Number of guests must be at least 1")
+
+    # Apply loyalty points discount
     if booking.points_applied and booking.points_applied > 0:
         if current_user.loyalty_points < booking.points_applied:
-            raise HTTPException(
-                status_code=400, 
-                detail="Not enough loyalty points"
-            )
+            raise HTTPException(status_code=400, detail="Not enough loyalty points")
         discount = booking.points_applied / 100.0
         if discount > total_price:
             discount = total_price
             booking.points_applied = int(total_price * 100)
-            
         current_user.loyalty_points -= booking.points_applied
         total_price -= discount
 
-    # Create booking
     db_booking = Booking(
         property_id=booking.property_id,
+        room_id=booking.room_id,
         user_id=current_user.id,
         check_in=booking.check_in,
         check_out=booking.check_out,
         guests=booking.guests,
         total_price=total_price,
-        status="confirmed",  # Auto-confirm for now, later add payment processing
-        is_walk_in=booking.is_walk_in or False,
+        status="confirmed",
+        is_walk_in=False,
         payment_method=booking.payment_method,
-        walk_in_guest_name=booking.walk_in_guest_name,
-        walk_in_guest_phone=booking.walk_in_guest_phone,
-        created_by_owner=booking.created_by_owner or False,
+        walk_in_guest_name=None,
+        walk_in_guest_phone=None,
+        created_by_owner=False,
     )
-    
+
     try:
         db.add(db_booking)
         db.commit()
         db.refresh(db_booking)
     except Exception as e:
         db.rollback()
-        raise HTTPException(
-            status_code=500, 
-            detail=f"Error creating booking: {str(e)}"
-        )
-    
+        raise HTTPException(status_code=500, detail=f"Error creating booking: {str(e)}")
+
+    return db_booking
+
+@router.post("/walk-in", response_model=BookingRead, status_code=status.HTTP_201_CREATED)
+def create_walk_in_booking(
+    booking: BookingCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """
+    Owner-only endpoint. Records a walk-in or phone booking for a guest
+    who does not have an Apartex account. Blocks availability immediately.
+    """
+    if current_user.role != "owner":
+        raise HTTPException(status_code=403, detail="Only property owners can record walk-in bookings")
+
+    if not booking.walk_in_guest_name or not booking.walk_in_guest_name.strip():
+        raise HTTPException(status_code=400, detail="walk_in_guest_name is required for walk-in bookings")
+
+    if not booking.payment_method:
+        raise HTTPException(status_code=400, detail="payment_method is required for walk-in bookings")
+
+    if booking.payment_method not in ["cash", "mobile_money", "card", "bank_transfer"]:
+        raise HTTPException(status_code=400, detail="payment_method must be one of: cash, mobile_money, card, bank_transfer")
+
+    if booking.check_in >= booking.check_out:
+        raise HTTPException(status_code=400, detail="Check-out date must be after check-in date")
+
+    property = db.query(Property).filter(
+        Property.id == booking.property_id,
+        Property.owner_id == current_user.id
+    ).first()
+    if not property:
+        raise HTTPException(status_code=404, detail="Property not found or you do not own it")
+
+    # Availability check — same logic as regular booking
+    if booking.room_id:
+        room = db.query(Room).filter(
+            Room.id == booking.room_id,
+            Room.property_id == booking.property_id
+        ).first()
+        if not room:
+            raise HTTPException(status_code=404, detail="Room not found on this property")
+
+        if not check_room_availability(booking.room_id, booking.check_in, booking.check_out, db):
+            raise HTTPException(status_code=400, detail="Room is not available for the selected dates")
+
+        total_price = calculate_room_price(booking.room_id, booking.check_in, booking.check_out, db)
+    else:
+        if not check_apartment_availability(booking.property_id, booking.check_in, booking.check_out, db):
+            raise HTTPException(status_code=400, detail="Property is not available for the selected dates")
+
+        total_price = calculate_booking_price(booking.property_id, booking.check_in, booking.check_out, db)
+
+    db_booking = Booking(
+        property_id=booking.property_id,
+        room_id=booking.room_id,
+        user_id=None,
+        check_in=booking.check_in,
+        check_out=booking.check_out,
+        guests=booking.guests,
+        total_price=total_price,
+        status="confirmed",
+        is_walk_in=True,
+        payment_method=booking.payment_method,
+        walk_in_guest_name=booking.walk_in_guest_name.strip(),
+        walk_in_guest_phone=booking.walk_in_guest_phone,
+        created_by_owner=True,
+    )
+
+    try:
+        db.add(db_booking)
+        db.commit()
+        db.refresh(db_booking)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Error creating walk-in booking: {str(e)}")
+
     return db_booking
 
 @router.get("/", response_model=List[BookingRead])
@@ -336,6 +425,46 @@ def check_availability(
             "price_per_night": float(apartment.price_per_night),
             "capacity": apartment.capacity
         }
+    }
+
+@router.get("/room/{room_id}/availability")
+def check_room_availability_endpoint(
+    room_id: int,
+    check_in: date,
+    check_out: date,
+    db: Session = Depends(get_db)
+):
+    """
+    Check availability for a specific room type for given dates.
+    Returns available unit count.
+    """
+    room = db.query(Room).filter(Room.id == room_id).first()
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found")
+
+    overlapping_count = db.query(Booking).filter(
+        Booking.room_id == room_id,
+        Booking.status.in_(["confirmed", "pending"]),
+        Booking.check_in < check_out,
+        Booking.check_out > check_in
+    ).count()
+
+    units_available = room.total_units - overlapping_count
+    is_available = units_available > 0
+
+    nights = (check_out - check_in).days
+    total_price = nights * float(room.price_per_night) if is_available and nights > 0 else None
+
+    return {
+        "room_id": room_id,
+        "room_type": room.room_type,
+        "check_in": check_in,
+        "check_out": check_out,
+        "is_available": is_available,
+        "units_available": max(0, units_available),
+        "total_units": room.total_units,
+        "total_price": total_price,
+        "price_per_night": float(room.price_per_night),
     }
 
 @router.get("/user/{user_id}/bookings", response_model=List[BookingRead])

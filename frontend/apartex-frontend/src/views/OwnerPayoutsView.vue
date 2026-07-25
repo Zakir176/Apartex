@@ -8,11 +8,21 @@
         <p class="text-slate-500 font-medium text-sm sm:text-base mt-1">Track guest payouts, manage withdrawal channels, and request fast settlements.</p>
       </div>
 
-      <div>
+      <div class="flex items-center gap-3">
+        <button 
+          @click="downloadCsvReport" 
+          :disabled="downloadingCsv"
+          class="btn-outline font-bold inline-flex items-center gap-2 text-xs px-5 py-3 rounded-full border-slate-300 hover:bg-slate-50 cursor-pointer"
+        >
+          <i class="pi pi-download" v-if="!downloadingCsv"></i>
+          <i class="pi pi-spinner pi-spin" v-else></i>
+          <span>Export Financial CSV</span>
+        </button>
+
         <button 
           @click="openModal" 
           :disabled="loading" 
-          class="btn-accent shadow-accent font-black text-xs px-6 py-3 rounded-full inline-flex items-center gap-2"
+          class="btn-accent shadow-accent font-black text-xs px-6 py-3 rounded-full inline-flex items-center gap-2 cursor-pointer"
         >
           <i class="pi pi-wallet" v-if="!loading"></i>
           <i class="pi pi-spinner pi-spin" v-else></i>
@@ -164,7 +174,7 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
-import { fetchOwnerPayouts, requestPayout } from '@/api/dashboard';
+import { fetchOwnerPayouts, requestPayout, exportFinancialReportCSV } from '@/api/dashboard';
 
 // PrimeVue components
 import DataTable from 'primevue/datatable';
@@ -175,6 +185,7 @@ import Dialog from 'primevue/dialog';
 const auth = useAuthStore();
 const payouts = ref([]);
 const loading = ref(false);
+const downloadingCsv = ref(false);
 const showModal = ref(false);
 const amount = ref(500);
 const details = ref('');
@@ -184,6 +195,25 @@ const totalWithdrawn = computed(() => {
     .filter(p => p.status === 'completed' || p.status === 'transferred')
     .reduce((acc, p) => acc + Number(p.amount), 0);
 });
+
+async function downloadCsvReport() {
+  const userId = auth.user?.id || 1;
+  downloadingCsv.value = true;
+  try {
+    const blob = await exportFinancialReportCSV(userId);
+    const url = window.URL.createObjectURL(new Blob([blob], { type: 'text/csv' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `apartex_financial_report_owner_${userId}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } catch (err) {
+    console.error('CSV Export Error:', err);
+  } finally {
+    downloadingCsv.value = false;
+  }
+}
 
 async function loadPayouts() {
   if (!auth.user?.id) return;

@@ -8,7 +8,8 @@ class Booking(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     property_id = Column(Integer, ForeignKey("properties.id"), nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    room_id = Column(Integer, ForeignKey("rooms.id"), nullable=True)  # Null for apartment bookings
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)  # Nullable for walk-in guests
 
     check_in = Column(Date, nullable=False)
     check_out = Column(Date, nullable=False)
@@ -33,4 +34,6 @@ class Booking(Base):
     # Add relationships
     user = relationship("User", back_populates="bookings")
     property = relationship("Property")
+    room = relationship("Room", back_populates="bookings")
+
 

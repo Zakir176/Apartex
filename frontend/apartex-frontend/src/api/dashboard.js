@@ -12,7 +12,15 @@ export async function fetchOwnerPayouts(ownerId) {
 }
 
 export async function requestPayout(ownerId, payload) {
-  // payload: { amount: number, method: 'bank'|'momo', details: {...} }
+  // payload: { amount: number, method: 'mtn'|'airtel'|'bank', details: '...' }
   const resp = await api.post(`/dashboard/owners/${ownerId}/payouts/request`, payload);
   return resp.data;
 }
+
+export async function exportFinancialReportCSV(ownerId) {
+  const resp = await api.get(`/dashboard/owners/${ownerId}/analytics/export-csv`, {
+    responseType: 'blob'
+  });
+  return resp.data;
+}
+

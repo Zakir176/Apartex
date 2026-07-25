@@ -8,11 +8,14 @@ class RevenueSummary(BaseModel):
     pending_payouts: float
     occupancy_rate: float
     average_daily_rate: float
+    revpar: float = 0.0
 
 class BookingTrend(BaseModel):
     period: str  # "2024-01", "2024-02"
     bookings: int
     revenue: float
+    revpar: float = 0.0
+    occupancy_rate: float = 0.0
 
 class OwnerDashboard(BaseModel):
     revenue_summary: RevenueSummary

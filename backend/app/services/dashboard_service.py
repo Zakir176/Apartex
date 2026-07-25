@@ -46,14 +46,16 @@ class DashboardService:
             Booking.status.in_(["confirmed", "completed"])
         ).count()
         
-        adr = total_revenue / total_bookings if total_bookings > 0 else 0
+        adr = float(total_revenue / total_bookings) if total_bookings > 0 else 0.0
+        revpar = float(adr * (occupancy_rate / 100.0))
         
         return {
             "total_revenue": float(total_revenue),
             "monthly_revenue": float(monthly_revenue),
             "pending_payouts": float(pending_payouts),
             "occupancy_rate": round(occupancy_rate, 2),
-            "average_daily_rate": round(float(adr), 2)
+            "average_daily_rate": round(adr, 2),
+            "revpar": round(revpar, 2)
         }
     
     @staticmethod
@@ -77,11 +79,17 @@ class DashboardService:
                 extract('year', Booking.created_at) == month_date.year,
                 extract('month', Booking.created_at) == month_date.month
             ).scalar() or 0
+
+            month_occ = round((month_bookings / 30.0) * 100.0, 2)
+            month_adr = (float(month_revenue) / month_bookings) if month_bookings > 0 else 0.0
+            month_revpar = round(month_adr * (month_occ / 100.0), 2)
             
             trends.append({
                 "period": month_str,
                 "bookings": month_bookings,
-                "revenue": float(month_revenue)
+                "revenue": float(month_revenue),
+                "occupancy_rate": month_occ,
+                "revpar": month_revpar
             })
         
         return list(reversed(trends))  # Return in chronological order

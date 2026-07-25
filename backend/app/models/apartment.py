@@ -31,4 +31,6 @@ class Property(Base):
     reviews = relationship("Review", back_populates="apartment", cascade="all, delete-orphan")
     apartment_images = relationship("ApartmentImage", back_populates="apartment", cascade="all, delete-orphan")
     blocked_dates = relationship("BlockedDate", back_populates="apartment", cascade="all, delete-orphan")
+    rooms = relationship("Room", back_populates="property", cascade="all, delete-orphan")
+
 

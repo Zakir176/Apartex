@@ -4,6 +4,7 @@ from typing import Optional
 
 class BookingBase(BaseModel):
     property_id: int
+    room_id: Optional[int] = None
     check_in: date
     check_out: date
     guests: int = 1
@@ -18,7 +19,7 @@ class BookingBase(BaseModel):
 BookingCreate = BookingBase
 class BookingRead(BookingBase):
     id: int
-    user_id: int
+    user_id: Optional[int] = None
     total_price: float
     status: str
     created_at: datetime

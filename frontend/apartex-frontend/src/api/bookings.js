@@ -37,5 +37,13 @@ export const bookingsApi = {
 
   completeBooking(bookingId) {
     return apiClient.put(`/loyalty/bookings/${bookingId}/complete`);
+  },
+
+  createWalkInBooking(bookingData) {
+    return apiClient.post('/bookings/walk-in', bookingData);
+  },
+
+  checkRoomAvailability(roomId, params) {
+    return apiClient.get(`/bookings/room/${roomId}/availability`, { params });
   }
 };

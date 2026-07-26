@@ -3,7 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const routes = [
-  // Public Landing Page for unauthenticated visitors
+  // Public Landing Page for all visitors
   {
     path: '/',
     name: 'Landing',
@@ -16,12 +16,21 @@ const routes = [
     component: () => import('@/views/LandingView.vue'),
     meta: { allowGuest: true }
   },
-  // Renter-facing routes
+
+  // Dedicated Host Hub & Calculator (Public)
   {
-    path: '/home',
-    name: 'Home',
-    component: () => import('@/views/HomeView.vue'),
-    meta: { requiresAuth: true, role: 'renter' }
+    path: '/host',
+    name: 'HostLanding',
+    component: () => import('@/views/HostLandingView.vue'),
+    meta: { allowGuest: true }
+  },
+
+  // Help & Support Center (Public)
+  {
+    path: '/help',
+    name: 'Help',
+    component: () => import('@/views/HelpView.vue'),
+    meta: { allowGuest: true }
   },
   {
     path: '/login',
@@ -39,13 +48,13 @@ const routes = [
     path: '/apartments',
     name: 'Apartments',
     component: () => import('@/views/ApartmentsView.vue'),
-    meta: { requiresAuth: true, role: 'renter' }
+    meta: { allowGuest: true }
   },
   {
     path: '/apartments/:id',
     name: 'ApartmentDetail',
     component: () => import('@/views/ApartmentDetailView.vue'),
-    meta: { requiresAuth: true, role: 'renter' }
+    meta: { allowGuest: true }
   },
   {
     path: '/checkout',
@@ -146,25 +155,19 @@ router.beforeEach(async (to, from, next) => {
   const isAuth = authStore.isAuthenticated
   const role = authStore.user?.role
 
-  // If on root landing page and authenticated, redirect to role home
-  if (to.path === '/' && isAuth) {
-    if (role === 'owner') return next('/owner')
-    return next('/home')
-  }
-
-  // Require authentication
+  // Require authentication for action routes
   if (to.meta.requiresAuth && !isAuth) {
     if (to.meta.role === 'owner') return next('/owner/login')
     return next('/login')
   }
 
-  // Prevent authenticated users from accessing guest routes
+  // Prevent authenticated users from accessing guest auth routes (like /login or /register)
   if (to.meta.requiresGuest && isAuth) {
     if (role === 'owner') return next('/owner')
     return next('/home')
   }
 
-  // Enforce role restrictions for authenticated users
+  // Enforce role restrictions for authenticated users on role-gated routes
   if (to.meta.role && isAuth && role !== to.meta.role) {
     if (role === 'owner') return next('/owner')
     return next('/home')

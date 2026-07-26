@@ -69,6 +69,21 @@ export const useBookingsStore = defineStore('bookings', () => {
     }
   }
 
+  async function createWalkInBooking(bookingData) {
+    loading.value = true;
+    error.value = null;
+    try {
+      const response = await bookingsApi.createWalkInBooking(bookingData);
+      bookings.value.unshift(response.data);
+      return response.data;
+    } catch (err) {
+      error.value = err.response?.data?.detail || 'Failed to create walk-in booking';
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  }
+
   async function checkAvailability(apartmentId, dates) {
     loading.value = true;
     error.value = null;
@@ -126,6 +141,7 @@ export const useBookingsStore = defineStore('bookings', () => {
     fetchUserBookings,
     fetchOwnerBookings,
     createBooking,
+    createWalkInBooking,
     checkAvailability,
     cancelBooking,
     completeBooking

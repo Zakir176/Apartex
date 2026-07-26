@@ -18,9 +18,16 @@
         </p>
       </div>
 
-      <div class="flex items-center gap-3">
-        <button 
-          @click="router.push('/owner/apartments')" 
+      <div class="flex items-center gap-3 flex-wrap">
+        <button
+          @click="showWalkInModal = true"
+          class="flex items-center gap-2 px-6 py-3 rounded-full border-2 border-accent text-accent text-sm font-black hover:bg-accent-subtle transition-colors duration-150 cursor-pointer"
+        >
+          <i class="pi pi-user-plus"></i>
+          <span>Walk-in Booking</span>
+        </button>
+        <button
+          @click="router.push('/owner/apartments')"
           class="btn-accent shadow-accent text-sm font-black px-6 py-3 rounded-full flex items-center gap-2 no-underline cursor-pointer"
         >
           <i class="pi pi-plus-circle"></i>
@@ -263,6 +270,14 @@
 
     </div>
 
+    <!-- Walk-in Booking Modal -->
+    <WalkInBookingModal
+      :show="showWalkInModal"
+      :ownerProperties="ownerProperties"
+      @close="showWalkInModal = false"
+      @booked="onWalkInBooked"
+    />
+
   </div>
 </template>
 
@@ -272,11 +287,22 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useApartmentsStore } from '@/stores/apartments';
 import { useBookingsStore } from '@/stores/bookings';
+import WalkInBookingModal from '@/components/WalkInBookingModal.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
 const apartmentsStore = useApartmentsStore();
 const bookingsStore = useBookingsStore();
+
+const showWalkInModal = ref(false);
+const ownerProperties = ref([]);
+
+function onWalkInBooked(booking) {
+  // Refresh bookings list after a walk-in is recorded
+  if (authStore.user?.id) {
+    bookingsStore.fetchOwnerBookings(authStore.user.id);
+  }
+}
 
 const totalEarnings = ref(8450);
 const availablePayout = ref(1250);
@@ -322,5 +348,11 @@ onMounted(async () => {
   if (authStore.user?.id) {
     try { await bookingsStore.fetchOwnerBookings(authStore.user.id); } catch {}
   }
+  // Load owner properties for walk-in modal
+  try {
+    const { apartmentsApi } = await import('@/api/apartments');
+    const res = await apartmentsApi.getMyApartments();
+    ownerProperties.value = res.data;
+  } catch {}
 });
 </script>

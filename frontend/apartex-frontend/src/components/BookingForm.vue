@@ -1,9 +1,9 @@
 <template>
-  <div class="bg-white border border-surface-border rounded-xl p-5 shadow-lg">
+  <div class="bg-white border border-surface-border rounded-3xl p-6 shadow-xl">
 
     <!-- Price -->
     <div class="flex items-baseline gap-2 mb-5">
-      <span class="text-3xl font-black text-slate-800">${{ apartment.price_per_night }}</span>
+      <span class="text-3xl font-black text-slate-800">{{ currencyStore.formatPrice(apartment.price_per_night) }}</span>
       <span class="text-sm font-medium text-slate-400">/ night</span>
     </div>
 
@@ -54,20 +54,20 @@
     <Transition name="fade">
       <div v-if="isValidRange" class="pt-4 border-t border-surface-border flex flex-col gap-3">
         <div class="flex justify-between text-sm">
-          <span class="text-slate-500 underline">${{ apartment.price_per_night }} × {{ nights }} nights</span>
-          <span class="font-bold text-slate-800">${{ subtotal }}</span>
+          <span class="text-slate-500 underline">{{ currencyStore.formatPrice(apartment.price_per_night) }} × {{ nights }} nights</span>
+          <span class="font-bold text-slate-800">{{ currencyStore.formatPrice(subtotal) }}</span>
         </div>
         <div class="flex justify-between text-sm">
           <span class="text-slate-500 underline">Cleaning fee</span>
-          <span class="font-bold text-slate-800">$45.00</span>
+          <span class="font-bold text-slate-800">{{ currencyStore.formatPrice(45) }}</span>
         </div>
         <div class="flex justify-between text-sm">
           <span class="text-slate-500 underline">Service fee</span>
-          <span class="font-bold text-slate-800">${{ serviceFee }}</span>
+          <span class="font-bold text-slate-800">{{ currencyStore.formatPrice(serviceFee) }}</span>
         </div>
         <div class="bg-[#F8F7F4] rounded-lg px-4 py-3 flex justify-between items-center mt-1">
           <span class="font-bold text-slate-800">Total</span>
-          <span class="text-xl font-black text-slate-800">${{ total }}</span>
+          <span class="text-xl font-black text-slate-800">{{ currencyStore.formatPrice(total) }}</span>
         </div>
       </div>
     </Transition>
@@ -84,17 +84,16 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useBookingsStore } from '@/stores/bookings';
-import { useAuthStore } from '../stores/auth';
+import { useAuthStore } from '@/stores/auth';
+import { useCurrencyStore } from '@/stores/currency';
 import { availabilityApi } from '@/api/availability.js';
 
 // PrimeVue components
 import Calendar from 'primevue/calendar';
-import Button from 'primevue/button';
 import Dropdown from 'primevue/dropdown';
-import Message from 'primevue/message';
 
 const props = defineProps({
   apartment: {
@@ -106,11 +105,16 @@ const props = defineProps({
 const router = useRouter();
 const bookingsStore = useBookingsStore();
 const authStore = useAuthStore();
+const currencyStore = useCurrencyStore();
 
 const dates = ref(null);
 const minDate = ref(new Date());
 const form = ref({
   guests: 1
+});
+
+const formattedNightlyRate = computed(() => {
+  return currencyStore.formatPrice(props.apartment.price_per_night);
 });
 
 const guestOptions = computed(() => {
@@ -129,6 +133,10 @@ const disabledDates = computed(() => {
   return blockedDatesRes.value.map(bd => new Date(bd.blocked_date + 'T00:00:00'));
 });
 
+const isValidRange = computed(() => {
+  return dates.value && dates.value[0] && dates.value[1];
+});
+
 const isOverlapping = computed(() => {
   if (!isValidRange.value) return false;
   const start = dates.value[0];
@@ -145,37 +153,38 @@ const isOverlapping = computed(() => {
 onMounted(async () => {
   try {
     const res = await availabilityApi.getBlockedDates(props.apartment.id);
-    blockedDatesRes.value = res.data;
+    blockedDatesRes.value = res.data || [];
   } catch (e) {
     console.error('Failed to load blocked dates', e);
   }
 });
 
-const isValidRange = computed(() => {
-  return dates.value && dates.value[0] && dates.value[1];
-});
-
 const nights = computed(() => {
   if (!isValidRange.value) return 0;
   const diff = dates.value[1].getTime() - dates.value[0].getTime();
-  return Math.ceil(diff / (1000 * 3600 * 24));
+  return Math.max(1, Math.ceil(diff / (1000 * 3600 * 24)));
 });
 
-const subtotal = computed(() => (props.apartment.price_per_night * nights.value).toFixed(2));
-const cleaningFee = 45;
-const serviceFee = computed(() => (parseFloat(subtotal.value) * 0.12).toFixed(2));
-const total = computed(() => {
-  return (parseFloat(subtotal.value) + cleaningFee + parseFloat(serviceFee.value)).toFixed(2);
-});
+const subtotalUSD = computed(() => props.apartment.price_per_night * nights.value);
+const cleaningFeeUSD = 25;
+const serviceFeeUSD = computed(() => subtotalUSD.value * 0.08);
+const totalUSD = computed(() => subtotalUSD.value + cleaningFeeUSD + serviceFeeUSD.value);
+
+const formattedSubtotal = computed(() => currencyStore.formatPrice(subtotalUSD.value));
+const formattedCleaningFee = computed(() => currencyStore.formatPrice(cleaningFeeUSD));
+const formattedServiceFee = computed(() => currencyStore.formatPrice(serviceFeeUSD.value));
+const formattedTotal = computed(() => currencyStore.formatPrice(totalUSD.value));
 
 const handleBooking = () => {
   if (!authStore.isAuthenticated) {
-    router.push('/login');
+    router.push({
+      path: '/login',
+      query: { redirect: `/apartments/${props.apartment.id}` }
+    });
     return;
   }
 
   if (!isValidRange.value) {
-    // Scroll to dates if not selected
     return;
   }
 
@@ -186,11 +195,10 @@ const handleBooking = () => {
       check_in: dates.value[0].toISOString().split('T')[0],
       check_out: dates.value[1].toISOString().split('T')[0],
       guests: form.value.guests?.value || form.value.guests,
-      total: total.value,
+      total: totalUSD.value,
       nights: nights.value,
       title: props.apartment.title
     }
   });
 };
 </script>
-

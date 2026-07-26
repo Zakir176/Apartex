@@ -1,26 +1,29 @@
 <template>
-  <div class="min-h-screen bg-[#F8F7F4] py-8 px-6">
+  <div class="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8">
     <div class="max-w-[1400px] mx-auto">
       <!-- TOP BAR -->
-      <div class="flex justify-between items-end mb-6">
-        <h1 class="text-3xl font-extrabold text-slate-800 m-0">Explore Stays</h1>
-        <span class="text-sm font-medium text-slate-400">{{ pendingCount }} properties found</span>
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-4">
+        <div>
+          <span class="text-xs font-black text-accent uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full border border-orange-100">Stay Directory</span>
+          <h1 class="text-3xl font-black text-slate-900 mt-2 mb-0">Explore Stays</h1>
+        </div>
+        <span class="text-xs font-bold text-slate-500 bg-white px-3.5 py-1.5 rounded-full border border-slate-200 shadow-xs">{{ pendingCount }} properties found</span>
       </div>
 
       <!-- FILTER BAR -->
-      <div class="flex gap-3 overflow-x-auto pb-4 mb-6 scrollbar-hide">
+      <div class="flex gap-2 overflow-x-auto pb-4 mb-6 scrollbar-hide">
         <div 
-          class="bg-white border-[1.5px] border-surface-border rounded-full px-4 py-2 text-sm font-semibold text-slate-500 cursor-pointer whitespace-nowrap transition-all duration-150 hover:border-surface-border-strong hover:text-slate-800" 
-          :class="filters.city === '' ? '!bg-accent !text-white !border-accent' : ''"
+          class="bg-white border border-slate-200 rounded-full px-4 py-2 text-xs font-bold text-slate-600 cursor-pointer whitespace-nowrap transition-all duration-150 hover:border-slate-300 hover:text-slate-900" 
+          :class="filters.city === '' ? '!bg-slate-900 !text-white !border-slate-900 !font-black' : ''"
           @click="setCityFilter('')"
         >
-          All
+          All Locations
         </div>
         <div 
-          v-for="city in ['Lusaka', 'Livingstone', 'Ndola', 'Kitwe']" 
+          v-for="city in ['Lusaka', 'Livingstone', 'Ndola', 'Kitwe', 'Solwezi']" 
           :key="city"
-          class="bg-white border-[1.5px] border-surface-border rounded-full px-4 py-2 text-sm font-semibold text-slate-500 cursor-pointer whitespace-nowrap transition-all duration-150 hover:border-surface-border-strong hover:text-slate-800"
-          :class="filters.city === city ? '!bg-accent !text-white !border-accent' : ''"
+          class="bg-white border border-slate-200 rounded-full px-4 py-2 text-xs font-bold text-slate-600 cursor-pointer whitespace-nowrap transition-all duration-150 hover:border-slate-300 hover:text-slate-900"
+          :class="filters.city === city ? '!bg-slate-900 !text-white !border-slate-900 !font-black' : ''"
           @click="setCityFilter(city)"
         >
           {{ city }}
@@ -29,19 +32,21 @@
 
       <!-- LOADING STATE -->
       <div v-if="apartmentsStore.loading && apartmentsStore.apartments.length === 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div v-for="i in 6" :key="i" class="bg-white border border-surface-border rounded-lg p-4 flex flex-col gap-4">
-          <div class="h-[200px] rounded-md bg-slate-200 animate-pulse"></div>
-          <div class="h-5 rounded-sm bg-slate-200 animate-pulse w-3/5"></div>
-          <div class="h-10 rounded-sm bg-slate-200 animate-pulse w-full"></div>
+        <div v-for="i in 6" :key="i" class="bg-white border border-slate-200 rounded-2xl p-4 flex flex-col gap-4">
+          <div class="h-[200px] rounded-xl bg-slate-200 animate-pulse"></div>
+          <div class="h-5 rounded bg-slate-200 animate-pulse w-3/5"></div>
+          <div class="h-10 rounded bg-slate-200 animate-pulse w-full"></div>
         </div>
       </div>
 
       <!-- EMPTY STATE -->
-      <div v-else-if="apartmentsStore.apartments.length === 0" class="flex flex-col items-center justify-center text-center py-16">
-        <div class="text-6xl mb-4">🏜️</div>
-        <h2 class="text-xl font-bold text-slate-800 mb-2">No properties found</h2>
-        <p class="text-slate-500 mb-6">We couldn't find any stays matching your criteria.</p>
-        <button class="btn-accent px-6 py-3" @click="clearFilters">Reset Filters</button>
+      <div v-else-if="apartmentsStore.apartments.length === 0" class="bg-white border border-slate-200 rounded-3xl p-12 text-center max-w-md mx-auto my-12 shadow-sm">
+        <div class="w-16 h-16 rounded-full bg-orange-50 text-accent flex items-center justify-center text-2xl mx-auto mb-4 border border-orange-100">
+          <i class="pi pi-search"></i>
+        </div>
+        <h2 class="text-xl font-black text-slate-900 mb-2">No Stays Found</h2>
+        <p class="text-xs text-slate-500 mb-6 font-medium">We couldn't find any stays matching your selected criteria.</p>
+        <button class="btn-accent px-6 py-3 rounded-full text-xs font-black" @click="clearFilters">Reset All Filters</button>
       </div>
 
       <!-- CARD GRID -->
@@ -66,25 +71,17 @@ import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useApartmentsStore } from '@/stores/apartments';
 import { useWishlistStore } from '@/stores/wishlist';
+import { useAuthStore } from '@/stores/auth';
 import ApartmentCard from '@/components/ApartmentCard.vue';
-import MapComponent from '@/components/MapComponent.vue'; // Kept in imports just in case logic needs it
-
-// PrimeVue components kept for logic compatibility
-import InputText from 'primevue/inputtext';
-import InputNumber from 'primevue/inputnumber';
-import Button from 'primevue/button';
-import Slider from 'primevue/slider';
-import Sidebar from 'primevue/sidebar';
-import Checkbox from 'primevue/checkbox';
-import Skeleton from 'primevue/skeleton';
 
 const route = useRoute();
 const router = useRouter();
 const apartmentsStore = useApartmentsStore();
 const wishlistStore = useWishlistStore();
+const authStore = useAuthStore();
 
 const showFilters = ref(false);
-const viewMode = ref('grid'); // 'grid' or 'map'
+const viewMode = ref('grid');
 const selectedApartmentId = ref(null);
 const mapBounds = ref(null);
 
@@ -94,19 +91,6 @@ const filters = ref({
   min_capacity: 1,
   min_bedrooms: 0,
   amenities: []
-});
-
-const commonAmenities = ['WiFi', 'Pool', 'Parking', 'Kitchen', 'TV', 'Air Con', 'Gym', 'Laundry'];
-
-const priceDisplayShort = computed(() => {
-  const [min, max] = filters.value.price_range;
-  if (min === 0 && max === 1000) return 'Any Price';
-  if (max === 1000) return `$${min}+`;
-  return `$${min}-$${max}`;
-});
-
-const hasActiveFilters = computed(() => {
-  return filters.value.city || filters.value.price_range[0] > 0 || filters.value.price_range[1] < 1000 || filters.value.min_capacity > 1 || filters.value.min_bedrooms > 0;
 });
 
 const isApartmentWishlisted = computed(() => (apartmentId) => {
@@ -120,15 +104,8 @@ const pendingCount = computed(() => {
     const priceOk = apt.price_per_night >= min && (max === 1000 || apt.price_per_night <= max);
     const capacityOk = apt.capacity >= filters.value.min_capacity;
     const bedroomsOk = apt.bedrooms >= filters.value.min_bedrooms;
-    const amenitiesOk = filters.value.amenities.length === 0 || (Array.isArray(apt.amenities) && filters.value.amenities.every(a => apt.amenities.includes(a)));
-    return cityOk && priceOk && capacityOk && bedroomsOk && amenitiesOk;
+    return cityOk && priceOk && capacityOk && bedroomsOk;
   }).length;
-});
-
-const pendingCountLabel = computed(() => {
-  if (apartmentsStore.loading) return 'Updating...';
-  const n = pendingCount.value;
-  return n === 0 ? 'No Results' : `View ${n} Properties`;
 });
 
 const setCityFilter = async (city) => {
@@ -145,23 +122,12 @@ const applyFilters = async (additionalParams = {}) => {
     max_price: max === 1000 ? 999999 : max,
     capacity: filters.value.min_capacity,
     bedrooms: filters.value.min_bedrooms,
-    amenities: filters.value.amenities.length > 0 ? filters.value.amenities : undefined,
     ...mapBounds.value,
     ...additionalParams
   };
   
   await apartmentsStore.fetchApartments(params);
   showFilters.value = false;
-};
-
-const handleBoundsChanged = (bounds) => {
-  if (viewMode.value !== 'map') return;
-  mapBounds.value = bounds;
-  
-  clearTimeout(window.mapSearchTimeout);
-  window.mapSearchTimeout = setTimeout(() => {
-    applyFilters();
-  }, 500);
 };
 
 const clearFilters = async () => {
@@ -179,7 +145,9 @@ const clearFilters = async () => {
 };
 
 const handleToggleWishlist = async () => {
-  await wishlistStore.fetchWishlist();
+  if (authStore.isAuthenticated) {
+    await wishlistStore.fetchWishlist();
+  }
 };
 
 watch(() => route.query.city, (newCity) => {
@@ -191,7 +159,9 @@ watch(() => route.query.city, (newCity) => {
 
 onMounted(async () => {
   await applyFilters();
-  await wishlistStore.fetchWishlist();
+  if (authStore.isAuthenticated) {
+    await wishlistStore.fetchWishlist();
+  }
 });
 </script>
 

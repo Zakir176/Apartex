@@ -10,23 +10,37 @@
         <span class="text-xs font-bold text-slate-500 bg-white px-3.5 py-1.5 rounded-full border border-slate-200 shadow-xs">{{ pendingCount }} properties found</span>
       </div>
 
-      <!-- FILTER BAR -->
-      <div class="flex gap-2 overflow-x-auto pb-4 mb-6 scrollbar-hide">
-        <div 
-          class="bg-white border border-slate-200 rounded-full px-4 py-2 text-xs font-bold text-slate-600 cursor-pointer whitespace-nowrap transition-all duration-150 hover:border-slate-300 hover:text-slate-900" 
+      <!-- FILTER BAR — City -->
+      <div class="flex gap-2 overflow-x-auto pb-2 mb-3 scrollbar-hide">
+        <div
+          class="bg-white border border-slate-200 rounded-full px-4 py-2 text-xs font-bold text-slate-600 cursor-pointer whitespace-nowrap transition-all duration-150 hover:border-slate-300 hover:text-slate-900"
           :class="filters.city === '' ? '!bg-slate-900 !text-white !border-slate-900 !font-black' : ''"
           @click="setCityFilter('')"
         >
           All Locations
         </div>
-        <div 
-          v-for="city in ['Lusaka', 'Livingstone', 'Ndola', 'Kitwe', 'Solwezi']" 
+        <div
+          v-for="city in ['Lusaka', 'Livingstone', 'Ndola', 'Kitwe', 'Solwezi']"
           :key="city"
           class="bg-white border border-slate-200 rounded-full px-4 py-2 text-xs font-bold text-slate-600 cursor-pointer whitespace-nowrap transition-all duration-150 hover:border-slate-300 hover:text-slate-900"
           :class="filters.city === city ? '!bg-slate-900 !text-white !border-slate-900 !font-black' : ''"
           @click="setCityFilter(city)"
         >
           {{ city }}
+        </div>
+      </div>
+
+      <!-- FILTER BAR — Property Type -->
+      <div class="flex gap-2 overflow-x-auto pb-4 mb-6 scrollbar-hide">
+        <div
+          v-for="type in propertyTypes"
+          :key="type.value"
+          class="flex items-center gap-1.5 bg-white border border-slate-200 rounded-full px-4 py-2 text-xs font-bold text-slate-600 cursor-pointer whitespace-nowrap transition-all duration-150 hover:border-slate-300"
+          :class="filters.property_type === type.value ? '!bg-accent !text-white !border-accent' : ''"
+          @click="setTypeFilter(type.value)"
+        >
+          <i :class="type.icon" class="text-[11px]"></i>
+          {{ type.label }}
         </div>
       </div>
 
@@ -83,10 +97,17 @@ const authStore = useAuthStore();
 const showFilters = ref(false);
 const viewMode = ref('grid');
 const selectedApartmentId = ref(null);
-const mapBounds = ref(null);
+const propertyTypes = [
+  { value: '', label: 'All Types', icon: 'pi pi-th-large' },
+  { value: 'apartment', label: 'Apartments', icon: 'pi pi-building' },
+  { value: 'hotel', label: 'Hotels', icon: 'pi pi-star' },
+  { value: 'lodge', label: 'Lodges', icon: 'pi pi-home' },
+  { value: 'guest_house', label: 'Guest Houses', icon: 'pi pi-heart' },
+];
 
 const filters = ref({
   city: route.query.city || '',
+  property_type: route.query.property_type || '',
   price_range: [0, 1000],
   min_capacity: 1,
   min_bedrooms: 0,
@@ -114,10 +135,17 @@ const setCityFilter = async (city) => {
   await applyFilters();
 };
 
+const setTypeFilter = async (type) => {
+  filters.value.property_type = type;
+  router.replace({ query: { ...route.query, property_type: type || undefined } });
+  await applyFilters();
+};
+
 const applyFilters = async (additionalParams = {}) => {
   const [min, max] = filters.value.price_range;
   const params = {
     city: filters.value.city,
+    property_type: filters.value.property_type || undefined,
     min_price: min,
     max_price: max === 1000 ? 999999 : max,
     capacity: filters.value.min_capacity,
@@ -133,6 +161,7 @@ const applyFilters = async (additionalParams = {}) => {
 const clearFilters = async () => {
   filters.value = {
     city: '',
+    property_type: '',
     price_range: [0, 1000],
     min_capacity: 1,
     min_bedrooms: 0,

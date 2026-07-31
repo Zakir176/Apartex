@@ -51,6 +51,7 @@ def get_apartments(
     max_price: Optional[float] = None,
     capacity: Optional[int] = None,
     bedrooms: Optional[int] = None,
+    property_type: Optional[str] = None,
     amenities: Optional[List[str]] = Query(None),
     # Bounding box parameters
     min_lat: Optional[float] = None,
@@ -72,6 +73,8 @@ def get_apartments(
         query = query.filter(Property.capacity >= capacity)
     if bedrooms is not None:
         query = query.filter(Property.bedrooms >= bedrooms)
+    if property_type:
+        query = query.filter(Property.property_type == property_type)
     
     # Bounding box filters
     if min_lat is not None:

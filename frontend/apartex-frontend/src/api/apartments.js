@@ -23,5 +23,9 @@ export const apartmentsApi = {
 
   getMyApartments() {
     return apiClient.get('/apartments/me');
+  },
+
+  getRoomsForProperty(propertyId) {
+    return apiClient.get(`/rooms/property/${propertyId}`);
   }
 };

@@ -184,7 +184,59 @@
             <div class="sticky top-32 z-30 flex flex-col gap-5">
               <!-- Wrapping the original BookingForm in a card-base container was already done inside the component usually, but let's ensure it has our shadow -->
               <div class="shadow-xl rounded-3xl overflow-hidden border border-surface-border bg-white">
-                <BookingForm :apartment="apartment" />
+                <!-- Apartment: direct booking form -->
+                <BookingForm v-if="!isMultiRoomProperty" :apartment="apartment" />
+
+                <!-- Hotel / Lodge / Guest House: date picker + room type cards -->
+                <div v-else class="flex flex-col gap-4">
+                  <!-- Date pickers -->
+                  <div class="bg-white border border-surface-border rounded-xl p-4 shadow-sm">
+                    <p class="text-xs font-black uppercase tracking-widest text-accent mb-3">Select Dates</p>
+                    <div class="flex flex-col gap-3">
+                      <div>
+                        <label class="label-base">Check-in</label>
+                        <input
+                          v-model="selectedCheckIn"
+                          type="date"
+                          :min="new Date().toISOString().split('T')[0]"
+                          class="input-base"
+                        />
+                      </div>
+                      <div>
+                        <label class="label-base">Check-out</label>
+                        <input
+                          v-model="selectedCheckOut"
+                          type="date"
+                          :min="selectedCheckIn || new Date().toISOString().split('T')[0]"
+                          class="input-base"
+                        />
+                      </div>
+                    </div>
+                    <p v-if="nightsCount > 0" class="text-xs font-bold text-accent mt-3 flex items-center gap-1">
+                      <i class="pi pi-moon text-xs"></i>
+                      {{ nightsCount }} night{{ nightsCount !== 1 ? 's' : '' }} selected
+                    </p>
+                  </div>
+
+                  <!-- Room type cards -->
+                  <div v-if="roomsLoading" class="flex flex-col gap-3">
+                    <div v-for="i in 3" :key="i" class="h-48 bg-slate-100 rounded-xl animate-pulse"></div>
+                  </div>
+                  <div v-else-if="propertyRooms.length > 0" class="flex flex-col gap-4">
+                    <p class="text-sm font-black text-slate-700">Available Room Types</p>
+                    <RoomCard
+                      v-for="room in propertyRooms"
+                      :key="room.id"
+                      :room="room"
+                      :nightsCount="nightsCount"
+                      @book="handleRoomBook"
+                    />
+                  </div>
+                  <div v-else class="bg-slate-50 border border-surface-border rounded-xl p-6 text-center">
+                    <i class="pi pi-home text-2xl text-slate-300 mb-2"></i>
+                    <p class="text-sm font-semibold text-slate-500">No room types configured yet.</p>
+                  </div>
+                </div>
               </div>
               
               <!-- Trust Indicators -->
@@ -317,8 +369,10 @@ import { useApartmentsStore } from '@/stores/apartments';
 import { useWishlistStore } from '@/stores/wishlist';
 import { useAuthStore } from '@/stores/auth';
 import BookingForm from '@/components/BookingForm.vue';
+import RoomCard from '@/components/RoomCard.vue';
 import MapComponent from '@/components/MapComponent.vue';
 import { reviewsApi } from '@/api/reviews.js';
+import { apartmentsApi } from '@/api/apartments.js';
 import { uploadImage } from '@/api/uploads.js';
 
 // PrimeVue components
@@ -355,6 +409,22 @@ const submittingReview = ref(false);
 const uploadingImages = ref(false);
 const newReview = ref({ rating: 0, comment: '', image_urls: [] });
 const showGallery = ref(false); // Can be used to trigger a fullscreen lightbox later
+
+const propertyRooms = ref([]);
+const roomsLoading = ref(false);
+const selectedCheckIn = ref('');
+const selectedCheckOut = ref('');
+
+const nightsCount = computed(() => {
+  if (!selectedCheckIn.value || !selectedCheckOut.value) return 0;
+  const diff = new Date(selectedCheckOut.value) - new Date(selectedCheckIn.value);
+  return Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
+});
+
+const isMultiRoomProperty = computed(() => {
+  return apartment.value?.property_type &&
+    ['hotel', 'lodge', 'guest_house'].includes(apartment.value.property_type);
+});
 
 const avgRating = computed(() => {
   if (reviews.value.length === 0) return 4.95;
@@ -425,6 +495,19 @@ onMounted(async () => {
   if (apartment.value?.id) {
     await fetchReviews(apartment.value.id);
   }
+
+  // Load rooms for hotel/lodge/guest house properties
+  if (apartment.value?.property_type && ['hotel', 'lodge', 'guest_house'].includes(apartment.value.property_type)) {
+    roomsLoading.value = true;
+    try {
+      const res = await apartmentsApi.getRoomsForProperty(apartment.value.id);
+      propertyRooms.value = res.data;
+    } catch {
+      propertyRooms.value = [];
+    } finally {
+      roomsLoading.value = false;
+    }
+  }
 });
 
 const toggleWishlist = async () => {
@@ -438,6 +521,19 @@ const toggleWishlist = async () => {
     await wishlistStore.addToWishlist(apartment.value.id);
   }
 };
+
+function handleRoomBook(room) {
+  // Navigate to checkout with room context
+  router.push({
+    path: '/checkout',
+    query: {
+      property_id: apartment.value.id,
+      room_id: room.id,
+      check_in: selectedCheckIn.value,
+      check_out: selectedCheckOut.value,
+    }
+  });
+}
 
 const getAmenityIcon = (label) => {
   const icons = {

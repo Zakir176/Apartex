@@ -5,7 +5,6 @@
     <section class="relative bg-slate-900 text-white pt-12 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden rounded-b-[2.5rem] shadow-2xl">
       <!-- Decorative Backdrop Effects -->
       <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#f97316_1px,transparent_1px)] [background-size:24px_24px]"></div>
-      <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-accent/20 rounded-full blur-[120px] pointer-events-none"></div>
 
       <div class="max-w-5xl mx-auto relative z-10 text-center">
         <!-- Trust Badge -->
@@ -76,7 +75,7 @@
           <div class="sm:col-span-2">
             <button
               @click="executeSearch"
-              class="w-full btn-accent py-3.5 px-4 rounded-2xl sm:rounded-full text-xs font-black tracking-wider uppercase shadow-accent hover:scale-105 transition-all flex items-center justify-center gap-1.5 cursor-pointer border-0"
+              class="w-full btn-accent py-3.5 px-4 rounded-2xl sm:rounded-full text-xs font-black tracking-wider uppercase hover:scale-105 transition-all flex items-center justify-center gap-1.5 cursor-pointer border-0"
             >
               <i class="pi pi-search text-xs"></i>
               <span>Search</span>
@@ -123,7 +122,7 @@
       </section>
 
       <!-- 4. Why Choose Apartex Section -->
-      <section id="why-apartex" class="bg-white border border-slate-200/80 rounded-3xl p-8 sm:p-12 shadow-xl">
+      <section id="why-apartex" class="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-12 shadow-xl">
         <div class="text-center max-w-2xl mx-auto mb-12">
           <span class="text-xs font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full border border-blue-100">Platform Excellence</span>
           <h2 class="text-2xl sm:text-4xl font-black text-slate-900 mt-3 mb-2">Why Choose Apartex?</h2>
@@ -189,7 +188,7 @@
       </section>
 
       <!-- 6. Become a Host & Earnings Estimator Preview -->
-      <section id="host-calculator" class="bg-gradient-to-br from-slate-900 via-slate-800 to-navy text-white rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden">
+      <section id="host-calculator" class="bg-navy text-white rounded-3xl p-6 sm:p-12 shadow-2xl relative overflow-hidden">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
           <div class="lg:col-span-7 space-y-4">
             <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/20 border border-accent/30 text-accent text-xs font-black uppercase tracking-widest">
@@ -199,12 +198,12 @@
               Turn Your Property Into <br />
               <span class="text-orange-400">Monthly Revenue</span>
             </h2>
-            <p class="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed max-w-xl">
+            <p class="text-xs sm:text-sm text-slate-200 font-medium leading-relaxed max-w-xl">
               Got an apartment, hotel, or lodge? List for free on Apartex and reach thousands of guests with direct Mobile Money payouts.
             </p>
 
             <div class="pt-4 flex flex-wrap gap-4">
-              <router-link to="/host" class="btn-accent text-xs font-black px-6 py-3.5 rounded-full shadow-accent no-underline inline-flex items-center gap-2">
+              <router-link to="/host" class="btn-accent text-xs font-black px-6 py-3.5 rounded-full no-underline inline-flex items-center gap-2">
                 <span>Use Full Calculator</span>
                 <i class="pi pi-arrow-right text-xs"></i>
               </router-link>
@@ -214,16 +213,16 @@
             </div>
           </div>
 
-          <div class="lg:col-span-5 bg-white/10 backdrop-blur-xl border border-white/15 rounded-3xl p-6 text-center space-y-4">
-            <span class="text-[10px] font-black uppercase tracking-widest text-slate-300">Estimated Monthly Earnings</span>
+          <div class="lg:col-span-5 bg-white/10 border border-white/15 rounded-3xl p-6 text-center space-y-4">
+            <span class="text-[10px] font-black uppercase tracking-widest text-slate-200">Estimated Monthly Earnings</span>
             <div class="text-3xl sm:text-4xl font-black text-white">
               {{ currencyStore.formatPrice(1450) }}
             </div>
-            <p class="text-xs text-slate-300 font-medium">Based on 2 units at $80/night & 18 days occupancy/month.</p>
+            <p class="text-xs text-slate-200 font-medium">Based on 2 units at $80/night & 18 days occupancy/month.</p>
             <div class="h-px bg-white/10 my-2"></div>
             <div class="text-[11px] font-bold text-emerald-400 flex items-center justify-center gap-1.5">
               <i class="pi pi-check-circle"></i>
-              <span>Instant Payouts to MTN & Airtel Money</span>
+              <span class="text-emerald-300">Instant Payouts to MTN & Airtel Money</span>
             </div>
           </div>
         </div>
@@ -258,7 +257,7 @@
       </section>
 
       <!-- 8. FAQ Accordion Section -->
-      <section id="faq" class="bg-white border border-slate-200/80 rounded-3xl p-8 sm:p-12 shadow-xl">
+      <section id="faq" class="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-12 shadow-xl">
         <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
           <div>
             <span class="text-xs font-black text-accent uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full border border-orange-100">Common Questions</span>

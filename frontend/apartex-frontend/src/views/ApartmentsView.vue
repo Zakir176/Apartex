@@ -65,16 +65,22 @@
 
       <!-- CARD GRID -->
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <ApartmentCard 
-          v-for="apartment in apartmentsStore.apartments" 
+        <div
+          v-for="(apartment, index) in apartmentsStore.apartments"
           :key="apartment.id"
-          :apartment="apartment" 
-          :is-wishlisted="isApartmentWishlisted(apartment.id)"
-          :isSelected="selectedApartmentId === apartment.id"
-          @toggle-wishlist="handleToggleWishlist"
-          @card-hover="(id) => selectedApartmentId = id"
-          @card-leave="() => selectedApartmentId = null"
-        />
+          v-motion
+          :initial="{ opacity: 0, y: 40 }"
+          :enter="{ opacity: 1, y: 0, transition: { delay: index * 80, duration: 400 } }"
+        >
+          <ApartmentCard
+            :apartment="apartment"
+            :is-wishlisted="isApartmentWishlisted(apartment.id)"
+            :isSelected="selectedApartmentId === apartment.id"
+            @toggle-wishlist="handleToggleWishlist"
+            @card-hover="(id) => selectedApartmentId = id"
+            @card-leave="() => selectedApartmentId = null"
+          />
+        </div>
       </div>
     </div>
   </div>

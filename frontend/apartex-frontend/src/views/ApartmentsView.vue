@@ -1,13 +1,13 @@
 <template>
-  <div class="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8">
+  <div class="min-h-screen bg-slate-50 py-4 sm:py-8 px-3 sm:px-6 lg:px-8">
     <div class="max-w-[1400px] mx-auto">
       <!-- TOP BAR -->
-      <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-4">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-4 sm:mb-6 gap-3 sm:gap-4">
         <div>
           <span class="text-xs font-black text-accent uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full border border-orange-100">Stay Directory</span>
-          <h1 class="text-3xl font-black text-slate-900 mt-2 mb-0">Explore Stays</h1>
+          <h1 class="text-2xl sm:text-3xl font-black text-slate-900 mt-1.5 sm:mt-2 mb-0">Explore Stays</h1>
         </div>
-        <span class="text-xs font-bold text-slate-500 bg-white px-3.5 py-1.5 rounded-full border border-slate-200 shadow-xs">{{ pendingCount }} properties found</span>
+        <span class="text-xs font-bold text-slate-500 bg-white px-3.5 py-1.5 rounded-full border border-slate-200 shadow-xs self-start sm:self-auto">{{ pendingCount }} properties found</span>
       </div>
 
       <!-- FILTER BAR — City -->
@@ -54,7 +54,7 @@
       </div>
 
       <!-- EMPTY STATE -->
-      <div v-else-if="apartmentsStore.apartments.length === 0" class="bg-white border border-slate-200 rounded-3xl p-12 text-center max-w-md mx-auto my-12 shadow-sm">
+      <div v-else-if="apartmentsStore.apartments.length === 0" class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-12 text-center max-w-md mx-auto my-8 sm:my-12 shadow-sm">
         <div class="w-16 h-16 rounded-full bg-orange-50 text-accent flex items-center justify-center text-2xl mx-auto mb-4 border border-orange-100">
           <i class="pi pi-search"></i>
         </div>

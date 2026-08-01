@@ -50,17 +50,17 @@
         </div>
       </nav>
 
-      <div class="max-w-[1200px] mx-auto px-6 pt-8">
+      <div class="max-w-[1200px] mx-auto px-4 sm:px-6 pt-4 sm:pt-8">
         <!-- Main Header -->
         <header
-          class="mb-8"
+          class="mb-6 sm:mb-8"
           v-motion
           :initial="{ opacity: 0, y: 24 }"
           :enter="{ opacity: 1, y: 0, transition: { delay: 100, duration: 400 } }"
         >
-          <h1 class="text-4xl md:text-5xl font-black text-slate-800 mb-4 tracking-tight leading-tight">{{ apartment.title }}</h1>
+          <h1 class="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-black text-slate-800 mb-3 sm:mb-4 tracking-tight leading-tight">{{ apartment.title }}</h1>
           
-          <div class="flex flex-wrap items-center gap-3 text-sm font-bold text-slate-600">
+          <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm font-bold text-slate-600">
             <div class="flex items-center gap-1.5 hover:underline cursor-pointer">
               <i class="pi pi-map-marker text-accent"></i>
               <span>{{ apartment.city }}, Zambia</span>
@@ -80,7 +80,7 @@
 
         <!-- Premium Image Gallery (Pure Tailwind Grid) -->
         <section
-          class="mb-12 h-[300px] sm:h-[400px] lg:h-[500px] grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-3 rounded-3xl overflow-hidden group/gallery relative"
+          class="mb-8 sm:mb-12 h-[240px] xs:h-[300px] sm:h-[400px] lg:h-[500px] grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-3 rounded-2xl sm:rounded-3xl overflow-hidden group/gallery relative"
           v-motion
           :initial="{ opacity: 0 }"
           :enter="{ opacity: 1, transition: { duration: 600 } }"

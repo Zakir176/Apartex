@@ -338,18 +338,18 @@
     </section>
 
     <!-- INTERACTIVE STAY & REWARDS CALCULATOR -->
-    <section class="max-w-content mx-auto px-4 sm:px-6 py-20">
-      <div class="bg-gradient-to-br from-slate-900 via-navy-700 to-slate-900 rounded-3xl p-8 sm:p-12 lg:p-16 text-white relative overflow-hidden shadow-2xl">
+    <section class="max-w-content mx-auto px-4 sm:px-6 py-12 sm:py-20">
+      <div class="bg-gradient-to-br from-slate-900 via-navy-700 to-slate-900 rounded-3xl p-5 sm:p-12 lg:p-16 text-white relative overflow-hidden shadow-2xl">
         <!-- Ambient Glow -->
         <div class="absolute -top-24 -right-24 w-96 h-96 bg-accent/20 rounded-full blur-3xl pointer-events-none"></div>
         
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
           
           <!-- Left Specs -->
           <div class="lg:col-span-6 flex flex-col gap-6">
             <div>
               <span class="text-xs font-black uppercase tracking-widest text-accent mb-2 block">Interactive Vacation Planner</span>
-              <h2 class="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+              <h2 class="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
                 Calculate Your Stay & Loyalty Rewards
               </h2>
               <p class="text-slate-300 text-sm sm:text-base leading-relaxed mt-3">
@@ -358,7 +358,7 @@
             </div>
 
             <!-- Night Slider -->
-            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10">
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-5 sm:p-6 border border-white/10">
               <div class="flex justify-between items-center mb-3">
                 <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Number of Nights</label>
                 <span class="text-xl font-black text-amber-400">{{ calcNights }} {{ calcNights === 1 ? 'Night' : 'Nights' }}</span>
@@ -378,7 +378,7 @@
             </div>
 
             <!-- Stay Type Selector -->
-            <div class="grid grid-cols-3 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
               <button
                 v-for="grade in stayGrades"
                 :key="grade.id"
@@ -394,7 +394,7 @@
 
           <!-- Right Interactive Reward Card -->
           <div class="lg:col-span-6">
-            <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 relative shadow-2xl">
+            <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-5 sm:p-8 relative shadow-2xl">
               <div class="flex items-center justify-between border-b border-white/10 pb-6 mb-6">
                 <div>
                   <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Estimated Total</p>
@@ -539,7 +539,7 @@
 
           <!-- Host Revenue Estimator Widget -->
           <div class="lg:col-span-6">
-            <div class="bg-white rounded-3xl border border-surface-border p-8 shadow-xl">
+            <div class="bg-white rounded-3xl border border-surface-border p-5 sm:p-8 shadow-xl">
               <h3 class="text-lg font-black text-slate-900 mb-6 flex items-center gap-2">
                 <i class="pi pi-calculator text-accent"></i> Host Monthly Revenue Estimator
               </h3>

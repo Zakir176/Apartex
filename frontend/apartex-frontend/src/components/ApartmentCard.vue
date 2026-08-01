@@ -38,7 +38,7 @@
     </div>
 
     <!-- Body -->
-    <div class="flex flex-col flex-1 p-5 gap-2.5">
+    <div class="flex flex-col flex-1 p-4 sm:p-5 gap-2.5">
       <!-- Location & Rating -->
       <div class="flex items-center justify-between text-xs">
         <div class="flex items-center gap-1 text-accent font-black uppercase tracking-wider">

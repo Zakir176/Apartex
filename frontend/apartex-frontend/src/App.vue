@@ -327,6 +327,11 @@ const isDropdownOpen = ref(false);
 const mobileMenuVisible = ref(false);
 const dropdownRef = ref(null);
 const activeSection = ref('');
+const isOffline = ref(!navigator.onLine);
+
+const updateOnlineStatus = () => {
+  isOffline.value = !navigator.onLine;
+};
 
 const renterLinks = [
   { label: 'Home', to: '/home', icon: 'pi pi-home' },

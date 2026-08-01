@@ -103,6 +103,7 @@ const authStore = useAuthStore();
 const showFilters = ref(false);
 const viewMode = ref('grid');
 const selectedApartmentId = ref(null);
+const mapBounds = ref(null);
 const propertyTypes = [
   { value: '', label: 'All Types', icon: 'pi pi-th-large' },
   { value: 'apartment', label: 'Apartments', icon: 'pi pi-building' },

@@ -52,7 +52,12 @@
 
       <div class="max-w-[1200px] mx-auto px-6 pt-8">
         <!-- Main Header -->
-        <header class="mb-8">
+        <header
+          class="mb-8"
+          v-motion
+          :initial="{ opacity: 0, y: 24 }"
+          :enter="{ opacity: 1, y: 0, transition: { delay: 100, duration: 400 } }"
+        >
           <h1 class="text-4xl md:text-5xl font-black text-slate-800 mb-4 tracking-tight leading-tight">{{ apartment.title }}</h1>
           
           <div class="flex flex-wrap items-center gap-3 text-sm font-bold text-slate-600">
@@ -74,7 +79,12 @@
         </header>
 
         <!-- Premium Image Gallery (Pure Tailwind Grid) -->
-        <section class="mb-12 h-[300px] sm:h-[400px] lg:h-[500px] grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-3 rounded-3xl overflow-hidden group/gallery relative">
+        <section
+          class="mb-12 h-[300px] sm:h-[400px] lg:h-[500px] grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-3 rounded-3xl overflow-hidden group/gallery relative"
+          v-motion
+          :initial="{ opacity: 0 }"
+          :enter="{ opacity: 1, transition: { duration: 600 } }"
+        >
           <!-- Main Large Image -->
           <div class="md:col-span-2 row-span-2 relative overflow-hidden cursor-pointer group/img h-full" @click="showGallery = true">
             <img :src="galleryImages[0].itemImageSrc" :alt="apartment.title" class="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-700">
@@ -180,7 +190,12 @@
           </div>
 
           <!-- Right Column: Sticky Booking Widget -->
-          <div class="relative">
+          <div
+            class="relative"
+            v-motion
+            :initial="{ opacity: 0, x: 40 }"
+            :enter="{ opacity: 1, x: 0, transition: { delay: 200, duration: 400 } }"
+          >
             <div class="sticky top-32 z-30 flex flex-col gap-5">
               <!-- Wrapping the original BookingForm in a card-base container was already done inside the component usually, but let's ensure it has our shadow -->
               <div class="shadow-xl rounded-3xl overflow-hidden border border-surface-border bg-white">

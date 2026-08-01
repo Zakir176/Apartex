@@ -57,7 +57,9 @@
           </div>
         </div>
         <div>
-          <div class="text-3xl font-black text-slate-900 tracking-tight">{{ formatCurrency(store.overview?.total_revenue || 8450) }}</div>
+          <div class="text-3xl font-black text-slate-900 tracking-tight animate-number-reveal">
+            {{ formatCurrency(animatedRevenue) }}
+          </div>
           <div class="flex items-center gap-1.5 text-emerald-600 text-xs font-bold mt-1">
             <i class="pi pi-arrow-up text-[10px]"></i>
             <span>14.2%</span>
@@ -75,7 +77,9 @@
           </div>
         </div>
         <div>
-          <div class="text-3xl font-black text-slate-900 tracking-tight">{{ store.overview?.active_bookings || 6 }}</div>
+          <div class="text-3xl font-black text-slate-900 tracking-tight animate-number-reveal" style="animation-delay: 0.2s">
+            {{ animatedBookings }}
+          </div>
           <p class="text-slate-500 text-xs font-medium mt-1">Live stays currently checked-in</p>
         </div>
       </div>
@@ -247,6 +251,7 @@ import { onMounted, computed, ref } from 'vue';
 import { useDashboardStore } from '@/stores/dashboard';
 import { useAuthStore } from '@/stores/auth';
 import { exportFinancialReportCSV } from '@/api/dashboard';
+import { useCountUp } from '@/composables/useCountUp';
 
 // PrimeVue components
 import Button from 'primevue/button';
@@ -258,6 +263,13 @@ import Dropdown from 'primevue/dropdown';
 
 const store = useDashboardStore();
 const authStore = useAuthStore();
+
+// Animated counters — pull from store or use fallback values
+const revenueTarget = computed(() => store.overview?.total_revenue || 8450);
+const bookingsTarget = computed(() => store.overview?.active_bookings || 6);
+
+const { current: animatedRevenue } = useCountUp(() => revenueTarget.value, 1800, 300);
+const { current: animatedBookings } = useCountUp(() => bookingsTarget.value, 1200, 500);
 
 const payoutModal = ref(false);
 const submitting = ref(false);

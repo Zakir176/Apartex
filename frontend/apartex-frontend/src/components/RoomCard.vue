@@ -45,7 +45,7 @@
       <!-- Book button -->
       <button
         @click="$emit('book', room)"
-        class="w-full bg-accent hover:bg-accent-hover text-white font-bold py-2.5 rounded-lg text-sm transition-colors duration-150 flex items-center justify-center gap-2"
+        class="w-full bg-accent hover:bg-accent-hover text-white font-bold py-2.5 min-h-[44px] rounded-lg text-sm transition-colors duration-150 flex items-center justify-center gap-2 cursor-pointer border-0"
       >
         <i class="pi pi-bolt text-sm"></i>
         Reserve Room

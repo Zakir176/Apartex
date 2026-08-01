@@ -3,17 +3,17 @@
     <!-- Sticky Glassmorphism Header Bar -->
     <div 
       v-if="!isAuthPage"
-      class="sticky top-0 z-[100] px-4 sm:px-6 transition-all duration-300 pointer-events-none"
-      :class="isScrolled ? 'pt-3 pb-3' : 'pt-5 pb-4'"
+      class="sticky top-0 z-[100] px-2 sm:px-6 transition-all duration-300 pointer-events-none"
+      :class="isScrolled ? 'pt-2 pb-2 sm:pt-3 sm:pb-3' : 'pt-3 pb-3 sm:pt-5 sm:pb-4'"
     >
       <nav 
-        class="pointer-events-auto max-w-[1240px] mx-auto bg-white/75 backdrop-blur-xl border border-white/60 shadow-lg rounded-full px-5 h-16 flex items-center justify-between transition-all duration-300 relative hover:shadow-xl hover:bg-white/85"
+        class="pointer-events-auto max-w-[1240px] mx-auto bg-white/75 backdrop-blur-xl border border-white/60 shadow-lg rounded-full px-3.5 sm:px-5 h-14 sm:h-16 flex items-center justify-between transition-all duration-300 relative hover:shadow-xl hover:bg-white/85"
         :class="isScrolled ? 'shadow-xl bg-white/90 border-slate-200/80' : ''"
       >
         <!-- Left: Logo -->
-        <div class="flex-shrink-0 flex items-center gap-2.5 text-xl font-black text-navy tracking-tight pl-1 cursor-pointer hover:opacity-85 transition-all group" @click="goHome">
-          <img src="/logo.svg" alt="Apartex Logo" class="w-9 h-9 rounded-xl shadow-md group-hover:scale-105 transition-transform duration-300" />
-          <span class="tracking-wider text-slate-900 font-black text-lg">APARTEX</span>
+        <div class="flex-shrink-0 flex items-center gap-2 text-base sm:text-xl font-black text-navy tracking-tight pl-0.5 sm:pl-1 cursor-pointer hover:opacity-85 transition-all group" @click="goHome">
+          <img src="/logo.svg" alt="Apartex Logo" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl shadow-md group-hover:scale-105 transition-transform duration-300" />
+          <span class="tracking-wider text-slate-900 font-black text-sm sm:text-lg">APARTEX</span>
         </div>
 
         <!-- Center: Quick Nav Links (Desktop) -->

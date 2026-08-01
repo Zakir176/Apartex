@@ -3,14 +3,14 @@
     <Transition name="modal-fade">
       <div
         v-if="show"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+        class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-y-auto"
         @click.self="handleClose"
       >
         <!-- Backdrop with glass blur -->
         <div class="fixed inset-0 bg-slate-955/70 backdrop-blur-md transition-opacity"></div>
 
         <!-- Main Modal Container -->
-        <div class="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-100 flex flex-col max-h-[92vh] overflow-hidden animate-scale-up z-10">
+        <div class="relative w-full max-w-2xl bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-100 flex flex-col max-h-[92vh] overflow-hidden animate-scale-up z-10">
 
           <!-- ──────────────── Header ──────────────── -->
           <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 px-6 py-5 border-b border-slate-700/50 flex items-center justify-between shrink-0 text-white relative">

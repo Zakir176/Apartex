@@ -22,17 +22,17 @@
 
         <!-- Main Title & Tagline -->
         <div class="text-center max-w-4xl mx-auto mb-10">
-          <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-slate-900 tracking-tight leading-[1.08] mb-6">
+          <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-slate-900 tracking-tight leading-[1.08] mb-6 animate-fade-up">
             Escape to Handpicked Luxury<br class="hidden sm:block" />
             <span class="text-gradient">Across Beautiful Zambia</span>
           </h1>
-          <p class="text-base sm:text-lg md:text-xl text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
+          <p class="text-base sm:text-lg md:text-xl text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed animate-fade-up-delay-1">
             Hand-inspected executive penthouses, safari lodges & urban retreats. Direct bookings with guaranteed zero service markups.
           </p>
         </div>
 
         <!-- Multi-Tab Hero Search Container -->
-        <div class="max-w-5xl mx-auto bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-surface-border p-3 sm:p-5 relative z-20">
+        <div class="max-w-5xl mx-auto bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-surface-border p-3 sm:p-5 relative z-20 animate-fade-up-delay-2">
           <!-- Search Type Tabs -->
           <div class="flex items-center gap-2 mb-4 border-b border-surface-border pb-3 overflow-x-auto no-scrollbar">
             <button
@@ -116,7 +116,7 @@
         </div>
 
         <!-- Trust Stats Strip -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto mt-12 text-center">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto mt-12 text-center animate-fade-up-delay-3">
           <div class="bg-white/60 backdrop-blur-md p-4 rounded-xl border border-surface-border">
             <p class="text-2xl sm:text-3xl font-black text-navy">1,200+</p>
             <p class="text-xs text-slate-500 font-semibold mt-1">Verified Stays</p>
@@ -140,7 +140,7 @@
 
     <!-- DESTINATION DISCOVERY GALLERY -->
     <section class="max-w-content mx-auto px-4 sm:px-6 py-20">
-      <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4 reveal-up">
         <div>
           <span class="section-tag">Prime Locations</span>
           <h2 class="section-title">Explore Zambia's Top Destinations</h2>
@@ -162,7 +162,7 @@
       </div>
 
       <!-- Destination Cards Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 reveal-up delay-100">
         <div
           v-for="destination in filteredDestinations"
           :key="destination.name"
@@ -208,7 +208,7 @@
     <!-- FEATURED STAYS SHOWCASE -->
     <section class="bg-white border-y border-surface-border py-20">
       <div class="max-w-content mx-auto px-4 sm:px-6">
-        <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4 reveal-up">
           <div>
             <span class="section-tag">Handpicked Selection</span>
             <h2 class="section-title">Featured Stays & Luxury Suites</h2>
@@ -245,7 +245,7 @@
         </div>
 
         <!-- Apartments Grid -->
-        <div v-else-if="displayApartments.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div v-else-if="displayApartments.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 reveal-up delay-200">
           <div 
             v-for="apartment in displayApartments" 
             :key="apartment.id"
@@ -438,7 +438,7 @@
 
     <!-- VIP LOYALTY CLUB TIER SWITCHER -->
     <section class="max-w-content mx-auto px-4 sm:px-6 py-16">
-      <div class="text-center max-w-2xl mx-auto mb-12">
+      <div class="text-center max-w-2xl mx-auto mb-12 reveal-up delay-100">
         <span class="section-tag">Apartex Club</span>
         <h2 class="section-title">Elevate Your Travel Status</h2>
         <p class="text-slate-500 text-sm mt-2">Every night you stay brings higher reward multipliers and exclusive VIP privileges.</p>
@@ -583,7 +583,7 @@
 
     <!-- VERIFIED TRAVELER REVIEWS & SOCIAL PROOF -->
     <section class="max-w-content mx-auto px-4 sm:px-6 py-20">
-      <div class="text-center max-w-2xl mx-auto mb-14">
+      <div class="text-center max-w-2xl mx-auto mb-14 reveal-up">
         <span class="section-tag">Traveler Experiences</span>
         <h2 class="section-title">Loved by Guests Across Zambia</h2>
         <div class="flex items-center justify-center gap-2 mt-3">
@@ -596,7 +596,7 @@
       </div>
 
       <!-- Reviews Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 reveal-up delay-100">
         <div 
           v-for="review in reviews" 
           :key="review.author" 
@@ -753,7 +753,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useApartmentsStore } from '@/stores/apartments';
 import { useWishlistStore } from '@/stores/wishlist';
@@ -765,6 +765,28 @@ const apartmentsStore = useApartmentsStore();
 const wishlistStore = useWishlistStore();
 const authStore = useAuthStore();
 const toast = useToast();
+
+// ── Scroll Reveal ────────────────────────────────────────────
+function useScrollReveal() {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+        }
+      });
+    },
+    { threshold: 0.1 }
+  );
+
+  onMounted(() => {
+    document.querySelectorAll('.reveal-up').forEach((el) => observer.observe(el));
+  });
+
+  onUnmounted(() => observer.disconnect());
+}
+
+useScrollReveal();
 
 // Search State
 const selectedCity = ref('');

@@ -148,7 +148,7 @@
             v-for="plan in plans" 
             :key="plan.name"
             class="rounded-3xl p-8 border flex flex-col justify-between transition-all duration-300 relative"
-            :class="plan.popular ? 'bg-slate-900 text-white border-accent shadow-2xl scale-105' : 'bg-white text-slate-900 border-surface-border shadow-sm'"
+            :class="plan.popular ? 'bg-slate-900 text-white border-white/20 shadow-sm scale-105' : 'bg-white text-slate-900 border-surface-border shadow-sm'"
           >
             <div v-if="plan.popular" class="absolute -top-4 left-1/2 -translate-x-1/2 bg-accent text-white text-xs font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-md">
               Most Popular
@@ -172,7 +172,7 @@
               </div>
             </div>
 
-            <router-link to="/register?role=owner" class="w-full btn-accent font-black py-4 px-6 rounded-2xl text-center no-underline shadow-accent block text-sm">
+            <router-link to="/register?role=owner" class="w-full btn-accent font-black py-4 px-6 rounded-2xl text-center no-underline block text-sm">
               Get Started with {{ plan.name }}
             </router-link>
           </div>
@@ -185,7 +185,7 @@
       <div class="max-w-[1280px] mx-auto px-4 sm:px-6 text-center">
         <h2 class="text-3xl sm:text-4xl font-black mb-4">Ready to Start Earning More?</h2>
         <p class="text-slate-400 max-w-xl mx-auto mb-8 text-sm">Join top executive hosts and property owners across Lusaka, Livingstone, Ndola, and Solwezi.</p>
-        <router-link to="/register?role=owner" class="btn-accent text-base font-black px-9 py-4 rounded-full shadow-accent no-underline inline-block">
+        <router-link to="/register?role=owner" class="btn-accent text-base font-black px-9 py-4 rounded-full no-underline inline-block">
           Become a Host Today
         </router-link>
       </div>

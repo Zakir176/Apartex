@@ -13,6 +13,7 @@ import './assets/main.css';
 
 import ConfirmationService from 'primevue/confirmationservice';
 import ToastService from 'primevue/toastservice';
+import { MotionPlugin } from '@vueuse/motion';
 
 const app = createApp(App);
 
@@ -21,6 +22,7 @@ app.use(router);
 app.use(PrimeVue, { ripple: true });
 app.use(ConfirmationService);
 app.use(ToastService);
+app.use(MotionPlugin);
 
 app.mount('#app');
 

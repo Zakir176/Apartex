@@ -290,7 +290,11 @@
     </div>
 
     <main class="min-h-screen">
-      <router-view />
+      <router-view v-slot="{ Component, route }">
+        <Transition name="page" mode="out-in">
+          <component :is="Component" :key="route.path" />
+        </Transition>
+      </router-view>
     </main>
 
     <Toast position="bottom-right" />
@@ -439,3 +443,18 @@ const handleLogout = async () => {
   router.push('/login');
 };
 </script>
+
+<style>
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+</style>

@@ -190,5 +190,70 @@ html {
   animation-play-state: paused;
 }
 
+/* ── Page transitions ───────────────────────────────────────── */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(12px);
+}
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+/* ── Scroll reveal utilities ────────────────────────────────── */
+.reveal-up {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.reveal-up.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Stagger delays ─────────────────────────────────────────── */
+.delay-100 { transition-delay: 0.1s; }
+.delay-200 { transition-delay: 0.2s; }
+.delay-300 { transition-delay: 0.3s; }
+.delay-400 { transition-delay: 0.4s; }
+.delay-500 { transition-delay: 0.5s; }
+
+/* ── Counter animation ──────────────────────────────────────── */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.count-up {
+  animation: countUp 0.6s ease forwards;
+}
+
+/* ── Modal scale-in ─────────────────────────────────────────── */
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.animate-scale-in {
+  animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ── Fade in ────────────────────────────────────────────────── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  animation: fadeInUp 0.5s ease forwards;
+}
+.animate-fade-up-delay-1 { animation: fadeInUp 0.5s 0.1s ease both; }
+.animate-fade-up-delay-2 { animation: fadeInUp 0.5s 0.2s ease both; }
+.animate-fade-up-delay-3 { animation: fadeInUp 0.5s 0.3s ease both; }
+.animate-fade-up-delay-4 { animation: fadeInUp 0.5s 0.4s ease both; }
+.animate-fade-up-delay-5 { animation: fadeInUp 0.5s 0.5s ease both; }
+
+
 
 

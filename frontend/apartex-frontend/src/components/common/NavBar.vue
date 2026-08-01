@@ -20,41 +20,21 @@
         <router-link
           to="/apartments"
           active-class="bg-white shadow-sm text-slate-900 font-extrabold"
-          class="px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-600 hover:text-slate-900 transition-all duration-200 no-underline flex items-center gap-1.5"
+          class="px-4 py-1.5 rounded-full text-xs font-bold text-slate-600 hover:text-slate-900 transition-all duration-200 no-underline flex items-center gap-1.5"
         >
           <i class="pi pi-search text-xs text-accent"></i>
-          <span>Stays</span>
+          <span>Explore Stays</span>
         </router-link>
 
-        <!-- Why Apartex Anchor -->
+        <!-- How it works -->
         <button
           @click="scrollToAnchor('why-apartex')"
           :class="activeSection === 'why-apartex' ? 'bg-white shadow-sm text-slate-900 font-extrabold' : 'text-slate-600 hover:text-slate-900'"
-          class="px-3.5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 no-underline border-0 bg-transparent cursor-pointer flex items-center gap-1.5"
+          class="px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 border-0 bg-transparent cursor-pointer flex items-center gap-1.5"
         >
-          <i class="pi pi-shield text-xs text-blue-500"></i>
-          <span>Why Apartex</span>
+          <i class="pi pi-info-circle text-xs text-blue-400"></i>
+          <span>How it works</span>
         </button>
-
-        <!-- Host Hub / Calculator -->
-        <router-link
-          to="/host"
-          active-class="bg-white shadow-sm text-slate-900 font-extrabold"
-          class="px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-600 hover:text-slate-900 transition-all duration-200 no-underline flex items-center gap-1.5"
-        >
-          <i class="pi pi-calculator text-xs text-emerald-500"></i>
-          <span>Become a Host</span>
-        </router-link>
-
-        <!-- Help & FAQ -->
-        <router-link
-          to="/help"
-          active-class="bg-white shadow-sm text-slate-900 font-extrabold"
-          class="px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-600 hover:text-slate-900 transition-all duration-200 no-underline flex items-center gap-1.5"
-        >
-          <i class="pi pi-question-circle text-xs text-purple-500"></i>
-          <span>Help</span>
-        </router-link>
       </div>
 
       <!-- Right: Currency Selector & User Actions -->
@@ -97,6 +77,16 @@
         <!-- Auth CTAs -->
         <div class="hidden sm:flex items-center gap-2">
           <template v-if="authStore.isAuthenticated">
+            <!-- Owner dashboard shortcut — only shown to owners -->
+            <router-link
+              v-if="authStore.user?.role === 'owner'"
+              to="/dashboard"
+              class="hidden xl:flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-black text-white bg-navy hover:bg-navy-700 transition-colors no-underline"
+            >
+              <i class="pi pi-th-large text-xs"></i>
+              <span>Dashboard</span>
+            </router-link>
+
             <router-link
               to="/loyalty"
               class="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-extrabold text-accent bg-accent-light hover:bg-orange-100 transition-colors no-underline border border-orange-200"
@@ -134,10 +124,24 @@
           </template>
 
           <template v-else>
-            <router-link to="/login" class="px-3.5 py-2 text-xs font-bold text-slate-700 hover:text-slate-900 hover:bg-slate-100/80 rounded-full transition-all no-underline">Sign In</router-link>
-            <router-link to="/host" class="btn-accent text-xs font-black px-4 py-2 shadow-accent hover:scale-105 transition-all duration-200 no-underline flex items-center gap-1.5 rounded-full">
+            <router-link
+              to="/login"
+              class="px-3.5 py-2 text-xs font-bold text-slate-700 hover:text-slate-900 hover:bg-slate-100/80 rounded-full transition-all no-underline"
+            >
+              Sign In
+            </router-link>
+            <router-link
+              to="/register"
+              class="px-4 py-2 text-xs font-black text-white bg-slate-900 hover:bg-slate-800 rounded-full transition-all no-underline flex items-center gap-1.5"
+            >
+              Sign Up
+            </router-link>
+            <router-link
+              to="/host"
+              class="btn-accent text-xs font-black px-4 py-2 no-underline flex items-center gap-1.5 rounded-full"
+            >
               <i class="pi pi-building text-xs"></i>
-              <span>Become a Host</span>
+              <span>List Property</span>
             </router-link>
           </template>
         </div>
@@ -174,28 +178,38 @@
         </div>
       </div>
 
-      <div class="flex flex-col gap-1">
-        <router-link to="/apartments" @click="isMobileMenuOpen = false" class="px-4 py-3 rounded-2xl text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3"><i class="pi pi-search text-accent"></i> Browse Stays</router-link>
-        <button @click="scrollToAnchor('why-apartex')" class="w-full text-left px-4 py-3 rounded-2xl text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3 bg-transparent border-0 cursor-pointer"><i class="pi pi-shield text-blue-500"></i> Why Apartex</button>
-        <router-link to="/host" @click="isMobileMenuOpen = false" class="px-4 py-3 rounded-2xl text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3"><i class="pi pi-calculator text-emerald-500"></i> Become a Host & Calculator</router-link>
-        <router-link to="/help" @click="isMobileMenuOpen = false" class="px-4 py-3 rounded-2xl text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3"><i class="pi pi-question-circle text-purple-500"></i> Help & FAQs</router-link>
-        
+      <!-- Mobile Drawer Content -->
+      <div class="flex flex-col gap-1 p-1">
+        <router-link
+          to="/apartments"
+          @click="isMobileMenuOpen = false"
+          class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-slate-700 hover:bg-slate-50 no-underline transition-colors"
+        >
+          <i class="pi pi-search text-accent"></i> Explore Stays
+        </router-link>
+
         <template v-if="authStore.isAuthenticated">
-          <div class="h-px bg-slate-100 mx-2 my-1"></div>
-          <router-link to="/loyalty" @click="isMobileMenuOpen = false" class="px-4 py-3 rounded-2xl text-xs font-bold text-accent bg-accent-light/50 hover:bg-accent-light no-underline transition-colors flex items-center gap-3"><i class="pi pi-star-fill"></i> Apartex Club</router-link>
-          <router-link to="/bookings" @click="isMobileMenuOpen = false" class="px-4 py-3 rounded-2xl text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3"><i class="pi pi-calendar text-slate-400"></i> My Bookings</router-link>
-          <router-link to="/profile" @click="isMobileMenuOpen = false" class="px-4 py-3 rounded-2xl text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3"><i class="pi pi-user text-slate-400"></i> Profile</router-link>
-          <router-link v-if="authStore.user?.role === 'owner'" to="/dashboard" @click="isMobileMenuOpen = false" class="px-4 py-3 rounded-2xl text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3"><i class="pi pi-chart-line text-slate-400"></i> Host Dashboard</router-link>
-          <div class="h-px bg-slate-100 mx-2 my-1"></div>
-          <button @click="logoutAndClose" class="px-4 py-3 rounded-2xl text-xs font-bold text-red-600 hover:bg-red-50 text-left transition-colors flex items-center gap-3 w-full border-0 bg-transparent cursor-pointer"><i class="pi pi-sign-out"></i> Sign Out</button>
+          <router-link
+            v-if="authStore.user?.role === 'owner'"
+            to="/dashboard"
+            @click="isMobileMenuOpen = false"
+            class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-white bg-navy no-underline transition-colors"
+          >
+            <i class="pi pi-th-large"></i> Host Dashboard
+          </router-link>
+          <router-link to="/bookings" @click="isMobileMenuOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-slate-700 hover:bg-slate-50 no-underline transition-colors"><i class="pi pi-calendar text-slate-400"></i> My Bookings</router-link>
+          <router-link to="/loyalty" @click="isMobileMenuOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-slate-700 hover:bg-slate-50 no-underline transition-colors"><i class="pi pi-star text-accent"></i> Loyalty Club</router-link>
+          <router-link to="/wishlist" @click="isMobileMenuOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-slate-700 hover:bg-slate-50 no-underline transition-colors"><i class="pi pi-heart text-slate-400"></i> Wishlist</router-link>
+          <router-link to="/profile" @click="isMobileMenuOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-slate-700 hover:bg-slate-50 no-underline transition-colors"><i class="pi pi-user text-slate-400"></i> Profile</router-link>
+          <div class="h-px bg-slate-100 my-1 mx-4"></div>
+          <button @click="logout" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-red-500 hover:bg-red-50 w-full border-0 bg-transparent cursor-pointer transition-colors text-left"><i class="pi pi-sign-out"></i> Sign Out</button>
         </template>
-        
+
         <template v-else>
-          <div class="h-px bg-slate-100 mx-2 my-1"></div>
-          <div class="grid grid-cols-2 gap-2 p-1">
-            <router-link to="/login" @click="isMobileMenuOpen = false" class="btn-outline text-center no-underline py-2.5 text-xs">Sign In</router-link>
-            <router-link to="/host" @click="isMobileMenuOpen = false" class="btn-accent text-center no-underline py-2.5 text-xs font-black">Become Host</router-link>
-          </div>
+          <div class="h-px bg-slate-100 my-1 mx-4"></div>
+          <router-link to="/login" @click="isMobileMenuOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-slate-700 hover:bg-slate-50 no-underline transition-colors"><i class="pi pi-sign-in text-slate-400"></i> Sign In</router-link>
+          <router-link to="/register" @click="isMobileMenuOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-white bg-slate-900 no-underline transition-colors"><i class="pi pi-user-plus"></i> Create Account</router-link>
+          <router-link to="/host" @click="isMobileMenuOpen = false" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-white bg-accent no-underline transition-colors"><i class="pi pi-building"></i> List Your Property</router-link>
         </template>
       </div>
     </div>

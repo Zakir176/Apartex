@@ -14,6 +14,7 @@ import './assets/main.css';
 import ConfirmationService from 'primevue/confirmationservice';
 import ToastService from 'primevue/toastservice';
 import { MotionPlugin } from '@vueuse/motion';
+import Vue3Lottie from 'vue3-lottie';
 
 const app = createApp(App);
 
@@ -23,6 +24,7 @@ app.use(PrimeVue, { ripple: true });
 app.use(ConfirmationService);
 app.use(ToastService);
 app.use(MotionPlugin);
+app.use(Vue3Lottie);
 
 app.mount('#app');
 

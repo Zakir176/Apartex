@@ -121,7 +121,12 @@
           </span>
         </div>
         
-        <button type="submit" :disabled="loading || !acceptTerms" class="btn-accent shadow-accent w-full justify-center py-3.5 text-base mt-2">
+        <button 
+          type="submit" 
+          :disabled="loading" 
+          @click="!acceptTerms && toast.add({ severity: 'warn', summary: 'Terms Required', detail: 'Please agree to the Membership Terms to continue.', life: 4000 })"
+          class="btn-accent shadow-accent w-full justify-center py-3.5 text-base mt-2"
+        >
           <i v-if="loading" class="pi pi-spin pi-spinner mr-2"></i>
           {{ loading ? 'Initializing...' : 'Register Now' }}
         </button>
@@ -149,10 +154,12 @@ import Password from 'primevue/password';
 import SelectButton from 'primevue/selectbutton';
 import Checkbox from 'primevue/checkbox';
 import Divider from 'primevue/divider';
+import { useToast } from 'primevue/usetoast';
 
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
+const toast = useToast();
 
 const targetRole = ref('renter');
 const acceptTerms = ref(false);
@@ -171,7 +178,15 @@ onMounted(() => {
 });
 
 const handleRegister = async () => {
-  if (!acceptTerms.value) return;
+  if (!acceptTerms.value) {
+    toast.add({
+      severity: 'warn',
+      summary: 'Terms Required',
+      detail: 'Please agree to the Membership Terms before creating your account.',
+      life: 4000,
+    });
+    return;
+  }
   loading.value = true;
   error.value = '';
   try {

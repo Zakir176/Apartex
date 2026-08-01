@@ -47,7 +47,7 @@
           </div>
         </div>
         <div>
-          <p class="text-3xl font-black text-slate-900 tracking-tight">${{ totalEarnings.toLocaleString() }}</p>
+          <p class="text-3xl font-black text-slate-900 tracking-tight animate-number-reveal">${{ animatedEarnings.toLocaleString() }}</p>
           <p class="text-xs font-bold text-emerald-600 flex items-center gap-1 mt-1">
             <i class="pi pi-arrow-up text-[10px]"></i> +14.2% <span class="text-slate-400 font-normal">vs last month</span>
           </p>
@@ -93,7 +93,7 @@
           </div>
         </div>
         <div>
-          <p class="text-3xl font-black text-amber-500 tracking-tight">{{ pendingBookingsCount }}</p>
+          <p class="text-3xl font-black text-amber-500 tracking-tight animate-number-reveal" style="animation-delay: 0.2s">{{ animatedPending }}</p>
           <p class="text-xs text-slate-500 font-semibold mt-1">Requires host action</p>
         </div>
       </div>
@@ -287,6 +287,7 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useApartmentsStore } from '@/stores/apartments';
 import { useBookingsStore } from '@/stores/bookings';
+import { useCountUp } from '@/composables/useCountUp';
 import WalkInBookingModal from '@/components/WalkInBookingModal.vue';
 
 const router = useRouter();
@@ -307,6 +308,9 @@ function onWalkInBooked(booking) {
 const totalEarnings = ref(8450);
 const availablePayout = ref(1250);
 const pendingBookingsCount = ref(2);
+
+const { current: animatedEarnings } = useCountUp(() => totalEarnings.value, 2000, 400);
+const { current: animatedPending } = useCountUp(() => pendingBookingsCount.value, 800, 600);
 
 const upcomingCheckIns = [
   {

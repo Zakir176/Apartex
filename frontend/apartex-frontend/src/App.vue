@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="min-h-screen bg-[#F8F7F4]" :class="{ 'dark': themeStore.isDark }">
+  <div v-if="appReady" id="app" class="min-h-screen bg-[#F8F7F4]" :class="{ 'dark': themeStore.isDark }">
 
     <!-- Owner layout: side nav + content -->
     <template v-if="isOwnerPage && authStore.isAuthenticated">
@@ -335,6 +335,21 @@
     <Toast position="bottom-right" />
     <ConfirmDialog />
     <Analytics />
+  </div>
+
+  <!-- Loading state while auth resolves -->
+  <div v-else class="min-h-screen bg-[#F8F7F4] flex items-center justify-center">
+    <div class="flex flex-col items-center gap-4">
+      <div class="w-12 h-12 rounded-2xl bg-navy flex items-center justify-center">
+        <i class="pi pi-building text-white text-xl"></i>
+      </div>
+      <div class="flex gap-1.5">
+        <div class="w-2 h-2 rounded-full bg-accent animate-bounce" style="animation-delay: 0ms"></div>
+        <div class="w-2 h-2 rounded-full bg-accent animate-bounce" style="animation-delay: 150ms"></div>
+        <div class="w-2 h-2 rounded-full bg-accent animate-bounce" style="animation-delay: 300ms"></div>
+      </div>
+      <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Apartex</p>
+    </div>
   </div>
 </template>
 

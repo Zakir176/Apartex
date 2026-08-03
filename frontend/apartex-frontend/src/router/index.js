@@ -6,6 +6,7 @@ const routes = [
   // Public Landing Page for all visitors
   {
     path: '/',
+    alias: '/home',
     name: 'Home',
     component: () => import('@/views/HomeView.vue'),
     meta: { allowGuest: true }

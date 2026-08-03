@@ -186,7 +186,7 @@ const handleLogin = async () => {
       await authStore.logout();
       return;
     }
-    router.push(authStore.user?.role === 'owner' ? '/owner' : '/home');
+    router.push(authStore.user?.role === 'owner' ? '/owner' : '/');
   } catch (err) {
     const detail = err.response?.data?.detail;
     if (Array.isArray(detail)) {

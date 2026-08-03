@@ -211,7 +211,7 @@ const handleRegister = async () => {
       payload.referral_code = form.value.referral_code.trim().toUpperCase();
     }
     await authStore.register(payload);
-    router.push(targetRole.value === 'owner' ? '/owner' : '/home');
+    router.push(targetRole.value === 'owner' ? '/owner' : '/');
   } catch (err) {
     const detail = err.response?.data?.detail;
     if (Array.isArray(detail)) {

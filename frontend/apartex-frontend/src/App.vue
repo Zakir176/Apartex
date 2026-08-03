@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="min-h-screen bg-[#F8F7F4]" :class="{ 'dark': themeStore.isDark }">
+  <div v-if="appReady" id="app" class="min-h-screen bg-[#F8F7F4]" :class="{ 'dark': themeStore.isDark }">
 
     <!-- Owner layout: side nav + content -->
     <template v-if="isOwnerPage && authStore.isAuthenticated">
@@ -336,6 +336,21 @@
     <ConfirmDialog />
     <Analytics />
   </div>
+
+  <!-- Loading state while auth resolves -->
+  <div v-else class="min-h-screen bg-[#F8F7F4] flex items-center justify-center">
+    <div class="flex flex-col items-center gap-4">
+      <div class="w-12 h-12 rounded-2xl bg-navy flex items-center justify-center">
+        <i class="pi pi-building text-white text-xl"></i>
+      </div>
+      <div class="flex gap-1.5">
+        <div class="w-2 h-2 rounded-full bg-accent animate-bounce" style="animation-delay: 0ms"></div>
+        <div class="w-2 h-2 rounded-full bg-accent animate-bounce" style="animation-delay: 150ms"></div>
+        <div class="w-2 h-2 rounded-full bg-accent animate-bounce" style="animation-delay: 300ms"></div>
+      </div>
+      <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Apartex</p>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -351,6 +366,21 @@ import Toast from 'primevue/toast';
 import ConfirmDialog from 'primevue/confirmdialog';
 
 const authStore = useAuthStore();
+
+const appReady = ref(false);
+
+onMounted(async () => {
+  if (authStore.token && !authStore.user) {
+    try {
+      await authStore.fetchCurrentUser();
+    } catch {
+      // Token is stale — clear it so the user is treated as unauthenticated
+      authStore.token = null;
+      localStorage.removeItem('accessToken');
+    }
+  }
+  appReady.value = true;
+});
 const themeStore = useThemeStore();
 const router = useRouter();
 const route = useRoute();
@@ -377,7 +407,7 @@ const updateOnlineStatus = () => {
 };
 
 const renterLinks = [
-  { label: 'Home', to: '/home', icon: 'pi pi-home' },
+  { label: 'Home', to: '/', icon: 'pi pi-home' },
   { label: 'Explore', to: '/apartments', icon: 'pi pi-search' },
   { label: 'Bookings', to: '/bookings', icon: 'pi pi-calendar' },
   { label: 'Loyalty', to: '/loyalty', icon: 'pi pi-star' },
@@ -480,7 +510,6 @@ watch(() => route.query.scrollTo, (newAnchor) => {
 
 const goHome = () => {
   if (authStore.user?.role === 'owner') router.push('/owner');
-  else if (authStore.user?.role === 'renter') router.push('/home');
   else router.push('/');
 };
 

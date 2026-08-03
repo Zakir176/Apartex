@@ -351,6 +351,21 @@ import Toast from 'primevue/toast';
 import ConfirmDialog from 'primevue/confirmdialog';
 
 const authStore = useAuthStore();
+
+const appReady = ref(false);
+
+onMounted(async () => {
+  if (authStore.token && !authStore.user) {
+    try {
+      await authStore.fetchCurrentUser();
+    } catch {
+      // Token is stale — clear it so the user is treated as unauthenticated
+      authStore.token = null;
+      localStorage.removeItem('accessToken');
+    }
+  }
+  appReady.value = true;
+});
 const themeStore = useThemeStore();
 const router = useRouter();
 const route = useRoute();

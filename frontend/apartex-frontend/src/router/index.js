@@ -6,13 +6,13 @@ const routes = [
   // Public Landing Page for all visitors
   {
     path: '/',
-    name: 'Landing',
-    component: () => import('@/views/LandingView.vue'),
+    name: 'Home',
+    component: () => import('@/views/HomeView.vue'),
     meta: { allowGuest: true }
   },
   {
     path: '/landing',
-    name: 'LandingDirect',
+    name: 'Landing',
     component: () => import('@/views/LandingView.vue'),
     meta: { allowGuest: true }
   },

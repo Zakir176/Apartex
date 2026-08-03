@@ -78,7 +78,7 @@ const routes = [
     path: '/profile',
     name: 'Profile',
     component: () => import('@/views/ProfileView.vue'),
-    meta: { requiresAuth: true, role: 'renter' }
+    meta: { requiresAuth: true }
   },
   {
     path: '/wishlist',

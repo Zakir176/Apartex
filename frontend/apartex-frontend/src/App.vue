@@ -359,6 +359,7 @@ const isAuthPage = computed(() => ['/login', '/register'].includes(route.path));
 const isLandingPage = computed(() => (route.path === '/' || route.path === '') && !authStore.isAuthenticated);
 
 const isOwnerPage = computed(() => {
+  if (authStore.user?.role === 'owner' && route.path === '/profile') return true;
   const ownerPaths = ['/owner', '/dashboard'];
   return ownerPaths.some(p => route.path === p || route.path.startsWith(p + '/'));
 });

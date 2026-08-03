@@ -407,7 +407,7 @@ const updateOnlineStatus = () => {
 };
 
 const renterLinks = [
-  { label: 'Home', to: '/home', icon: 'pi pi-home' },
+  { label: 'Home', to: '/', icon: 'pi pi-home' },
   { label: 'Explore', to: '/apartments', icon: 'pi pi-search' },
   { label: 'Bookings', to: '/bookings', icon: 'pi pi-calendar' },
   { label: 'Loyalty', to: '/loyalty', icon: 'pi pi-star' },
@@ -510,7 +510,6 @@ watch(() => route.query.scrollTo, (newAnchor) => {
 
 const goHome = () => {
   if (authStore.user?.role === 'owner') router.push('/owner');
-  else if (authStore.user?.role === 'renter') router.push('/home');
   else router.push('/');
 };
 

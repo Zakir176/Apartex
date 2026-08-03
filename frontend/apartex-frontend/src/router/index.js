@@ -164,13 +164,13 @@ router.beforeEach(async (to, from, next) => {
   // Prevent authenticated users from accessing guest auth routes (like /login or /register)
   if (to.meta.requiresGuest && isAuth) {
     if (role === 'owner') return next('/owner')
-    return next('/home')
+    return next('/')
   }
 
   // Enforce role restrictions for authenticated users on role-gated routes
   if (to.meta.role && isAuth && role !== to.meta.role) {
     if (role === 'owner') return next('/owner')
-    return next('/home')
+    return next('/')
   }
 
   next()

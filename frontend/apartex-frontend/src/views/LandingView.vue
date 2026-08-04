@@ -380,7 +380,7 @@ const popularDestinations = [
 ];
 
 const testimonials = [
-  { quote: 'Booking our hotel room in Lusaka via Mobile Money was completely instant. No credit card hassles!', author: 'Chanda Mwansa', location: 'Lusaka' },
+  { quote: 'Booking our hotel room in Lusaka via Mobile Money was completely instant. No credit card hassles!', author: ' Mwansa Ntanda Lukwesa', location: 'Lusaka' },
   { quote: 'As a lodge owner in Livingstone, Apartex allowed us to manage walk-in guests easily while receiving online bookings.', author: 'David Kasonde', location: 'Livingstone Host' },
   { quote: 'Clean, verified apartment with high-speed internet. Will definitely use Apartex for all my Zambian business trips.', author: 'Sarah Jenkins', location: 'London, UK' }
 ];

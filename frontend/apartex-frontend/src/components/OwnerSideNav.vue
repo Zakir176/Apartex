@@ -125,6 +125,7 @@ const userInitials = computed(() => {
 
 const mainNavItems = [
   { to: '/owner', label: 'Dashboard', icon: 'pi pi-th-large' },
+  { to: '/owner/today', label: 'Today', icon: 'pi pi-sun', badge: 'Live' },
   { to: '/dashboard', label: 'Analytics', icon: 'pi pi-chart-line' },
 ];
 

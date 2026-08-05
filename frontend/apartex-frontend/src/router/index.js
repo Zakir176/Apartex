@@ -131,6 +131,12 @@ const routes = [
     component: () => import('@/views/OwnerPayoutsView.vue'),
     meta: { requiresAuth: true, role: 'owner' }
   },
+  {
+    path: '/owner/today',
+    name: 'OwnerToday',
+    component: () => import('@/views/OwnerTodayView.vue'),
+    meta: { requiresAuth: true, role: 'owner' }
+  },
   // Catch-all 404 route
   {
     path: '/:pathMatch(.*)*',

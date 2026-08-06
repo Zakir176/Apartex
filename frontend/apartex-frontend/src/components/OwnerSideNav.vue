@@ -137,6 +137,9 @@ const managementNavItems = [
 ];
 
 function isActive(path) {
+  if (path === '/owner') {
+    return route.path === '/owner';
+  }
   return route.path === path || route.path.startsWith(path + '/');
 }
 

@@ -176,8 +176,11 @@ router.beforeEach(async (to, from, next) => {
 
   // Enforce role restrictions for authenticated users on role-gated routes
   if (to.meta.role && isAuth && role !== to.meta.role) {
-    if (role === 'owner') return next('/owner')
-    return next('/')
+    if (role === 'owner') {
+      // Redirect owners attempting to access renter-only action routes back to owner dashboard
+      return next({ path: '/owner', query: { redirectFrom: to.path, reason: 'role_restricted' } })
+    }
+    return next({ path: '/', query: { redirectFrom: to.path, reason: 'role_restricted' } })
   }
 
   next()

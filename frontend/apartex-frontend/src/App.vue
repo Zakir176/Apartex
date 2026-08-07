@@ -68,8 +68,10 @@
                 <router-link
                   v-for="item in ownerLinks" :key="item.to"
                   :to="item.to"
-                  exact-active-class="bg-white shadow-sm text-slate-900 font-extrabold"
-                  class="px-4 py-2 rounded-full text-xs font-bold text-slate-600 hover:text-slate-900 transition-all duration-200 no-underline flex items-center gap-1.5"
+                  :class="[
+                    'px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 no-underline flex items-center gap-1.5',
+                    isNavItemActive(item.to) ? 'bg-white shadow-sm text-slate-900 font-extrabold' : 'text-slate-600 hover:text-slate-900'
+                  ]"
                 >
                   <i :class="[item.icon, 'text-xs text-accent']"></i>
                   <span>{{ item.label }}</span>
@@ -427,6 +429,13 @@ const ownerLinks = [
   { label: 'Reservations', to: '/owner/bookings', icon: 'pi pi-book' },
   { label: 'Payouts', to: '/owner/payouts', icon: 'pi pi-wallet' },
 ];
+
+const isNavItemActive = (path) => {
+  if (path === '/owner') {
+    return route.path === '/owner';
+  }
+  return route.path === path || route.path.startsWith(path + '/');
+};
 
 const userInitials = computed(() => {
   const name = authStore.user?.full_name || authStore.user?.email || 'U';

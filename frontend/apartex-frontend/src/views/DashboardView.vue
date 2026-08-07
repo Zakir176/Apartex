@@ -367,7 +367,7 @@ const chartData = computed(() => {
   
   let labelText = 'Monthly Revenue ($)';
   let datasetData = trends.map((t) => t.revenue);
-  let color = '#E8621A';
+  let color = '#059669';
 
   if (activeChartMetric.value === 'revpar') {
     labelText = 'RevPAR ($/night)';
@@ -393,7 +393,7 @@ const chartData = computed(() => {
         pointBorderColor: '#FFFFFF',
         pointBorderWidth: 2,
         tension: 0.4,
-        backgroundColor: color === '#E8621A' ? 'rgba(232, 98, 26, 0.08)' : color === '#10B981' ? 'rgba(16, 185, 129, 0.08)' : 'rgba(59, 130, 246, 0.08)'
+        backgroundColor: color === '#059669' ? 'rgba(5, 150, 105, 0.08)' : color === '#10B981' ? 'rgba(16, 185, 129, 0.08)' : 'rgba(59, 130, 246, 0.08)'
       }
     ]
   };

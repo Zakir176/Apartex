@@ -287,6 +287,7 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useApartmentsStore } from '@/stores/apartments';
 import { useBookingsStore } from '@/stores/bookings';
+import { useDashboardStore } from '@/stores/dashboard';
 import { useCountUp } from '@/composables/useCountUp';
 import WalkInBookingModal from '@/components/WalkInBookingModal.vue';
 
@@ -294,6 +295,7 @@ const router = useRouter();
 const authStore = useAuthStore();
 const apartmentsStore = useApartmentsStore();
 const bookingsStore = useBookingsStore();
+const dashboardStore = useDashboardStore();
 
 const showWalkInModal = ref(false);
 const ownerProperties = ref([]);
@@ -305,9 +307,11 @@ function onWalkInBooked(booking) {
   }
 }
 
-const totalEarnings = ref(8450);
+const totalEarnings = computed(() => dashboardStore.overview?.revenue_summary?.total_revenue || 0);
 const availablePayout = ref(1250);
-const pendingBookingsCount = ref(2);
+const pendingBookingsCount = computed(() => {
+  return bookingsStore.ownerBookings?.filter(b => b.status === 'pending')?.length || 0;
+});
 
 const { current: animatedEarnings } = useCountUp(() => totalEarnings.value, 2000, 400);
 const { current: animatedPending } = useCountUp(() => pendingBookingsCount.value, 800, 600);
@@ -352,6 +356,7 @@ onMounted(async () => {
   if (authStore.user?.id) {
     try { await bookingsStore.fetchOwnerBookings(authStore.user.id); } catch {}
   }
+  try { await dashboardStore.loadOverview(); } catch {}
   // Load owner properties for walk-in modal
   try {
     const { apartmentsApi } = await import('@/api/apartments');

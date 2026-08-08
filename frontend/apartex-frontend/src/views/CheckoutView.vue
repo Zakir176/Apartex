@@ -100,6 +100,9 @@
             
             <div class="bg-slate-50 border border-surface-border rounded-xl p-4 mb-6">
               <p class="font-extrabold text-slate-800 text-lg m-0 mb-1 leading-tight">{{ route.query.title }}</p>
+              <p v-if="route.query.room_name || route.query.room_title" class="text-xs font-semibold text-accent m-0 mb-1">
+                Room: {{ route.query.room_name || route.query.room_title }}
+              </p>
               <p class="text-sm font-medium text-slate-500 m-0 flex items-center gap-1.5"><i class="pi pi-map-marker text-xs"></i> {{ route.query.city || 'Zambia' }}</p>
             </div>
             
@@ -203,7 +206,8 @@ const processPayment = () => {
     setTimeout(async () => {
         try {
             const bookingData = {
-                apartment_id: parseInt(route.query.apartment_id),
+                property_id: parseInt(route.query.property_id),
+                room_id: route.query.room_id ? parseInt(route.query.room_id) : null,
                 check_in: route.query.check_in,
                 check_out: route.query.check_out,
                 guests: parseInt(route.query.guests),

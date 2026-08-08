@@ -191,7 +191,7 @@ const handleBooking = () => {
   router.push({
     path: '/checkout',
     query: {
-      apartment_id: props.apartment.id,
+      property_id: props.apartment.id,
       check_in: dates.value[0].toISOString().split('T')[0],
       check_out: dates.value[1].toISOString().split('T')[0],
       guests: form.value.guests?.value || form.value.guests,

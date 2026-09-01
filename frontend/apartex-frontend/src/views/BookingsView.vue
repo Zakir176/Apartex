@@ -1,184 +1,188 @@
 <template>
-  <div class="max-w-[1400px] mx-auto px-6 py-8 min-h-screen">
-    <!-- Page Header -->
-    <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+  <div class="max-w-[1250px] mx-auto px-4 sm:px-6 py-8 min-h-screen">
+    <!-- PAGE HEADER -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
       <div>
-        <h1 class="text-4xl font-extrabold text-slate-800 mb-2 m-0">My Reservations</h1>
-        <p class="text-slate-500 font-medium text-lg m-0">Track and manage all your upcoming and past stays</p>
+        <span class="text-xs font-black uppercase tracking-widest text-accent mb-1 block">Guest Portal</span>
+        <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">My Reservations</h1>
+        <p class="text-slate-500 font-medium text-xs sm:text-sm mt-1">Track and manage all your upcoming and past stay reservations across Zambia.</p>
       </div>
-      <div class="flex gap-2 items-center">
-        <SelectButton v-model="activeFilter" :options="filterOptions" optionLabel="label" optionValue="value" class="[&_.p-button]:rounded-lg" />
+
+      <!-- Filter Tabs -->
+      <div class="flex items-center gap-1.5 bg-white p-1 rounded-full border border-slate-200 shadow-2xs self-start md:self-auto overflow-x-auto">
+        <button
+          v-for="opt in filterOptions"
+          :key="opt.value"
+          @click="activeFilter = opt.value"
+          class="px-4 py-2 rounded-full text-xs font-black transition-all cursor-pointer border-0 whitespace-nowrap"
+          :class="activeFilter === opt.value ? 'bg-slate-900 text-white shadow-xs' : 'text-slate-500 hover:text-slate-900 bg-transparent'"
+        >
+          {{ opt.label }}
+        </button>
       </div>
     </div>
 
-    <!-- Stats Row -->
+    <!-- STATS ROW -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" v-if="!bookingsStore.loading && bookings.length > 0">
-      <div class="bg-white border border-surface-border rounded-2xl p-5 flex flex-col gap-2 transition-all duration-250 hover:shadow-md hover:-translate-y-1">
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-50 text-blue-500 text-sm mb-1"><i class="pi pi-calendar"></i></div>
-        <div class="text-2xl font-extrabold text-slate-800 tracking-tight">{{ stats.total }}</div>
-        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Trips</div>
+      <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+        <span class="block text-slate-400 text-[10px] sm:text-xs font-black uppercase tracking-wider mb-1">Total Reservations</span>
+        <span class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">{{ stats.total }}</span>
+        <p class="text-[11px] text-slate-500 font-medium mt-0.5">Lifetime bookings</p>
       </div>
-      <div class="bg-white border border-surface-border rounded-2xl p-5 flex flex-col gap-2 transition-all duration-250 hover:shadow-md hover:-translate-y-1">
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-green-50 text-green-500 text-sm mb-1"><i class="pi pi-check-circle"></i></div>
-        <div class="text-2xl font-extrabold text-slate-800 tracking-tight">{{ stats.upcoming }}</div>
-        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Upcoming</div>
+
+      <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+        <span class="block text-slate-400 text-[10px] sm:text-xs font-black uppercase tracking-wider mb-1">Upcoming Stays</span>
+        <span class="text-2xl sm:text-3xl font-black text-accent tracking-tight">{{ stats.upcoming }}</span>
+        <p class="text-[11px] text-slate-500 font-medium mt-0.5">Ready for check-in</p>
       </div>
-      <div class="bg-white border border-surface-border rounded-2xl p-5 flex flex-col gap-2 transition-all duration-250 hover:shadow-md hover:-translate-y-1">
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-slate-50 text-slate-500 text-sm mb-1"><i class="pi pi-history"></i></div>
-        <div class="text-2xl font-extrabold text-slate-800 tracking-tight">{{ stats.completed }}</div>
-        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Completed</div>
+
+      <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+        <span class="block text-slate-400 text-[10px] sm:text-xs font-black uppercase tracking-wider mb-1">Completed Trips</span>
+        <span class="text-2xl sm:text-3xl font-black text-emerald-600 tracking-tight">{{ stats.completed }}</span>
+        <p class="text-[11px] text-emerald-600 font-bold mt-0.5">Verified experiences</p>
       </div>
-      <div class="bg-white border border-surface-border rounded-2xl p-5 flex flex-col gap-2 transition-all duration-250 hover:shadow-md hover:-translate-y-1">
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-orange-50 text-orange-500 text-sm mb-1"><i class="pi pi-wallet"></i></div>
-        <div class="text-2xl font-extrabold text-slate-800 tracking-tight">${{ stats.totalSpent }}</div>
-        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Spent</div>
+
+      <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
+        <span class="block text-slate-400 text-[10px] sm:text-xs font-black uppercase tracking-wider mb-1">Total Spent</span>
+        <span class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">{{ formattedTotalSpent }}</span>
+        <p class="text-[11px] text-slate-500 font-medium mt-0.5">Across all stays</p>
       </div>
     </div>
 
-    <!-- Loading State -->
-    <div v-if="bookingsStore.loading" class="flex flex-col gap-4 mt-4">
-      <Skeleton v-for="i in 3" :key="i" width="100%" height="160px" class="border-round-xl" />
+    <!-- LOADING STATE -->
+    <div v-if="bookingsStore.loading" class="flex flex-col gap-4">
+      <Skeleton v-for="i in 3" :key="i" width="100%" height="140px" class="rounded-2xl" />
     </div>
 
-    <!-- Error State -->
-    <div v-else-if="bookingsStore.error" class="flex flex-col items-center justify-center text-center py-20 px-8 bg-white border border-surface-border rounded-3xl mt-4">
-      <i class="pi pi-exclamation-triangle text-5xl mb-4 text-slate-300"></i>
-      <h3 class="text-xl font-bold text-slate-800 mb-2">Something went wrong</h3>
-      <p class="text-slate-500 font-medium mb-6">{{ bookingsStore.error }}</p>
-      <button @click="loadBookings" class="btn-accent inline-flex items-center gap-2">
+    <!-- ERROR STATE -->
+    <div v-else-if="bookingsStore.error" class="bg-white border border-slate-200 rounded-3xl p-12 text-center max-w-md mx-auto my-8 shadow-sm">
+      <i class="pi pi-exclamation-triangle text-4xl text-rose-500 mb-3"></i>
+      <h3 class="text-lg font-black text-slate-900 mb-1">Unable to Load Reservations</h3>
+      <p class="text-xs text-slate-500 mb-6 font-medium">{{ bookingsStore.error }}</p>
+      <button @click="loadBookings" class="btn-accent px-6 py-2.5 rounded-full text-xs font-black inline-flex items-center gap-2">
         <i class="pi pi-refresh"></i><span>Try Again</span>
       </button>
     </div>
 
-    <!-- Empty State -->
-    <div v-else-if="filteredBookings.length === 0 && bookings.length === 0" class="flex flex-col items-center justify-center text-center py-20 px-8 bg-white border border-surface-border rounded-3xl mt-4">
-      <div class="w-20 h-20 rounded-full bg-slate-50 border border-surface-border flex items-center justify-center mb-6">
-        <i class="pi pi-calendar text-4xl text-slate-300"></i>
+    <!-- EMPTY STATE -->
+    <div v-else-if="filteredBookings.length === 0 && bookings.length === 0" class="bg-white border border-slate-200 rounded-3xl p-12 text-center max-w-md mx-auto my-8 shadow-sm">
+      <div class="w-16 h-16 rounded-full bg-orange-50 text-accent flex items-center justify-center text-2xl mx-auto mb-4 border border-orange-100">
+        <i class="pi pi-calendar"></i>
       </div>
-      <h3 class="text-2xl font-bold text-slate-800 mb-2">No reservations yet</h3>
-      <p class="text-slate-500 font-medium mb-8">Your journey starts here — explore premium stays and book your first experience.</p>
-      <router-link to="/apartments" class="btn-accent inline-flex items-center gap-2 no-underline">
-        <i class="pi pi-search"></i><span>Discover Properties</span>
+      <h3 class="text-xl font-black text-slate-900 mb-2">No Reservations Yet</h3>
+      <p class="text-xs text-slate-500 mb-6 font-medium leading-relaxed">Your journey begins here. Explore luxury stays and book your first stay.</p>
+      <router-link to="/apartments" class="btn-accent px-6 py-3 rounded-full text-xs font-black inline-flex items-center gap-2 no-underline">
+        <i class="pi pi-search"></i><span>Explore Stays</span>
       </router-link>
     </div>
 
-    <!-- No results for filter -->
-    <div v-else-if="filteredBookings.length === 0" class="flex flex-col items-center justify-center text-center py-20 px-8 bg-white border border-surface-border rounded-3xl mt-4">
-      <i class="pi pi-filter-slash text-4xl mb-4 text-slate-300"></i>
-      <h3 class="text-xl font-bold text-slate-800 mb-2">No {{ activeFilter }} bookings</h3>
-      <p class="text-slate-500 font-medium">Try selecting a different filter above.</p>
+    <!-- NO RESULTS FOR FILTER -->
+    <div v-else-if="filteredBookings.length === 0" class="bg-white border border-slate-200 rounded-3xl p-12 text-center max-w-md mx-auto my-8 shadow-sm">
+      <i class="pi pi-filter-slash text-3xl text-slate-300 mb-3"></i>
+      <h3 class="text-lg font-black text-slate-900 mb-1">No {{ activeFilter }} reservations</h3>
+      <p class="text-xs text-slate-500 font-medium">Select a different tab filter to view your stays.</p>
     </div>
 
-    <!-- Bookings List -->
+    <!-- BOOKINGS LIST -->
     <div v-else class="flex flex-col gap-4">
       <div
         v-for="booking in filteredBookings"
         :key="booking.id"
-        class="bg-white border border-surface-border rounded-2xl overflow-hidden transition-all duration-250 hover:shadow-lg hover:-translate-y-1 hover:border-surface-border-strong relative"
-        :class="{
-          'border-l-[4px] border-l-green-500': isUpcoming(booking), 
-          'border-l-[4px] border-l-slate-400': isCompleted(booking), 
-          'border-l-[4px] border-l-red-500 opacity-70 hover:opacity-90': booking.status === 'cancelled'
-        }"
+        class="bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-xs hover:shadow-md transition-all flex flex-col md:flex-row justify-between gap-6"
       >
-        <div class="flex flex-col md:flex-row justify-between gap-6 p-6">
-          <!-- Left: Image + Info -->
-          <div class="flex flex-col md:flex-row gap-6 flex-1 min-w-0">
-            <div class="relative w-full md:w-[160px] h-[160px] md:h-[120px] rounded-xl overflow-hidden shrink-0">
-              <img
-                :src="booking.apartment?.image_url || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=300&q=80'"
-                :alt="booking.apartment?.title || 'Apartment'"
-                class="w-full h-full object-cover"
-              >
-              <div class="absolute top-2 left-2 flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold capitalize backdrop-blur-md text-white"
-                   :class="booking.status === 'confirmed' ? 'bg-green-500/90' : booking.status === 'completed' ? 'bg-slate-500/90' : 'bg-red-500/90'">
-                <i :class="statusIcon(booking.status)" class="text-[10px]"></i>
-                {{ booking.status }}
-              </div>
-            </div>
-
-            <div class="flex flex-col justify-center gap-2 min-w-0">
-              <h3 class="text-lg font-extrabold text-slate-800 m-0 truncate">{{ booking.apartment?.title || 'Premium Stay' }}</h3>
-              <div class="flex items-center gap-1.5 text-sm font-semibold text-slate-500">
-                <i class="pi pi-map-marker text-accent text-xs"></i>
-                <span>{{ booking.apartment?.city || 'Zambia' }}</span>
-              </div>
-
-              <div class="flex items-center gap-4 mt-2">
-                <div class="flex flex-col">
-                  <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Check-in</span>
-                  <span class="text-sm font-bold text-slate-700">{{ formatDate(booking.check_in) }}</span>
-                </div>
-                <i class="pi pi-arrow-right text-slate-300 text-xs mt-3"></i>
-                <div class="flex flex-col">
-                  <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Check-out</span>
-                  <span class="text-sm font-bold text-slate-700">{{ formatDate(booking.check_out) }}</span>
-                </div>
-              </div>
+        <!-- Left: Image & Info -->
+        <div class="flex flex-col sm:flex-row gap-5 flex-1 min-w-0">
+          <div class="relative w-full sm:w-44 h-40 sm:h-32 rounded-2xl overflow-hidden bg-slate-100 shrink-0">
+            <img
+              :src="booking.apartment?.image_url || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=400&q=80'"
+              :alt="booking.apartment?.title || 'Apartment'"
+              class="w-full h-full object-cover"
+            />
+            <div class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider backdrop-blur-md text-white shadow-xs"
+                 :class="booking.status === 'confirmed' ? 'bg-emerald-600/90' : booking.status === 'completed' ? 'bg-slate-900/90' : 'bg-rose-500/90'">
+              <i :class="statusIcon(booking.status)" class="text-[9px] mr-1"></i>
+              {{ booking.status }}
             </div>
           </div>
 
-          <!-- Right: Price + Actions -->
-          <div class="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-between gap-4 md:gap-2 min-w-[150px] flex-wrap">
-            <div class="flex flex-col md:items-end">
-              <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Total</span>
-              <span class="text-2xl font-extrabold text-slate-800 tracking-tight">${{ booking.total_price }}</span>
-              <div class="flex items-center gap-1.5 text-xs font-semibold text-slate-500 mt-1">
-                <i class="pi pi-users text-[10px]"></i>
-                <span>{{ booking.guests }} guest{{ booking.guests > 1 ? 's' : '' }}</span>
+          <div class="flex flex-col justify-between min-w-0">
+            <div>
+              <div class="flex items-center gap-1 text-accent text-[10px] font-black uppercase tracking-widest mb-1">
+                <i class="pi pi-map-marker text-[10px]"></i>
+                {{ booking.apartment?.city || 'Zambia' }}
               </div>
+              <h3 class="text-base sm:text-lg font-black text-slate-900 m-0 truncate" :title="booking.apartment?.title">
+                {{ booking.apartment?.title || 'Luxury Stay' }}
+              </h3>
             </div>
 
-            <div class="flex gap-2 flex-wrap md:justify-end w-full md:w-auto mt-2 md:mt-0">
-              <button
-                v-if="canCancel(booking)"
-                @click="handleCancel(booking.id)"
-                :disabled="cancellingId === booking.id"
-                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-150 border bg-red-50 text-red-600 border-red-200 hover:bg-red-100 hover:-translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <i class="pi pi-times"></i>
-                {{ cancellingId === booking.id ? 'Cancelling...' : 'Cancel' }}
-              </button>
-              <button
-                v-if="canComplete(booking)"
-                @click="handleComplete(booking.id)"
-                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-150 border bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:-translate-y-px"
-              >
-                <i class="pi pi-check"></i>
-                Complete Stay
-              </button>
-              <router-link
-                v-if="booking.status === 'confirmed'"
-                :to="`/apartments/${booking.apartment_id}`"
-                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-150 border bg-slate-50 text-slate-600 border-surface-border hover:bg-slate-100 hover:text-slate-900 hover:-translate-y-px no-underline"
-              >
-                <i class="pi pi-eye"></i>
-                View Property
-              </router-link>
+            <!-- Dates strip -->
+            <div class="flex items-center gap-4 mt-3 bg-slate-50 p-3 rounded-2xl border border-slate-100">
+              <div>
+                <span class="block text-[10px] font-black text-slate-400 uppercase tracking-wider">Check-in</span>
+                <span class="text-xs font-black text-slate-800">{{ formatDate(booking.check_in) }}</span>
+              </div>
+              <i class="pi pi-arrow-right text-slate-300 text-xs"></i>
+              <div>
+                <span class="block text-[10px] font-black text-slate-400 uppercase tracking-wider">Check-out</span>
+                <span class="text-xs font-black text-slate-800">{{ formatDate(booking.check_out) }}</span>
+              </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Right: Pricing & Actions -->
+        <div class="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-between border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0 md:pl-6 min-w-[170px]">
+          <div class="flex flex-col md:items-end">
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Total Cost</span>
+            <span class="text-2xl font-black text-slate-900 tracking-tight">{{ currencyStore.formatPrice(booking.total_price || 0) }}</span>
+            <span class="text-[11px] font-bold text-slate-500">{{ booking.guests || 1 }} guest(s)</span>
+          </div>
+
+          <div class="flex items-center gap-2 mt-2">
+            <button
+              v-if="canCancel(booking)"
+              @click="handleCancel(booking.id)"
+              :disabled="cancellingId === booking.id"
+              class="px-3.5 py-2 rounded-full text-xs font-black text-rose-600 bg-rose-50 border border-rose-100 hover:bg-rose-100 transition-colors cursor-pointer"
+            >
+              {{ cancellingId === booking.id ? 'Cancelling...' : 'Cancel' }}
+            </button>
+            
+            <button
+              v-if="canComplete(booking)"
+              @click="handleComplete(booking.id)"
+              class="px-3.5 py-2 rounded-full text-xs font-black text-emerald-700 bg-emerald-50 border border-emerald-100 hover:bg-emerald-100 transition-colors cursor-pointer"
+            >
+              Complete Stay
+            </button>
+
+            <router-link
+              v-if="booking.apartment_id"
+              :to="`/apartments/${booking.apartment_id}`"
+              class="px-3.5 py-2 rounded-full text-xs font-black text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors no-underline inline-flex items-center gap-1"
+            >
+              <span>Details</span> <i class="pi pi-arrow-right text-[10px]"></i>
+            </router-link>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Cancel Confirmation Dialog -->
-    <Dialog v-model:visible="showCancelDialog" modal header="Cancel Reservation" :style="{ width: '420px' }">
-      <div class="py-2">
-        <div class="flex align-items-center gap-3 mb-4">
-          <div class="w-3rem h-3rem border-round-xl bg-red-50 flex align-items-center justify-content-center">
-            <i class="pi pi-exclamation-triangle text-red-500 text-xl"></i>
-          </div>
-          <div>
-            <p class="font-bold text-slate-800 m-0">Are you sure?</p>
-            <p class="text-slate-500 text-sm m-0 mt-1">This action cannot be undone.</p>
-          </div>
-        </div>
-        <p class="text-slate-600 text-sm leading-relaxed">Your reservation will be cancelled and the dates will become available for others. Any applicable refund will be processed according to the cancellation policy.</p>
+    <!-- CANCEL DIALOG -->
+    <Dialog v-model:visible="showCancelDialog" modal header="Cancel Reservation" :style="{ width: '420px', maxWidth: '95vw' }">
+      <div class="py-2 flex flex-col gap-3">
+        <p class="text-xs font-bold text-slate-700 m-0">Are you sure you want to cancel this reservation?</p>
+        <p class="text-xs text-slate-500 font-medium leading-relaxed m-0">Your reservation will be released back to the stay directory. Any eligible refund will be returned to your payment method.</p>
       </div>
       <template #footer>
-        <div class="flex gap-2 justify-content-end">
-          <Button label="Keep Booking" @click="showCancelDialog = false" class="p-button-text p-button-secondary font-bold" />
-          <Button label="Cancel Reservation" icon="pi pi-times" @click="confirmCancel" :loading="cancellingId !== null" class="p-button-danger font-bold" />
+        <div class="flex gap-2 justify-end pt-3 border-t border-slate-100">
+          <button @click="showCancelDialog = false" class="px-4 py-2 rounded-full text-xs font-bold text-slate-500 hover:bg-slate-100 border-0 bg-transparent cursor-pointer">
+            Keep Booking
+          </button>
+          <button @click="confirmCancel" :disabled="cancellingId !== null" class="px-5 py-2 rounded-full text-xs font-black text-white bg-rose-600 hover:bg-rose-700 transition-colors border-0 cursor-pointer">
+            {{ cancellingId !== null ? 'Cancelling...' : 'Confirm Cancel' }}
+          </button>
         </div>
       </template>
     </Dialog>
@@ -190,16 +194,15 @@ import { ref, computed, onMounted } from 'vue';
 import { useBookingsStore } from '@/stores/bookings';
 import { useAuthStore } from '@/stores/auth';
 import { useLoyaltyStore } from '@/stores/loyalty';
+import { useCurrencyStore } from '@/stores/currency';
 
-// PrimeVue components
-import SelectButton from 'primevue/selectbutton';
 import Skeleton from 'primevue/skeleton';
 import Dialog from 'primevue/dialog';
-import Button from 'primevue/button';
 
 const bookingsStore = useBookingsStore();
 const authStore = useAuthStore();
 const loyaltyStore = useLoyaltyStore();
+const currencyStore = useCurrencyStore();
 
 const cancellingId = ref(null);
 const showCancelDialog = ref(false);
@@ -207,7 +210,7 @@ const pendingCancelId = ref(null);
 const activeFilter = ref('all');
 
 const filterOptions = [
-  { label: 'All', value: 'all' },
+  { label: 'All Trips', value: 'all' },
   { label: 'Upcoming', value: 'upcoming' },
   { label: 'Completed', value: 'completed' },
   { label: 'Cancelled', value: 'cancelled' }
@@ -217,15 +220,20 @@ const bookings = computed(() => bookingsStore.bookings);
 
 const stats = computed(() => {
   const all = bookings.value;
+  const totalSpentVal = all
+    .filter(b => b.status !== 'cancelled')
+    .reduce((sum, b) => sum + Number(b.total_price || 0), 0);
+
   return {
     total: all.length,
     upcoming: all.filter(b => isUpcoming(b)).length,
     completed: all.filter(b => b.status === 'completed').length,
-    totalSpent: all
-      .filter(b => b.status !== 'cancelled')
-      .reduce((sum, b) => sum + (b.total_price || 0), 0)
-      .toLocaleString()
+    totalSpentVal
   };
+});
+
+const formattedTotalSpent = computed(() => {
+  return currencyStore.formatPrice(stats.value.totalSpentVal || 0);
 });
 
 const filteredBookings = computed(() => {
@@ -245,10 +253,6 @@ const formatDate = (dateString) => {
 
 const isUpcoming = (booking) => {
   return new Date(booking.check_in) > new Date() && booking.status === 'confirmed';
-};
-
-const isCompleted = (booking) => {
-  return booking.status === 'completed';
 };
 
 const canCancel = (booking) => {
@@ -302,4 +306,4 @@ const loadBookings = async () => {
 };
 
 onMounted(loadBookings);
-</script>
+</script>

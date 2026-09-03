@@ -178,6 +178,7 @@
 import { onMounted, ref, computed } from 'vue';
 import { useBookingsStore } from '@/stores/bookings';
 import { useAuthStore } from '@/stores/auth';
+import { useCurrencyStore } from '@/stores/currency';
 
 // PrimeVue components
 import DataTable from 'primevue/datatable';
@@ -187,6 +188,7 @@ import Dialog from 'primevue/dialog';
 
 const auth = useAuthStore();
 const bookingsStore = useBookingsStore();
+const currencyStore = useCurrencyStore();
 
 const activeStatusFilter = ref('all');
 const guestModal = ref(false);
@@ -235,7 +237,7 @@ const formatDate = (dateString) => {
 };
 
 const formatCurrency = (v) => {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(v);
+  return currencyStore.formatPrice(v || 0);
 };
 
 const getStatusSeverity = (status) => {

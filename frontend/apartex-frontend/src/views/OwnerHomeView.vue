@@ -47,7 +47,7 @@
           </div>
         </div>
         <div>
-          <p class="text-3xl font-black text-slate-900 tracking-tight animate-number-reveal">${{ animatedEarnings.toLocaleString() }}</p>
+          <p class="text-3xl font-black text-slate-900 tracking-tight animate-number-reveal">{{ formattedEarnings }}</p>
           <p class="text-xs font-bold text-emerald-600 flex items-center gap-1 mt-1">
             <i class="pi pi-arrow-up text-[10px]"></i> +14.2% <span class="text-slate-400 font-normal">vs last month</span>
           </p>

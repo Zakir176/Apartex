@@ -1,86 +1,73 @@
 <template>
   <div
-    class="card-base cursor-pointer flex flex-col overflow-hidden rounded-2xl group border border-slate-200/80 bg-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-    :class="isSelected ? 'ring-2 ring-accent shadow-lg' : 'shadow-sm'"
+    class="bg-white border border-surface-border rounded-xl overflow-hidden cursor-pointer group transition-shadow duration-200 hover:shadow-card-hover flex flex-col"
+    :class="isSelected ? 'ring-2 ring-accent ring-offset-1' : ''"
     @click="viewApartment"
     @mouseover="$emit('card-hover', apartment.id)"
     @mouseleave="$emit('card-leave', apartment.id)"
   >
-    <!-- Image Header -->
-    <div class="relative aspect-[4/3] overflow-hidden bg-slate-100">
+    <!-- Image -->
+    <div class="relative aspect-[16/9] overflow-hidden bg-gray-100">
       <img
-        :src="imageUrl"
+        :src="apartment.image_url || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800'"
         :alt="apartment.title"
-        class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+        @error="$event.target.src = 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800'"
       />
 
-      <!-- Property Type Badge -->
-      <div v-if="apartment.property_type" class="absolute top-3 left-3 bg-white/90 backdrop-blur-md text-slate-900 text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1 border border-white/60">
-        <i class="pi pi-building text-accent text-[10px]"></i>
-        <span>{{ formattedPropertyType }}</span>
+      <!-- Property type badge -->
+      <div v-if="apartment.property_type && apartment.property_type !== 'apartment'" class="absolute top-3 left-3 bg-white text-gray-700 text-[10px] font-semibold uppercase tracking-wide px-2 py-1 rounded-md shadow-xs">
+        {{ apartment.property_type.replace('_', ' ') }}
       </div>
 
-      <!-- Price Pill -->
-      <div class="absolute bottom-3 left-3 bg-slate-900/90 backdrop-blur-md text-white text-sm font-black px-3.5 py-1.5 rounded-full flex items-baseline gap-1 shadow-md border border-white/10">
-        <span>{{ formattedPrice }}</span>
-        <span class="text-[11px] font-normal opacity-75">/night</span>
+      <!-- Price -->
+      <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
+        <p class="text-white font-semibold text-sm">
+          ${{ apartment.price_per_night }}<span class="text-white/70 font-normal text-xs"> / night</span>
+        </p>
       </div>
 
-      <!-- Wishlist Button -->
+      <!-- Wishlist -->
       <button
-        class="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center shadow-md hover:scale-110 transition-transform duration-200 cursor-pointer border-0"
-        :class="isWishlisted ? 'text-red-500' : 'text-slate-400 hover:text-red-400'"
+        class="absolute top-3 right-3 w-8 h-8 rounded-lg bg-white flex items-center justify-center shadow-sm hover:shadow-md transition-shadow duration-150 border-0 cursor-pointer"
+        :class="isWishlisted ? 'text-red-500' : 'text-gray-400 hover:text-red-400'"
         @click.stop="toggleWishlist"
-        title="Save to Wishlist"
       >
         <i :class="isWishlisted ? 'pi pi-heart-fill' : 'pi pi-heart'" class="text-sm"></i>
       </button>
     </div>
 
     <!-- Body -->
-    <div class="flex flex-col flex-1 p-4 sm:p-5 gap-2.5">
-      <!-- Location & Rating -->
-      <div class="flex items-center justify-between text-xs">
-        <div class="flex items-center gap-1 text-accent font-black uppercase tracking-wider">
-          <i class="pi pi-map-marker text-xs"></i>
-          <span>{{ apartment.city }}</span>
-        </div>
-        <div class="flex items-center gap-1 font-bold text-slate-700 bg-slate-100/80 px-2 py-0.5 rounded-full">
-          <i class="pi pi-star-fill text-amber-400 text-xs"></i>
-          <span>4.9</span>
-        </div>
-      </div>
+    <div class="p-4 flex flex-col gap-2 flex-1">
+      <!-- Location -->
+      <p class="text-xs font-medium text-gray-400 uppercase tracking-wide flex items-center gap-1">
+        <i class="pi pi-map-marker text-xs"></i>
+        {{ apartment.city }}
+      </p>
 
       <!-- Title -->
-      <h3 class="text-base font-extrabold text-slate-900 leading-snug line-clamp-1 group-hover:text-accent transition-colors">
+      <h3 class="text-sm font-semibold text-gray-900 leading-snug line-clamp-1">
         {{ apartment.title }}
       </h3>
 
       <!-- Description -->
-      <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed font-medium">
-        {{ apartment.description || 'Modern luxury stay equipped with essential amenities, prime location, and high-speed internet.' }}
+      <p class="text-xs text-gray-500 line-clamp-2 leading-relaxed flex-1">
+        {{ apartment.description }}
       </p>
 
-      <!-- Stats strip -->
-      <div class="flex items-center gap-3 mt-1 px-3 py-2 bg-slate-50 rounded-xl text-xs text-slate-600 border border-slate-100 font-bold">
-        <div class="flex items-center gap-1.5">
-          <i class="pi pi-users text-slate-400 text-xs"></i>
-          <span>{{ apartment.capacity }} guests</span>
-        </div>
-        <div class="w-px h-3 bg-slate-200"></div>
-        <div class="flex items-center gap-1.5">
-          <i class="pi pi-home text-slate-400 text-xs"></i>
-          <span>{{ apartment.bedrooms }} beds</span>
-        </div>
-      </div>
-
-      <!-- Footer CTA -->
-      <div class="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold">
-        <span class="text-slate-400 flex items-center gap-1">
-          <i class="pi pi-check-circle text-emerald-500"></i> Instant Book
+      <!-- Stats -->
+      <div class="flex items-center gap-3 text-xs text-gray-500 pt-2 border-t border-surface-border mt-1">
+        <span class="flex items-center gap-1">
+          <i class="pi pi-users text-gray-300"></i>
+          {{ apartment.capacity }} guests
         </span>
-        <span class="text-accent group-hover:translate-x-1 transition-transform duration-200 inline-flex items-center gap-1 font-black">
-          View Details <i class="pi pi-arrow-right text-xs"></i>
+        <span class="w-px h-3 bg-gray-200"></span>
+        <span class="flex items-center gap-1">
+          <i class="pi pi-home text-gray-300"></i>
+          {{ apartment.bedrooms || 0 }} beds
+        </span>
+        <span class="ml-auto text-accent font-medium text-xs group-hover:underline">
+          View →
         </span>
       </div>
     </div>

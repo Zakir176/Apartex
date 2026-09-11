@@ -507,4 +507,23 @@ def get_owner_bookings(
         Property.owner_id == owner_id
     ).all()
     return bookings
+
+
+@router.get("/property/{property_id}/booked-dates")
+def get_property_booked_dates(
+    property_id: int,
+    db: Session = Depends(get_db),
+):
+    """
+    Public endpoint. Returns check_in/check_out date ranges for all confirmed
+    bookings on a property so guests can see unavailable dates in the calendar.
+    """
+    bookings = db.query(Booking).filter(
+        Booking.property_id == property_id,
+        Booking.status.in_(["confirmed", "pending"]),
+    ).all()
+    return [
+        {"check_in": str(b.check_in), "check_out": str(b.check_out)}
+        for b in bookings
+    ]
 

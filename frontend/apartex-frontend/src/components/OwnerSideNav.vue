@@ -17,7 +17,7 @@
         <div class="w-8 h-8 rounded-lg bg-accent flex items-center justify-center shrink-0">
           <i class="pi pi-building text-white text-sm"></i>
         </div>
-        <span class="text-white font-black text-lg tracking-tight">APARTEX</span>
+        <span class="text-white font-bold text-base tracking-wide">APARTEX</span>
       </router-link>
       <button
         @click="$emit('close')"
@@ -30,11 +30,11 @@
     <!-- Owner badge -->
     <div class="px-4 py-3 mx-3 mt-4 rounded-xl bg-white/5 border border-white/10">
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-full bg-accent flex items-center justify-center text-white font-black text-sm shrink-0">
+        <div class="w-9 h-9 rounded-full bg-accent flex items-center justify-center text-white font-semibold text-sm shrink-0">
           {{ userInitials }}
         </div>
         <div class="min-w-0">
-          <p class="text-white font-bold text-xs truncate mb-0">{{ authStore.user?.full_name || 'Property Host' }}</p>
+          <p class="text-white font-semibold text-xs truncate mb-0">{{ authStore.user?.full_name || 'Property Host' }}</p>
           <p class="text-white/40 text-xs font-medium truncate mb-0">{{ authStore.user?.email }}</p>
         </div>
       </div>
@@ -43,7 +43,7 @@
     <!-- Navigation -->
     <nav class="flex-1 px-3 py-4 overflow-y-auto flex flex-col gap-1">
 
-      <p class="text-white/30 text-[10px] font-black uppercase tracking-widest px-3 mb-2">Overview</p>
+      <p class="text-white/30 text-[10px] font-medium uppercase tracking-widest px-3 mb-2">Overview</p>
 
       <router-link
         v-for="item in mainNavItems"
@@ -59,13 +59,13 @@
         <span>{{ item.label }}</span>
         <span
           v-if="item.badge"
-          class="ml-auto text-[10px] font-black px-2 py-0.5 rounded-full"
+          class="ml-auto text-[10px] font-semibold px-2 py-0.5 rounded-md"
           :class="isActive(item.to) ? 'bg-white/20 text-white' : 'bg-accent/20 text-accent'"
         >{{ item.badge }}</span>
       </router-link>
 
       <div class="h-px bg-white/10 my-3 mx-1"></div>
-      <p class="text-white/30 text-[10px] font-black uppercase tracking-widest px-3 mb-2">Management</p>
+      <p class="text-white/30 text-[10px] font-medium uppercase tracking-widest px-3 mb-2">Management</p>
 
       <router-link
         v-for="item in managementNavItems"

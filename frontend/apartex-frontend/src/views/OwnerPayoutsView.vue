@@ -174,7 +174,8 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
-import { fetchOwnerPayouts, requestPayout, exportFinancialReportCSV } from '@/api/dashboard';
+import { useCurrencyStore } from '@/stores/currency';
+import { fetchOwnerPayouts, requestPayout, exportFinancialReportCSV } from '@/api/dashboard.js';
 
 // PrimeVue components
 import DataTable from 'primevue/datatable';
@@ -183,6 +184,7 @@ import Tag from 'primevue/tag';
 import Dialog from 'primevue/dialog';
 
 const auth = useAuthStore();
+const currencyStore = useCurrencyStore();
 const payouts = ref([]);
 const loading = ref(false);
 const downloadingCsv = ref(false);
@@ -250,7 +252,7 @@ const formatDate = (dateString) => {
 };
 
 const formatCurrency = (v) => {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(v);
+  return currencyStore.formatPrice(v || 0);
 };
 
 const getStatusSeverity = (status) => {

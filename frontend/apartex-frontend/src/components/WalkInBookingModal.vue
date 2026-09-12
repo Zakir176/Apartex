@@ -99,15 +99,13 @@
 
             <!-- Actions -->
             <div class="flex items-center gap-3 w-full max-w-md">
-              <a
-                v-if="whatsAppShareUrl"
-                :href="whatsAppShareUrl"
-                target="_blank"
-                class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-colors shadow-sm no-underline"
+              <button
+                @click="downloadReceiptPDF"
+                class="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-accent text-white text-xs font-semibold hover:bg-accent-hover transition-colors duration-150 cursor-pointer border-0"
               >
-                <i class="pi pi-whatsapp text-sm"></i>
-                <span>Share Receipt via WhatsApp</span>
-              </a>
+                <i class="pi pi-download text-sm"></i>
+                <span>Download Receipt (PDF)</span>
+              </button>
               <button
                 @click="resetFormState"
                 class="px-4 py-3 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-colors cursor-pointer"
@@ -156,7 +154,7 @@
 
                 <div>
                   <label class="block text-xs font-extrabold text-slate-700 mb-1">
-                    Guest Phone Number <span class="text-slate-400 font-medium">(WhatsApp)</span>
+                    Guest Phone Number <span class="text-gray-400 font-normal">(optional)</span>
                   </label>
                   <div class="relative">
                     <i class="pi pi-phone absolute left-3.5 top-3 text-slate-400 text-xs"></i>
@@ -454,16 +452,135 @@ const estimatedPrice = computed(() => {
   return nightsCount.value * currentNightlyRate.value;
 });
 
-const whatsAppShareUrl = computed(() => {
-  if (!successBooking.value) return '';
-  const guestName = successBooking.value.walk_in_guest_name || form.value.walk_in_guest_name;
-  const phone = successBooking.value.walk_in_guest_phone || form.value.walk_in_guest_phone || '';
-  const cleanedPhone = phone.replace(/[^0-9]/g, '');
-  const message = `Hello ${guestName}, your walk-in booking at ${selectedPropertyName.value} has been confirmed!\nDates: ${form.value.check_in} to ${form.value.check_out}\nTotal: $${(successBooking.value.total_price || estimatedPrice.value).toFixed(2)}\nThank you for staying with us!`;
-  
-  const encodedMsg = encodeURIComponent(message);
-  return cleanedPhone ? `https://wa.me/${cleanedPhone}?text=${encodedMsg}` : `https://wa.me/?text=${encodedMsg}`;
-});
+function downloadReceiptPDF() {
+  const booking = successBooking.value;
+  if (!booking) return;
+
+  const guestName = booking.walk_in_guest_name || 'Walk-in Guest';
+  const propertyName = props.ownerProperties?.find?.(p => p.id === booking.property_id)?.title || selectedPropertyName.value || `Property #${booking.property_id}`;
+  const checkIn = new Date(booking.check_in).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  const checkOut = new Date(booking.check_out).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  const nights = Math.ceil((new Date(booking.check_out) - new Date(booking.check_in)) / (1000 * 60 * 60 * 24)) || nightsCount.value || 1;
+  const paymentLabel = { cash: 'Cash', mobile_money: 'Mobile Money', card: 'Card', bank_transfer: 'Bank Transfer' }[booking.payment_method] || booking.payment_method;
+  const ref = `APX-${booking.id?.toString().padStart(6, '0') || '000001'}`;
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Booking Receipt — ${ref}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #fff; color: #111827; font-size: 14px; }
+    .page { max-width: 560px; margin: 0 auto; padding: 48px 40px; }
+    .header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 24px; border-bottom: 1px solid #E5E7EB; margin-bottom: 32px; }
+    .brand { font-size: 20px; font-weight: 700; color: #0A6640; letter-spacing: 0.05em; }
+    .ref { font-size: 11px; color: #9CA3AF; text-align: right; }
+    .ref strong { display: block; font-size: 13px; color: #374151; margin-bottom: 2px; }
+    .title { font-size: 22px; font-weight: 700; color: #111827; margin-bottom: 4px; }
+    .subtitle { font-size: 13px; color: #6B7280; margin-bottom: 32px; }
+    .section { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 20px 24px; margin-bottom: 16px; }
+    .section-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #9CA3AF; margin-bottom: 14px; }
+    .row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+    .row:last-child { margin-bottom: 0; }
+    .row-label { font-size: 13px; color: #6B7280; }
+    .row-value { font-size: 13px; font-weight: 500; color: #111827; text-align: right; }
+    .total-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: #0A6640; border-radius: 8px; margin-bottom: 32px; }
+    .total-label { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.8); }
+    .total-value { font-size: 20px; font-weight: 700; color: #fff; }
+    .footer { text-align: center; font-size: 11px; color: #9CA3AF; border-top: 1px solid #E5E7EB; padding-top: 24px; }
+    .status-badge { display: inline-block; background: #ECFDF5; color: #0A6640; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div class="brand">APARTEX</div>
+    <div class="ref">
+      <strong>${ref}</strong>
+      Booking Receipt
+    </div>
+  </div>
+
+  <div class="title">Booking Confirmed</div>
+  <div class="subtitle">${new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+
+  <div class="section">
+    <div class="section-label">Guest Details</div>
+    <div class="row">
+      <span class="row-label">Guest Name</span>
+      <span class="row-value">${guestName}</span>
+    </div>
+    ${booking.walk_in_guest_phone ? `<div class="row"><span class="row-label">Phone</span><span class="row-value">${booking.walk_in_guest_phone}</span></div>` : ''}
+    <div class="row">
+      <span class="row-label">Booking Type</span>
+      <span class="row-value"><span class="status-badge">Walk-in</span></span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Stay Details</div>
+    <div class="row">
+      <span class="row-label">Property</span>
+      <span class="row-value">${propertyName}</span>
+    </div>
+    <div class="row">
+      <span class="row-label">Check-in</span>
+      <span class="row-value">${checkIn}</span>
+    </div>
+    <div class="row">
+      <span class="row-label">Check-out</span>
+      <span class="row-value">${checkOut}</span>
+    </div>
+    <div class="row">
+      <span class="row-label">Duration</span>
+      <span class="row-value">${nights} night${nights !== 1 ? 's' : ''}</span>
+    </div>
+    <div class="row">
+      <span class="row-label">Guests</span>
+      <span class="row-value">${booking.guests}</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Payment</div>
+    <div class="row">
+      <span class="row-label">Method</span>
+      <span class="row-value">${paymentLabel}</span>
+    </div>
+    <div class="row">
+      <span class="row-label">Status</span>
+      <span class="row-value"><span class="status-badge">Paid</span></span>
+    </div>
+  </div>
+
+  <div class="total-row">
+    <span class="total-label">Total Amount</span>
+    <span class="total-value">$${parseFloat(booking.total_price || estimatedPrice.value || 0).toFixed(2)}</span>
+  </div>
+
+  <div class="footer">
+    Thank you for choosing Apartex · apartex.vercel.app<br>
+    This is an official booking receipt. Please retain for your records.
+  </div>
+</div>
+</body>
+</html>`;
+
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const win = window.open(url, '_blank');
+  if (win) {
+    win.onload = () => {
+      win.print();
+      URL.revokeObjectURL(url);
+    };
+  }
+}
 
 function formatPropertyType(type) {
   if (!type) return 'Apartment';

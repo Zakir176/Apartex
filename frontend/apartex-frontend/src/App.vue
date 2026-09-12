@@ -35,15 +35,11 @@
 
     <!-- Guest layout: top navbar + content -->
     <template v-else>
-      <div 
+      <nav 
         v-if="!isAuthPage"
-        class="sticky top-0 z-[100] px-2 sm:px-6 transition-all duration-300 pointer-events-none"
-        :class="isScrolled ? 'pt-2 pb-2 sm:pt-3 sm:pb-3' : 'pt-3 pb-3 sm:pt-5 sm:pb-4'"
+        class="sticky top-0 z-[100] bg-white border-b border-surface-border shadow-xs"
       >
-        <nav 
-          class="pointer-events-auto max-w-[1240px] mx-auto bg-white/75 backdrop-blur-xl border border-white/60 shadow-lg rounded-full px-3.5 sm:px-5 h-14 sm:h-16 flex items-center justify-between transition-all duration-300 relative hover:shadow-xl hover:bg-white/85"
-          :class="isScrolled ? 'shadow-xl bg-white/90 border-slate-200/80' : ''"
-        >
+        <div class="max-w-[1280px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between relative">
           <!-- Left: Logo -->
           <div class="flex-shrink-0 flex items-center gap-2 text-base sm:text-xl font-black text-navy tracking-tight pl-0.5 sm:pl-1 cursor-pointer hover:opacity-85 transition-all group" @click="goHome">
             <img src="/logo.svg" alt="Apartex Logo" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl shadow-md group-hover:scale-105 transition-transform duration-300" />
@@ -51,14 +47,14 @@
           </div>
 
           <!-- Center: Quick Nav Links (Desktop) -->
-          <div class="hidden xl:flex items-center gap-1 absolute left-1/2 -translate-x-1/2 bg-slate-100/70 backdrop-blur-md p-1 rounded-full border border-slate-200/60 shadow-inner">
+          <div class="hidden xl:flex items-center gap-1 absolute left-1/2 -translate-x-1/2 bg-slate-100/80 backdrop-blur-md p-1 rounded-xl border border-slate-200/60 shadow-inner">
             <template v-if="authStore.isAuthenticated">
               <template v-if="authStore.user?.role === 'renter'">
                 <router-link
                   v-for="item in renterLinks" :key="item.to"
                   :to="item.to"
                   exact-active-class="bg-white shadow-sm text-slate-900 font-extrabold"
-                  class="px-4 py-2 rounded-full text-xs font-bold text-slate-600 hover:text-slate-900 transition-all duration-200 no-underline flex items-center gap-1.5"
+                  class="px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition-all duration-200 no-underline flex items-center gap-1.5"
                 >
                   <i :class="[item.icon, 'text-xs text-accent']"></i>
                   <span>{{ item.label }}</span>
@@ -69,7 +65,7 @@
                   v-for="item in ownerLinks" :key="item.to"
                   :to="item.to"
                   :class="[
-                    'px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 no-underline flex items-center gap-1.5',
+                    'px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 no-underline flex items-center gap-1.5',
                     isNavItemActive(item.to) ? 'bg-white shadow-sm text-slate-900 font-extrabold' : 'text-slate-600 hover:text-slate-900'
                   ]"
                 >
@@ -84,7 +80,7 @@
               <router-link
                 to="/apartments"
                 active-class="bg-white shadow-sm text-slate-900 font-extrabold"
-                class="px-4 py-2 rounded-full text-xs font-bold text-slate-600 hover:text-slate-900 transition-all duration-200 no-underline flex items-center gap-1.5"
+                class="px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition-all duration-200 no-underline flex items-center gap-1.5"
               >
                 <i class="pi pi-search text-xs text-accent"></i>
                 <span>Browse Stays</span>
@@ -94,7 +90,7 @@
               <button
                 @click="scrollToAnchor('why-apartex')"
                 :class="activeSection === 'why-apartex' ? 'bg-white shadow-sm text-slate-900 font-extrabold' : 'text-slate-600 hover:text-slate-900'"
-                class="px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 no-underline border-0 bg-transparent cursor-pointer flex items-center gap-1.5"
+                class="px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 no-underline border-0 bg-transparent cursor-pointer flex items-center gap-1.5"
               >
                 <i class="pi pi-shield text-xs text-blue-500"></i>
                 <span>Why Apartex</span>
@@ -104,7 +100,7 @@
               <button
                 @click="scrollToAnchor('owner-pricing')"
                 :class="activeSection === 'owner-pricing' ? 'bg-white shadow-sm text-slate-900 font-extrabold' : 'text-slate-600 hover:text-slate-900'"
-                class="px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 no-underline border-0 bg-transparent cursor-pointer flex items-center gap-1.5"
+                class="px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 no-underline border-0 bg-transparent cursor-pointer flex items-center gap-1.5"
               >
                 <i class="pi pi-tag text-xs text-amber-500"></i>
                 <span>Host Pricing</span>
@@ -114,7 +110,7 @@
               <button
                 @click="scrollToAnchor('host-calculator')"
                 :class="activeSection === 'host-calculator' ? 'bg-white shadow-sm text-slate-900 font-extrabold' : 'text-slate-600 hover:text-slate-900'"
-                class="px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 no-underline border-0 bg-transparent cursor-pointer flex items-center gap-1.5"
+                class="px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 no-underline border-0 bg-transparent cursor-pointer flex items-center gap-1.5"
               >
                 <i class="pi pi-calculator text-xs text-emerald-500"></i>
                 <span>Host Calculator</span>
@@ -124,7 +120,7 @@
               <button
                 @click="scrollToAnchor('faq')"
                 :class="activeSection === 'faq' ? 'bg-white shadow-sm text-slate-900 font-extrabold' : 'text-slate-600 hover:text-slate-900'"
-                class="px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 no-underline border-0 bg-transparent cursor-pointer flex items-center gap-1.5"
+                class="px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 no-underline border-0 bg-transparent cursor-pointer flex items-center gap-1.5"
               >
                 <i class="pi pi-question-circle text-xs text-purple-500"></i>
                 <span>FAQ</span>
@@ -136,7 +132,7 @@
                 v-for="item in guestLinks" :key="item.to"
                 :to="item.to"
                 exact-active-class="bg-white shadow-sm text-slate-900 font-extrabold"
-                class="px-4 py-2 rounded-full text-xs font-bold text-slate-600 hover:text-slate-900 transition-all duration-200 no-underline flex items-center gap-1.5"
+                class="px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition-all duration-200 no-underline flex items-center gap-1.5"
               >
                 <i :class="[item.icon, 'text-xs text-accent']"></i>
                 <span>{{ item.label }}</span>
@@ -150,7 +146,7 @@
               <router-link
                 v-if="authStore.user?.role === 'renter'"
                 to="/loyalty"
-                class="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold text-accent bg-accent-light hover:bg-orange-100 transition-colors no-underline border border-orange-200 mr-1"
+                class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold text-accent bg-accent-light hover:bg-orange-100 transition-colors no-underline border border-orange-200 mr-1"
               >
                 <i class="pi pi-star-fill text-xs"></i> Club
               </router-link>
@@ -159,7 +155,7 @@
               <div class="relative" ref="dropdownRef">
                 <button
                   @click="isDropdownOpen = !isDropdownOpen"
-                  class="flex items-center gap-2 pl-2.5 pr-2 py-1.5 border border-surface-border rounded-full hover:shadow-md transition-all duration-200 bg-white cursor-pointer"
+                  class="flex items-center gap-2 pl-2.5 pr-2 py-1 border border-surface-border rounded-lg hover:shadow-md transition-all duration-200 bg-white cursor-pointer"
                 >
                   <i class="pi pi-bars text-slate-500 text-sm"></i>
                   <div class="w-8 h-8 rounded-full bg-navy text-white font-black text-xs flex items-center justify-center shadow-sm uppercase">
@@ -170,18 +166,18 @@
                 <!-- Dropdown Menu -->
                 <div
                   v-show="isDropdownOpen"
-                  class="absolute right-0 top-[calc(100%+12px)] w-56 bg-white border border-surface-border rounded-2xl shadow-2xl py-2 flex flex-col z-50 origin-top-right overflow-hidden"
+                  class="absolute right-0 top-[calc(100%+8px)] w-56 bg-white border border-surface-border rounded-xl shadow-xl py-2 flex flex-col z-50 origin-top-right overflow-hidden"
                 >
                   <div class="px-4 py-3 border-b border-surface-border mb-1 bg-slate-50">
                     <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-0.5">{{ authStore.user?.role }} Account</p>
                     <p class="text-sm font-black text-slate-800 truncate">{{ authStore.user?.full_name || authStore.user?.email }}</p>
                   </div>
-                  <router-link v-if="authStore.user?.role === 'owner'" to="/dashboard" @click="isDropdownOpen = false" class="px-5 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 no-underline transition-colors flex items-center gap-3"><i class="pi pi-chart-line text-slate-400"></i> Analytics</router-link>
-                  <router-link v-if="authStore.user?.role === 'owner'" to="/owner/apartments" @click="isDropdownOpen = false" class="px-5 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 no-underline transition-colors flex items-center gap-3"><i class="pi pi-home text-slate-400"></i> My Properties</router-link>
-                  <router-link v-if="authStore.user?.role === 'renter'" to="/profile" @click="isDropdownOpen = false" class="px-5 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 no-underline transition-colors flex items-center gap-3"><i class="pi pi-user text-slate-400"></i> Profile</router-link>
+                  <router-link v-if="authStore.user?.role === 'owner'" to="/dashboard" @click="isDropdownOpen = false" class="px-5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 no-underline transition-colors flex items-center gap-3"><i class="pi pi-chart-line text-slate-400"></i> Analytics</router-link>
+                  <router-link v-if="authStore.user?.role === 'owner'" to="/owner/apartments" @click="isDropdownOpen = false" class="px-5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 no-underline transition-colors flex items-center gap-3"><i class="pi pi-home text-slate-400"></i> My Properties</router-link>
+                  <router-link v-if="authStore.user?.role === 'renter'" to="/profile" @click="isDropdownOpen = false" class="px-5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 no-underline transition-colors flex items-center gap-3"><i class="pi pi-user text-slate-400"></i> Profile</router-link>
                   
                   <div class="h-px bg-surface-border my-1"></div>
-                  <button @click="handleLogout" class="px-5 py-2.5 text-xs font-bold text-red-600 hover:bg-red-50 text-left transition-colors flex items-center gap-3 w-full cursor-pointer"><i class="pi pi-sign-out"></i> Sign Out</button>
+                  <button @click="handleLogout" class="px-5 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 text-left transition-colors flex items-center gap-3 w-full cursor-pointer border-0 bg-transparent"><i class="pi pi-sign-out"></i> Sign Out</button>
                 </div>
               </div>
             </template>
@@ -190,7 +186,7 @@
               <!-- Sign In Direct CTA -->
               <router-link
                 to="/login"
-                class="px-4 py-2 text-xs font-bold text-slate-700 hover:text-slate-900 hover:bg-slate-100/70 rounded-full transition-all no-underline"
+                class="px-3.5 py-1.5 text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100/70 rounded-lg transition-all no-underline"
               >
                 Sign In
               </router-link>
@@ -198,7 +194,7 @@
               <!-- List Your Property Direct CTA -->
               <router-link
                 to="/register?role=owner"
-                class="btn-accent text-xs font-black px-5 py-2.5 shadow-accent hover:scale-105 transition-all duration-200 no-underline flex items-center gap-2 rounded-full"
+                class="btn-accent text-xs font-bold px-4 py-2 shadow-accent hover:scale-105 transition-all duration-200 no-underline flex items-center gap-2 rounded-lg"
               >
                 <i class="pi pi-building text-xs"></i>
                 <span>List Your Property</span>
@@ -208,18 +204,18 @@
 
           <!-- Mobile Hamburger Button -->
           <button
-            class="xl:hidden w-10 h-10 flex items-center justify-center text-slate-700 rounded-full hover:bg-slate-100 transition-colors duration-150 border border-slate-200/80 cursor-pointer"
+            class="xl:hidden w-9 h-9 flex items-center justify-center text-slate-700 rounded-lg hover:bg-slate-100 transition-colors duration-150 border border-slate-200 cursor-pointer bg-transparent"
             @click="mobileMenuVisible = !mobileMenuVisible"
             aria-label="Toggle Navigation Menu"
           >
-            <i :class="mobileMenuVisible ? 'pi pi-times' : 'pi pi-bars'" class="text-lg"></i>
+            <i :class="mobileMenuVisible ? 'pi pi-times' : 'pi pi-bars'" class="text-base"></i>
           </button>
-        </nav>
+        </div>
 
-        <!-- Mobile Floating Menu Drawer -->
+        <!-- Mobile Drawer Menu -->
         <div 
           v-show="mobileMenuVisible" 
-          class="pointer-events-auto xl:hidden absolute top-[calc(100%+8px)] left-4 right-4 bg-white/95 backdrop-blur-2xl border border-surface-border rounded-3xl shadow-2xl overflow-hidden flex flex-col z-50 origin-top p-3 transition-all duration-300"
+          class="xl:hidden absolute top-full left-0 right-0 bg-white border-b border-surface-border shadow-xl px-4 py-3 flex flex-col z-50 transition-all duration-300"
         >
           <div class="flex flex-col gap-1">
             <template v-if="authStore.isAuthenticated">
@@ -228,7 +224,7 @@
                   v-for="item in renterLinks" :key="item.to" 
                   :to="item.to" 
                   @click="mobileMenuVisible = false" 
-                  class="px-4 py-3 rounded-2xl text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3"
+                  class="px-4 py-2.5 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3"
                 >
                   <i :class="[item.icon, 'text-slate-400']"></i> {{ item.label }}
                 </router-link>
@@ -238,14 +234,14 @@
                   v-for="item in ownerLinks" :key="item.to" 
                   :to="item.to" 
                   @click="mobileMenuVisible = false" 
-                  class="px-4 py-3 rounded-2xl text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3"
+                  class="px-4 py-2.5 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3"
                 >
                   <i :class="[item.icon, 'text-slate-400']"></i> {{ item.label }}
                 </router-link>
               </template>
               
               <div class="h-px bg-surface-border mx-2 my-1"></div>
-              <button @click="handleLogout" class="px-4 py-3 rounded-2xl text-xs font-bold text-red-600 hover:bg-red-50 text-left transition-colors flex items-center gap-3 w-full cursor-pointer"><i class="pi pi-sign-out"></i> Sign Out</button>
+              <button @click="handleLogout" class="px-4 py-2.5 rounded-lg text-xs font-semibold text-red-600 hover:bg-red-50 text-left transition-colors flex items-center gap-3 w-full cursor-pointer border-0 bg-transparent"><i class="pi pi-sign-out"></i> Sign Out</button>
             </template>
 
             <template v-else-if="isLandingPage">
@@ -253,35 +249,35 @@
               <router-link 
                 to="/apartments" 
                 @click="mobileMenuVisible = false" 
-                class="px-4 py-3 rounded-2xl text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3"
+                class="px-4 py-2.5 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3"
               >
                 <i class="pi pi-search text-accent"></i> Browse Stays
               </router-link>
 
               <button 
                 @click="scrollToAnchor('why-apartex')" 
-                class="w-full text-left px-4 py-3 rounded-2xl text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3 bg-transparent border-0 cursor-pointer"
+                class="w-full text-left px-4 py-2.5 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3 bg-transparent border-0 cursor-pointer"
               >
                 <i class="pi pi-shield text-blue-500"></i> Why Apartex
               </button>
 
               <button 
                 @click="scrollToAnchor('owner-pricing')" 
-                class="w-full text-left px-4 py-3 rounded-2xl text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3 bg-transparent border-0 cursor-pointer"
+                class="w-full text-left px-4 py-2.5 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3 bg-transparent border-0 cursor-pointer"
               >
                 <i class="pi pi-tag text-amber-500"></i> Host Pricing
               </button>
 
               <button 
                 @click="scrollToAnchor('host-calculator')" 
-                class="w-full text-left px-4 py-3 rounded-2xl text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3 bg-transparent border-0 cursor-pointer"
+                class="w-full text-left px-4 py-2.5 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3 bg-transparent border-0 cursor-pointer"
               >
                 <i class="pi pi-calculator text-emerald-500"></i> Host Calculator
               </button>
 
               <button 
                 @click="scrollToAnchor('faq')" 
-                class="w-full text-left px-4 py-3 rounded-2xl text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3 bg-transparent border-0 cursor-pointer"
+                class="w-full text-left px-4 py-2.5 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3 bg-transparent border-0 cursor-pointer"
               >
                 <i class="pi pi-question-circle text-purple-500"></i> FAQ
               </button>
@@ -289,8 +285,8 @@
               <div class="h-px bg-surface-border mx-2 my-1"></div>
               <!-- Mobile Direct CTAs -->
               <div class="grid grid-cols-2 gap-2 p-1">
-                <router-link to="/login" @click="mobileMenuVisible = false" class="btn-outline text-center no-underline py-2.5 text-xs">Sign In</router-link>
-                <router-link to="/register?role=owner" @click="mobileMenuVisible = false" class="btn-accent text-center no-underline py-2.5 text-xs font-black">List Property</router-link>
+                <router-link to="/login" @click="mobileMenuVisible = false" class="btn-outline text-center no-underline py-2 text-xs">Sign In</router-link>
+                <router-link to="/register?role=owner" @click="mobileMenuVisible = false" class="btn-accent text-center no-underline py-2 text-xs font-bold">List Property</router-link>
               </div>
             </template>
 
@@ -299,20 +295,20 @@
                 v-for="item in guestLinks" :key="item.to" 
                 :to="item.to" 
                 @click="mobileMenuVisible = false" 
-                class="px-4 py-3 rounded-2xl text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3"
+                class="px-4 py-2.5 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-accent no-underline transition-colors flex items-center gap-3"
               >
                 <i :class="[item.icon, 'text-slate-400']"></i> {{ item.label }}
               </router-link>
 
               <div class="h-px bg-surface-border mx-2 my-1"></div>
               <div class="grid grid-cols-2 gap-2 p-1">
-                <router-link to="/login" @click="mobileMenuVisible = false" class="btn-outline text-center no-underline py-2.5 text-xs">Sign In</router-link>
-                <router-link to="/register?role=owner" @click="mobileMenuVisible = false" class="btn-accent text-center no-underline py-2.5 text-xs font-black">List Property</router-link>
+                <router-link to="/login" @click="mobileMenuVisible = false" class="btn-outline text-center no-underline py-2 text-xs">Sign In</router-link>
+                <router-link to="/register?role=owner" @click="mobileMenuVisible = false" class="btn-accent text-center no-underline py-2 text-xs font-bold">List Property</router-link>
               </div>
             </template>
           </div>
         </div>
-      </div>
+      </nav>
 
       <main class="min-h-screen">
         <router-view v-slot="{ Component, route: r }">
@@ -387,10 +383,16 @@ const themeStore = useThemeStore();
 const router = useRouter();
 const route = useRoute();
 
-const isAuthPage = computed(() => ['/login', '/register'].includes(route.path));
+const isAuthPage = computed(() => [
+  '/login',
+  '/register',
+  '/owner/login',
+  '/owner/register',
+].includes(route.path));
 const isLandingPage = computed(() => (route.path === '/' || route.path === '') && !authStore.isAuthenticated);
 
 const isOwnerPage = computed(() => {
+  if (isAuthPage.value) return false;
   if (authStore.user?.role === 'owner' && route.path === '/profile') return true;
   const ownerPaths = ['/owner', '/dashboard'];
   return ownerPaths.some(p => route.path === p || route.path.startsWith(p + '/'));

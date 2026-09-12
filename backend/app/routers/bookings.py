@@ -30,14 +30,15 @@ def check_apartment_availability(apartment_id: int, check_in: date, check_out: d
     if not apartment.is_available:
         return False
 
-    # Check for overlapping bookings (only consider confirmed and completed bookings)
+    # Check for overlapping bookings — include pending so the write-path is
+    # consistent with what the calendar shows guests (no phantom availability).
     overlapping_bookings = db.query(Booking).filter(
         Booking.property_id == apartment_id,
-        Booking.status.in_(["confirmed", "completed"]),
+        Booking.status.in_(["confirmed", "completed", "pending"]),
         Booking.check_in < check_out,
         Booking.check_out > check_in
     ).all()
-    
+
     if overlapping_bookings:
         return False
 
@@ -101,11 +102,21 @@ def calculate_room_price(room_id: int, check_in: date, check_out: date, db: Sess
 
 @router.post("/", response_model=BookingRead, status_code=status.HTTP_201_CREATED)
 def create_booking(
-    booking: BookingCreate, 
-    db: Session = Depends(get_db), 
+    booking: BookingCreate,
+    db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
-    property = db.query(Property).filter(Property.id == booking.property_id).first()
+    # --- Pessimistic lock: acquire a row-level lock on the property for the
+    # duration of this transaction so concurrent requests are serialised and
+    # cannot both pass the availability check before either commits.
+    # with_for_update() is a no-op on SQLite (which is serialised by default)
+    # but is essential for PostgreSQL in production.
+    property = (
+        db.query(Property)
+        .filter(Property.id == booking.property_id)
+        .with_for_update()
+        .first()
+    )
     if not property:
         raise HTTPException(status_code=404, detail="Property not found")
 
@@ -117,15 +128,18 @@ def create_booking(
 
     # Branch: room-based booking (hotel/lodge) vs direct property booking (apartment)
     if booking.room_id:
-        room = db.query(Room).filter(
-            Room.id == booking.room_id,
-            Room.property_id == booking.property_id
-        ).first()
+        # Lock the room row as well so concurrent room bookings are serialised.
+        room = (
+            db.query(Room)
+            .filter(Room.id == booking.room_id, Room.property_id == booking.property_id)
+            .with_for_update()
+            .first()
+        )
         if not room:
             raise HTTPException(status_code=404, detail="Room not found on this property")
 
         if not check_room_availability(booking.room_id, booking.check_in, booking.check_out, db):
-            raise HTTPException(status_code=400, detail="Room is not available for the selected dates")
+            raise HTTPException(status_code=409, detail="These dates were just taken. Please choose different dates.")
 
         if booking.guests > room.capacity:
             raise HTTPException(status_code=400, detail=f"Room capacity is {room.capacity} guests")
@@ -133,7 +147,7 @@ def create_booking(
         total_price = calculate_room_price(booking.room_id, booking.check_in, booking.check_out, db)
     else:
         if not check_apartment_availability(booking.property_id, booking.check_in, booking.check_out, db):
-            raise HTTPException(status_code=400, detail="Property is not available for the selected dates")
+            raise HTTPException(status_code=409, detail="These dates were just taken. Please choose different dates.")
 
         if booking.guests > property.capacity:
             raise HTTPException(status_code=400, detail=f"Property can only accommodate {property.capacity} guests")
@@ -205,29 +219,34 @@ def create_walk_in_booking(
     if booking.check_in >= booking.check_out:
         raise HTTPException(status_code=400, detail="Check-out date must be after check-in date")
 
-    property = db.query(Property).filter(
-        Property.id == booking.property_id,
-        Property.owner_id == current_user.id
-    ).first()
+    # Pessimistic lock on the property row — same rationale as create_booking.
+    property = (
+        db.query(Property)
+        .filter(Property.id == booking.property_id, Property.owner_id == current_user.id)
+        .with_for_update()
+        .first()
+    )
     if not property:
         raise HTTPException(status_code=404, detail="Property not found or you do not own it")
 
     # Availability check — same logic as regular booking
     if booking.room_id:
-        room = db.query(Room).filter(
-            Room.id == booking.room_id,
-            Room.property_id == booking.property_id
-        ).first()
+        room = (
+            db.query(Room)
+            .filter(Room.id == booking.room_id, Room.property_id == booking.property_id)
+            .with_for_update()
+            .first()
+        )
         if not room:
             raise HTTPException(status_code=404, detail="Room not found on this property")
 
         if not check_room_availability(booking.room_id, booking.check_in, booking.check_out, db):
-            raise HTTPException(status_code=400, detail="Room is not available for the selected dates")
+            raise HTTPException(status_code=409, detail="These dates were just taken. Please choose different dates.")
 
         total_price = calculate_room_price(booking.room_id, booking.check_in, booking.check_out, db)
     else:
         if not check_apartment_availability(booking.property_id, booking.check_in, booking.check_out, db):
-            raise HTTPException(status_code=400, detail="Property is not available for the selected dates")
+            raise HTTPException(status_code=409, detail="These dates were just taken. Please choose different dates.")
 
         total_price = calculate_booking_price(booking.property_id, booking.check_in, booking.check_out, db)
 

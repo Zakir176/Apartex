@@ -1,16 +1,18 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 
 class ApartmentBase(BaseModel):
+    model_config = ConfigDict(extra='ignore')
+
     title: str
     description: Optional[str] = None
-    address: str
-    city: str
-    price_per_night: float
-    capacity: int
-    bedrooms: int
-    bathrooms: int
+    address: Optional[str] = "Lusaka, Zambia"
+    city: str = "Lusaka"
+    price_per_night: float = 100.0
+    capacity: int = 2
+    bedrooms: int = 1
+    bathrooms: int = 1
     property_type: str = "apartment"
     star_rating: Optional[int] = None
     amenities: Optional[List[str]] = None

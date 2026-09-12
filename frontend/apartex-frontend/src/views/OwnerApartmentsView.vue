@@ -152,6 +152,11 @@
         </div>
 
         <div>
+          <label class="label-base">Street Address / Location</label>
+          <input v-model="form.address" class="input-base" placeholder="e.g. 14 Birdcage Walk, Kabulonga" />
+        </div>
+
+        <div>
           <label class="label-base">Description & Guest Experience</label>
           <textarea v-model="form.description" class="input-base resize-none" rows="3" placeholder="Describe ambiance, location highlights, security, and amenities..."></textarea>
         </div>
@@ -421,12 +426,14 @@ function openCreateModal() {
   uploadError.value = '';
   form.value = {
     title: '',
+    address: '',
     description: '',
     price_per_night: 120,
     city: 'Lusaka',
     capacity: 2,
     bedrooms: 1,
     bathrooms: 1,
+    property_type: 'apartment',
     image_url: ''
   };
   showModal.value = true;
@@ -447,11 +454,22 @@ function openAvailability(apt) {
 async function saveProperty() {
   if (!form.value.title) return;
   saving.value = true;
+  const payload = {
+    ...form.value,
+    address: form.value.address || `${form.value.title}, ${form.value.city}`,
+    property_type: form.value.property_type || 'apartment',
+    // Coerce numerics — PrimeVue InputNumber can emit null when cleared
+    price_per_night: parseFloat(form.value.price_per_night) || 100,
+    capacity: parseInt(form.value.capacity) || 2,
+    bedrooms: parseInt(form.value.bedrooms) || 1,
+    bathrooms: parseInt(form.value.bathrooms) || 1,
+  };
+
   try {
     if (editingId.value) {
-      await apartmentsStore.updateApartment(editingId.value, form.value);
+      await apartmentsStore.updateApartment(editingId.value, payload);
     } else {
-      await apartmentsStore.createApartment(form.value);
+      await apartmentsStore.createApartment(payload);
     }
     showModal.value = false;
   } catch (err) {

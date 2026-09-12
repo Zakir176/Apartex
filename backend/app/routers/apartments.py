@@ -31,6 +31,10 @@ def create_apartment(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only owners can create apartments")
     
     apt_data = apartment.dict()
+    if not apt_data.get('address'):
+        apt_data['address'] = f"{apt_data.get('city') or 'Lusaka'}, Zambia"
+    if not apt_data.get('property_type'):
+        apt_data['property_type'] = 'apartment'
     if isinstance(apt_data.get('amenities'), list):
         apt_data['amenities'] = json.dumps(apt_data['amenities'])
         

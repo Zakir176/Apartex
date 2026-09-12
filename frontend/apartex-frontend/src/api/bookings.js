@@ -45,5 +45,9 @@ export const bookingsApi = {
 
   checkRoomAvailability(roomId, params) {
     return apiClient.get(`/bookings/room/${roomId}/availability`, { params });
+  },
+
+  getPropertyBookedDates(propertyId) {
+    return apiClient.get(`/bookings/property/${propertyId}/booked-dates`);
   }
 };

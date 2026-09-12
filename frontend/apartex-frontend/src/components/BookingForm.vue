@@ -90,6 +90,7 @@ import { useBookingsStore } from '@/stores/bookings';
 import { useAuthStore } from '@/stores/auth';
 import { useCurrencyStore } from '@/stores/currency';
 import { availabilityApi } from '@/api/availability.js';
+import { bookingsApi } from '@/api/bookings.js';
 
 // PrimeVue components
 import Calendar from 'primevue/calendar';
@@ -128,9 +129,26 @@ const guestOptions = computed(() => {
 const loading = ref(false);
 const error = ref('');
 const blockedDatesRes = ref([]);
+const bookedRanges = ref([]); // confirmed/pending guest booking ranges
+
+// Expand a check_in/check_out range into individual date strings (exclusive of check_out)
+function expandRange(checkIn, checkOut) {
+  const dates = [];
+  const cur = new Date(checkIn + 'T00:00:00');
+  const end = new Date(checkOut + 'T00:00:00');
+  while (cur < end) {
+    dates.push(new Date(cur));
+    cur.setDate(cur.getDate() + 1);
+  }
+  return dates;
+}
 
 const disabledDates = computed(() => {
-  return blockedDatesRes.value.map(bd => new Date(bd.blocked_date + 'T00:00:00'));
+  // Owner-blocked individual dates
+  const ownerBlocked = blockedDatesRes.value.map(bd => new Date(bd.blocked_date + 'T00:00:00'));
+  // Guest booking ranges expanded to per-day Date objects
+  const guestBooked = bookedRanges.value.flatMap(r => expandRange(r.check_in, r.check_out));
+  return [...ownerBlocked, ...guestBooked];
 });
 
 const isValidRange = computed(() => {
@@ -139,24 +157,30 @@ const isValidRange = computed(() => {
 
 const isOverlapping = computed(() => {
   if (!isValidRange.value) return false;
+  // Build a fast lookup Set from all disabled dates (owner-blocked + guest-booked)
+  const disabledSet = new Set(
+    disabledDates.value.map(d => d.toISOString().split('T')[0])
+  );
   const start = dates.value[0];
   const end = dates.value[1];
   let current = new Date(start);
   while (current <= end) {
-    const curStr = current.toISOString().split('T')[0];
-    if (blockedDatesRes.value.some(bd => bd.blocked_date === curStr)) return true;
+    if (disabledSet.has(current.toISOString().split('T')[0])) return true;
     current.setDate(current.getDate() + 1);
   }
   return false;
 });
 
 onMounted(async () => {
-  try {
-    const res = await availabilityApi.getBlockedDates(props.apartment.id);
-    blockedDatesRes.value = res.data || [];
-  } catch (e) {
-    console.error('Failed to load blocked dates', e);
-  }
+  // Fetch owner-blocked dates AND confirmed guest bookings in parallel
+  const [blockedRes, bookedRes] = await Promise.allSettled([
+    availabilityApi.getBlockedDates(props.apartment.id),
+    bookingsApi.getPropertyBookedDates(props.apartment.id),
+  ]);
+  if (blockedRes.status === 'fulfilled') blockedDatesRes.value = blockedRes.value.data || [];
+  else console.error('Failed to load blocked dates', blockedRes.reason);
+  if (bookedRes.status === 'fulfilled') bookedRanges.value = bookedRes.value.data || [];
+  else console.error('Failed to load booked dates', bookedRes.reason);
 });
 
 const nights = computed(() => {

@@ -288,6 +288,7 @@ import { useAuthStore } from '@/stores/auth';
 import { useApartmentsStore } from '@/stores/apartments';
 import { useBookingsStore } from '@/stores/bookings';
 import { useDashboardStore } from '@/stores/dashboard';
+import { useCurrencyStore } from '@/stores/currency';
 import { useCountUp } from '@/composables/useCountUp';
 import WalkInBookingModal from '@/components/WalkInBookingModal.vue';
 
@@ -296,6 +297,7 @@ const authStore = useAuthStore();
 const apartmentsStore = useApartmentsStore();
 const bookingsStore = useBookingsStore();
 const dashboardStore = useDashboardStore();
+const currencyStore = useCurrencyStore();
 
 const showWalkInModal = ref(false);
 const ownerProperties = ref([]);
@@ -315,6 +317,8 @@ const pendingBookingsCount = computed(() => {
 
 const { current: animatedEarnings } = useCountUp(() => totalEarnings.value, 2000, 400);
 const { current: animatedPending } = useCountUp(() => pendingBookingsCount.value, 800, 600);
+
+const formattedEarnings = computed(() => currencyStore.formatPrice(animatedEarnings.value));
 
 const upcomingCheckIns = [
   {

@@ -21,6 +21,7 @@
           :manualInput="false"
           :disabledDates="disabledDates"
           class="w-full"
+          @date-select="raceError = ''"
         />
       </div>
 
@@ -80,6 +81,17 @@
       </div>
     </Transition>
 
+    <!-- Race Condition Warning -->
+    <Transition name="fade">
+      <div v-if="raceError" class="mt-4 bg-amber-50 border border-amber-300 text-amber-800 rounded-lg px-4 py-3 text-xs font-bold flex items-start gap-2">
+        <i class="pi pi-exclamation-triangle mt-0.5"></i>
+        <div>
+          <p class="m-0 mb-0.5">{{ raceError }}</p>
+          <p class="m-0 font-medium text-amber-600">The calendar has been updated — please pick new dates.</p>
+        </div>
+      </div>
+    </Transition>
+
   </div>
 </template>
 
@@ -128,6 +140,7 @@ const guestOptions = computed(() => {
 
 const loading = ref(false);
 const error = ref('');
+const raceError = ref(''); // shown when another user steals the dates mid-session
 const blockedDatesRes = ref([]);
 const bookedRanges = ref([]); // confirmed/pending guest booking ranges
 
@@ -171,8 +184,7 @@ const isOverlapping = computed(() => {
   return false;
 });
 
-onMounted(async () => {
-  // Fetch owner-blocked dates AND confirmed guest bookings in parallel
+async function refreshAvailability() {
   const [blockedRes, bookedRes] = await Promise.allSettled([
     availabilityApi.getBlockedDates(props.apartment.id),
     bookingsApi.getPropertyBookedDates(props.apartment.id),
@@ -181,7 +193,9 @@ onMounted(async () => {
   else console.error('Failed to load blocked dates', blockedRes.reason);
   if (bookedRes.status === 'fulfilled') bookedRanges.value = bookedRes.value.data || [];
   else console.error('Failed to load booked dates', bookedRes.reason);
-});
+}
+
+onMounted(refreshAvailability);
 
 const nights = computed(() => {
   if (!isValidRange.value) return 0;
@@ -199,7 +213,7 @@ const formattedCleaningFee = computed(() => currencyStore.formatPrice(cleaningFe
 const formattedServiceFee = computed(() => currencyStore.formatPrice(serviceFeeUSD.value));
 const formattedTotal = computed(() => currencyStore.formatPrice(totalUSD.value));
 
-const handleBooking = () => {
+const handleBooking = async () => {
   if (!authStore.isAuthenticated) {
     router.push({
       path: '/login',
@@ -208,7 +222,19 @@ const handleBooking = () => {
     return;
   }
 
-  if (!isValidRange.value) {
+  if (!isValidRange.value) return;
+
+  // Re-fetch availability just before navigating to checkout so we catch
+  // dates that were booked by another user while this tab was open.
+  try {
+    await refreshAvailability();
+  } catch {
+    // non-fatal — proceed and let the backend be the final arbiter
+  }
+
+  if (isOverlapping.value) {
+    raceError.value = 'Someone just booked those dates while you were browsing.';
+    dates.value = null;
     return;
   }
 

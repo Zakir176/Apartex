@@ -308,7 +308,13 @@ const processPayment = () => {
       success.value = true;
     } catch (e) {
       loading.value = false;
-      bookingError.value = e.response?.data?.detail || 'Booking failed. The dates may no longer be available.';
+      const status = e.response?.status;
+      const detail = e.response?.data?.detail;
+      if (status === 409) {
+        bookingError.value = detail || 'These dates were just booked by someone else. Please go back and choose new dates.';
+      } else {
+        bookingError.value = detail || 'Booking failed. Please try again.';
+      }
     }
   }, 2000);
 };

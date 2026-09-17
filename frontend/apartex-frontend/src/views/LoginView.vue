@@ -46,9 +46,6 @@
         v-if="showForm"
         class="w-full max-w-[440px] card-base p-10 text-center relative overflow-hidden z-10"
       >
-        <!-- Accent top bar -->
-        <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-accent to-orange-400"></div>
-
         <!-- Brand -->
         <div
           @click="router.push('/')"

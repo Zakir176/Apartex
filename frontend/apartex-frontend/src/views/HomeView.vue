@@ -103,7 +103,7 @@
             </button>
           </div>
 
-          <!-- Quick Filters Tags -->
+          <!-- Quick Filters Tags for Popular Destinations -->
           <div class="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100 flex-wrap text-xs text-slate-500">
             <span class="font-medium text-slate-400">Popular Searches:</span>
             <button @click="quickFilter('Lusaka')" class="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-accent-light hover:text-accent font-semibold transition-colors cursor-pointer">Lusaka Penthouses</button>

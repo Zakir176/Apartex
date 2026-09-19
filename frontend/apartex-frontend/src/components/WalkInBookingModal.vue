@@ -275,7 +275,42 @@
                   />
                 </div>
               </div>
-              <p v-if="errors.dates" class="text-red-500 text-[11px] font-medium">{{ errors.dates }}</p>
+              <!-- Availability panel -->
+              <div v-if="form.property_id" class="mt-2">
+                <div v-if="availabilityLoading" class="flex items-center gap-2 text-xs text-gray-400 py-2">
+                  <i class="pi pi-spin pi-spinner text-xs"></i> Checking availability...
+                </div>
+                <div v-else-if="bookedRanges.length === 0" class="flex items-center gap-2 text-xs font-medium text-accent bg-accent-light border border-accent/20 px-3 py-2 rounded-lg">
+                  <i class="pi pi-check-circle"></i> All dates available
+                </div>
+                <div v-else class="flex flex-col gap-1.5">
+                  <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Booked Periods</p>
+                  <div class="flex flex-col gap-1 max-h-28 overflow-y-auto">
+                    <div
+                      v-for="(range, i) in bookedRanges"
+                      :key="i"
+                      class="flex items-center gap-2 text-xs px-3 py-2 rounded-lg border transition-colors duration-150"
+                      :class="form.check_in && form.check_out && new Date(form.check_in) < new Date(range.check_out) && new Date(form.check_out) > new Date(range.check_in)
+                        ? 'bg-red-50 border-red-200 text-red-600'
+                        : 'bg-gray-50 border-surface-border text-gray-500'"
+                    >
+                      <i class="pi pi-calendar text-xs shrink-0"
+                        :class="form.check_in && form.check_out && new Date(form.check_in) < new Date(range.check_out) && new Date(form.check_out) > new Date(range.check_in) ? 'text-red-400' : 'text-gray-300'">
+                      </i>
+                      <span class="font-medium">
+                        {{ new Date(range.check_in).toLocaleDateString('en-US', { day: 'numeric', month: 'short' }) }}
+                        →
+                        {{ new Date(range.check_out).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) }}
+                      </span>
+                      <span v-if="form.check_in && form.check_out && new Date(form.check_in) < new Date(range.check_out) && new Date(form.check_out) > new Date(range.check_in)" class="ml-auto font-semibold text-red-500 text-[10px] uppercase">Conflict</span>
+                    </div>
+                  </div>
+                  <div v-if="selectedDatesConflict" class="flex items-center gap-2 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 px-3 py-2.5 rounded-lg">
+                    <i class="pi pi-exclamation-triangle"></i>
+                    Selected dates overlap with an existing booking. Please choose different dates.
+                  </div>
+                </div>
+              </div>
 
               <!-- Guest Count Stepper -->
               <div class="flex items-center justify-between pt-1">
@@ -369,8 +404,8 @@
             <button
               @click="handleSubmit"
               type="button"
-              class="btn-accent shadow-accent px-6 py-2.5 rounded-xl font-black text-xs flex items-center gap-2 cursor-pointer transition-all active:scale-95"
-              :disabled="submitting"
+              class="btn-accent shadow-accent px-6 py-2.5 rounded-xl font-black text-xs flex items-center gap-2 cursor-pointer transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              :disabled="submitting || selectedDatesConflict"
             >
               <i v-if="submitting" class="pi pi-spin pi-spinner text-xs"></i>
               <i v-else class="pi pi-check text-xs"></i>
@@ -412,10 +447,30 @@ const form = ref({
 
 const propertyRooms = ref([]);
 const loadingRooms = ref(false);
+const bookedRanges = ref([]);
+const availabilityLoading = ref(false);
+
+async function fetchBookedDates(propertyId) {
+  if (!propertyId) {
+    bookedRanges.value = [];
+    return;
+  }
+  availabilityLoading.value = true;
+  try {
+    const res = await apiClient.get(`/bookings/property/${propertyId}/booked-dates`);
+    bookedRanges.value = res.data;
+  } catch {
+    bookedRanges.value = [];
+  } finally {
+    availabilityLoading.value = false;
+  }
+}
+
 const errors = ref({});
 const submitError = ref('');
 const submitting = ref(false);
 const successBooking = ref(null);
+const lastBooking = successBooking;
 
 const paymentMethods = [
   { value: 'cash', label: 'Cash (Physical)', icon: 'pi pi-money-bill' },
@@ -452,120 +507,148 @@ const estimatedPrice = computed(() => {
   return nightsCount.value * currentNightlyRate.value;
 });
 
-function downloadReceiptPDF() {
-  const booking = successBooking.value;
-  if (!booking) return;
+const selectedDatesConflict = computed(() => {
+  if (!form.value.check_in || !form.value.check_out) return false;
+  const checkIn = new Date(form.value.check_in);
+  const checkOut = new Date(form.value.check_out);
+  return bookedRanges.value.some(range => {
+    const bookedIn = new Date(range.check_in);
+    const bookedOut = new Date(range.check_out);
+    return checkIn < bookedOut && checkOut > bookedIn;
+  });
+});
 
+async function downloadReceiptPDF() {
+  if (!lastBooking.value) return;
+
+  const booking = lastBooking.value;
   const guestName = booking.walk_in_guest_name || 'Walk-in Guest';
-  const propertyName = props.ownerProperties?.find?.(p => p.id === booking.property_id)?.title || selectedPropertyName.value || `Property #${booking.property_id}`;
-  const checkIn = new Date(booking.check_in).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
-  const checkOut = new Date(booking.check_out).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
-  const nights = Math.ceil((new Date(booking.check_out) - new Date(booking.check_in)) / (1000 * 60 * 60 * 24)) || nightsCount.value || 1;
+  const property = props.ownerProperties?.find?.(p => p.id === booking.property_id);
+  const propertyName = property?.title || `Property #${booking.property_id}`;
+  const propertyCity = property?.city || 'Zambia';
+  const checkIn = new Date(booking.check_in);
+  const checkOut = new Date(booking.check_out);
+  const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+  const checkInStr = checkIn.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
+  const checkOutStr = checkOut.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
   const paymentLabel = { cash: 'Cash', mobile_money: 'Mobile Money', card: 'Card', bank_transfer: 'Bank Transfer' }[booking.payment_method] || booking.payment_method;
   const ref = `APX-${booking.id?.toString().padStart(6, '0') || '000001'}`;
+  const verifyUrl = `https://apartex.vercel.app/bookings/verify/${booking.id || '1'}`;
+  const issueDate = new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
 
-  const html = `
-<!DOCTYPE html>
+  let qrDataUrl = '';
+  try {
+    const QRCode = (await import('qrcode')).default;
+    qrDataUrl = await QRCode.toDataURL(verifyUrl, {
+      width: 120, margin: 1,
+      color: { dark: '#0A6640', light: '#FFFFFF' }
+    });
+  } catch {}
+
+  const html = `<!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Booking Receipt — ${ref}</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #fff; color: #111827; font-size: 14px; }
-    .page { max-width: 560px; margin: 0 auto; padding: 48px 40px; }
-    .header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 24px; border-bottom: 1px solid #E5E7EB; margin-bottom: 32px; }
-    .brand { font-size: 20px; font-weight: 700; color: #0A6640; letter-spacing: 0.05em; }
-    .ref { font-size: 11px; color: #9CA3AF; text-align: right; }
-    .ref strong { display: block; font-size: 13px; color: #374151; margin-bottom: 2px; }
-    .title { font-size: 22px; font-weight: 700; color: #111827; margin-bottom: 4px; }
-    .subtitle { font-size: 13px; color: #6B7280; margin-bottom: 32px; }
-    .section { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 20px 24px; margin-bottom: 16px; }
-    .section-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #9CA3AF; margin-bottom: 14px; }
-    .row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
-    .row:last-child { margin-bottom: 0; }
-    .row-label { font-size: 13px; color: #6B7280; }
-    .row-value { font-size: 13px; font-weight: 500; color: #111827; text-align: right; }
-    .total-row { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: #0A6640; border-radius: 8px; margin-bottom: 32px; }
-    .total-label { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.8); }
-    .total-value { font-size: 20px; font-weight: 700; color: #fff; }
-    .footer { text-align: center; font-size: 11px; color: #9CA3AF; border-top: 1px solid #E5E7EB; padding-top: 24px; }
-    .status-badge { display: inline-block; background: #ECFDF5; color: #0A6640; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
-    @media print {
-      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Receipt ${ref}</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#f9fafb}
+  .page{max-width:580px;margin:32px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)}
+  .hdr{background:#0A6640;padding:32px 36px;position:relative;overflow:hidden}
+  .hdr::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:rgba(255,255,255,0.06);border-radius:50%}
+  .brand{color:rgba(255,255,255,0.65);font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+  .hdr-title{color:#fff;font-size:26px;font-weight:700;margin-bottom:4px}
+  .hdr-sub{color:rgba(255,255,255,0.6);font-size:13px}
+  .pill{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:#fff;font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;margin-top:16px}
+  .dot{width:6px;height:6px;background:#86efac;border-radius:50%}
+  .body{padding:32px 36px}
+  .ref-banner{display:flex;align-items:center;justify-content:space-between;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px 18px;margin-bottom:28px}
+  .ref-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;margin-bottom:2px}
+  .ref-num{font-size:18px;font-weight:700;color:#0A6640;letter-spacing:.05em}
+  .ref-dt{font-size:11px;color:#9ca3af;text-align:right}
+  .sec-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#9ca3af;padding-bottom:8px;border-bottom:1px solid #f3f4f6;margin-bottom:12px;margin-top:20px}
+  .row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0}
+  .rk{font-size:13px;color:#6b7280}
+  .rv{font-size:13px;font-weight:500;color:#111827;text-align:right}
+  .stay-card{background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:18px;margin:16px 0;display:flex;gap:16px;align-items:center}
+  .sd{flex:1}
+  .sdl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af;margin-bottom:4px}
+  .sdv{font-size:14px;font-weight:600;color:#111827}
+  .sdiv{width:1px;background:#e5e7eb;align-self:stretch}
+  .nbadge{background:#0A6640;color:#fff;font-size:12px;font-weight:700;padding:6px 14px;border-radius:20px;white-space:nowrap}
+  .total{background:#111827;border-radius:12px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;margin:24px 0}
+  .tl{color:rgba(255,255,255,0.6);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+  .ts{color:rgba(255,255,255,0.5);font-size:11px;margin-top:3px}
+  .ta{color:#fff;font-size:28px;font-weight:700}
+  .qr-sec{display:flex;align-items:center;gap:20px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:18px;margin-bottom:28px}
+  .qr-img{width:90px;height:90px;border-radius:8px;flex-shrink:0}
+  .qr-h{font-size:13px;font-weight:600;color:#111827;margin-bottom:4px}
+  .qr-p{font-size:11px;color:#6b7280;line-height:1.5}
+  .qr-url{font-size:10px;color:#0A6640;margin-top:6px;word-break:break-all}
+  .footer{text-align:center;padding-top:20px;border-top:1px solid #f3f4f6}
+  .footer p{font-size:11px;color:#9ca3af;line-height:1.8}
+  .footer strong{color:#0A6640}
+  .badge{display:inline-block;background:#ecfdf5;color:#0A6640;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.04em}
+  @media print{body{background:#fff}.page{box-shadow:none;border-radius:0;margin:0;max-width:100%}@page{margin:.5in}}
+</style>
 </head>
 <body>
 <div class="page">
-  <div class="header">
-    <div class="brand">APARTEX</div>
-    <div class="ref">
-      <strong>${ref}</strong>
-      Booking Receipt
-    </div>
+  <div class="hdr">
+    <div class="brand">Apartex · Official Receipt</div>
+    <div class="hdr-title">Booking Confirmed</div>
+    <div class="hdr-sub">${propertyName} · ${propertyCity}</div>
+    <div class="pill"><span class="dot"></span>Walk-in · ${paymentLabel}</div>
   </div>
+  <div class="body">
+    <div class="ref-banner">
+      <div>
+        <div class="ref-lbl">Booking Reference</div>
+        <div class="ref-num">${ref}</div>
+      </div>
+      <div class="ref-dt">Issued<br>${issueDate}</div>
+    </div>
 
-  <div class="title">Booking Confirmed</div>
-  <div class="subtitle">${new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+    <div class="sec-lbl">Guest</div>
+    <div class="row"><span class="rk">Name</span><span class="rv">${guestName}</span></div>
+    ${booking.walk_in_guest_phone ? `<div class="row"><span class="rk">Phone</span><span class="rv">${booking.walk_in_guest_phone}</span></div>` : ''}
+    <div class="row"><span class="rk">Guests</span><span class="rv">${booking.guests} person${booking.guests !== 1 ? 's' : ''}</span></div>
 
-  <div class="section">
-    <div class="section-label">Guest Details</div>
-    <div class="row">
-      <span class="row-label">Guest Name</span>
-      <span class="row-value">${guestName}</span>
+    <div class="sec-lbl">Stay</div>
+    <div class="stay-card">
+      <div class="sd"><div class="sdl">Check-in</div><div class="sdv">${checkInStr}</div></div>
+      <div class="sdiv"></div>
+      <div class="sd"><div class="sdl">Check-out</div><div class="sdv">${checkOutStr}</div></div>
+      <div class="nbadge">${nights}N</div>
     </div>
-    ${booking.walk_in_guest_phone ? `<div class="row"><span class="row-label">Phone</span><span class="row-value">${booking.walk_in_guest_phone}</span></div>` : ''}
-    <div class="row">
-      <span class="row-label">Booking Type</span>
-      <span class="row-value"><span class="status-badge">Walk-in</span></span>
-    </div>
-  </div>
 
-  <div class="section">
-    <div class="section-label">Stay Details</div>
-    <div class="row">
-      <span class="row-label">Property</span>
-      <span class="row-value">${propertyName}</span>
-    </div>
-    <div class="row">
-      <span class="row-label">Check-in</span>
-      <span class="row-value">${checkIn}</span>
-    </div>
-    <div class="row">
-      <span class="row-label">Check-out</span>
-      <span class="row-value">${checkOut}</span>
-    </div>
-    <div class="row">
-      <span class="row-label">Duration</span>
-      <span class="row-value">${nights} night${nights !== 1 ? 's' : ''}</span>
-    </div>
-    <div class="row">
-      <span class="row-label">Guests</span>
-      <span class="row-value">${booking.guests}</span>
-    </div>
-  </div>
+    <div class="sec-lbl">Payment</div>
+    <div class="row"><span class="rk">Method</span><span class="rv">${paymentLabel}</span></div>
+    <div class="row"><span class="rk">Status</span><span class="rv"><span class="badge">Paid</span></span></div>
 
-  <div class="section">
-    <div class="section-label">Payment</div>
-    <div class="row">
-      <span class="row-label">Method</span>
-      <span class="row-value">${paymentLabel}</span>
+    <div class="total">
+      <div>
+        <div class="tl">Total Amount</div>
+        <div class="ts">${nights} nights · ${paymentLabel}</div>
+      </div>
+      <div class="ta">$${parseFloat(booking.total_price || 0).toFixed(2)}</div>
     </div>
-    <div class="row">
-      <span class="row-label">Status</span>
-      <span class="row-value"><span class="status-badge">Paid</span></span>
+
+    ${qrDataUrl ? `
+    <div class="qr-sec">
+      <img src="${qrDataUrl}" class="qr-img" alt="QR" />
+      <div>
+        <div class="qr-h">Scan to Verify Booking</div>
+        <div class="qr-p">Show at check-in or scan to view booking details instantly. No app required.</div>
+        <div class="qr-url">${verifyUrl}</div>
+      </div>
+    </div>` : ''}
+
+    <div class="footer">
+      <p><strong>apartex.vercel.app</strong><br>
+      Official Apartex booking receipt. Retain for your records.<br>
+      Reference: ${ref}</p>
     </div>
-  </div>
-
-  <div class="total-row">
-    <span class="total-label">Total Amount</span>
-    <span class="total-value">$${parseFloat(booking.total_price || estimatedPrice.value || 0).toFixed(2)}</span>
-  </div>
-
-  <div class="footer">
-    Thank you for choosing Apartex · apartex.vercel.app<br>
-    This is an official booking receipt. Please retain for your records.
   </div>
 </div>
 </body>
@@ -575,10 +658,7 @@ function downloadReceiptPDF() {
   const url = URL.createObjectURL(blob);
   const win = window.open(url, '_blank');
   if (win) {
-    win.onload = () => {
-      win.print();
-      URL.revokeObjectURL(url);
-    };
+    win.onload = () => { setTimeout(() => { win.print(); URL.revokeObjectURL(url); }, 500); };
   }
 }
 
@@ -590,7 +670,10 @@ function formatPropertyType(type) {
 async function onPropertyChange() {
   form.value.room_id = '';
   propertyRooms.value = [];
-  if (!form.value.property_id) return;
+  if (!form.value.property_id) {
+    bookedRanges.value = [];
+    return;
+  }
 
   loadingRooms.value = true;
   try {
@@ -601,6 +684,8 @@ async function onPropertyChange() {
   } finally {
     loadingRooms.value = false;
   }
+
+  await fetchBookedDates(form.value.property_id);
 }
 
 function validate() {
@@ -628,6 +713,11 @@ function validate() {
 async function handleSubmit() {
   submitError.value = '';
   if (!validate()) return;
+
+  if (selectedDatesConflict.value) {
+    submitError.value = 'These dates are already booked. Please select different dates.';
+    return;
+  }
 
   submitting.value = true;
   try {
@@ -659,6 +749,7 @@ function handleClose() {
 }
 
 function resetFormState() {
+  bookedRanges.value = [];
   form.value = {
     walk_in_guest_name: '',
     walk_in_guest_phone: '',

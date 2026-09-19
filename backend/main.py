@@ -272,8 +272,6 @@ async def startup_event():
                     conn.commit()
                 logger.info("Added room_id column to bookings table.")
 
-        seed_all_demo_data()
-
     except Exception as e:
         logger.error("Error during startup", exc_info=True)
 

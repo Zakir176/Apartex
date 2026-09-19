@@ -11,55 +11,9 @@ export const useLoyaltyStore = defineStore('loyalty', () => {
   const error = ref(null);
 
   // Enhanced mock data - ensure these are properly defined
-  const mockUserRewards = [
-    {
-      id: 1,
-      name: '10% Discount',
-      description: 'Get 10% off your next booking',
-      redeemed_at: '2024-01-15',
-      used: false,
-      redemption_code: 'DISC10-ABC123'
-    },
-    {
-      id: 2,
-      name: 'Early Check-in',
-      description: 'Early check-in at 1 PM',
-      redeemed_at: '2024-02-01',
-      used: true,
-      redemption_code: 'EARLY-XYZ789'
-    }
-  ];
+  const mockUserRewards = [];
 
-  const mockAvailableRewards = [
-    {
-      id: 1,
-      name: '10% Discount',
-      description: 'Get 10% off your next booking',
-      points_required: 500,
-      type: 'discount'
-    },
-    {
-      id: 2,
-      name: 'Free Night',
-      description: 'One free night at any standard apartment',
-      points_required: 1000,
-      type: 'free_night'
-    },
-    {
-      id: 3,
-      name: 'Luxury Upgrade',
-      description: 'Free upgrade to a luxury apartment on your next stay',
-      points_required: 1500,
-      type: 'upgrade'
-    },
-    {
-      id: 4,
-      name: 'Weekend Getaway',
-      description: 'Two free nights at a premium apartment',
-      points_required: 2500,
-      type: 'free_stay'
-    }
-  ];
+  const mockAvailableRewards = [];
 
   // Simple mock functions that always work
   async function fetchLoyaltyStatus(userId) {

@@ -113,6 +113,24 @@ export const useBookingsStore = defineStore('bookings', () => {
     }
   }
 
+  async function approveBooking(bookingId) {
+    loading.value = true;
+    error.value = null;
+    try {
+      const response = await bookingsApi.updateBooking(bookingId, { status: 'confirmed' });
+      const idx = bookings.value.findIndex(b => b.id === bookingId);
+      if (idx !== -1) {
+        bookings.value[idx].status = 'confirmed';
+      }
+      return response.data;
+    } catch (err) {
+      error.value = err.response?.data?.detail || 'Failed to approve booking';
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  }
+
   async function completeBooking(bookingId) {
     loading.value = true;
     error.value = null;
@@ -144,6 +162,7 @@ export const useBookingsStore = defineStore('bookings', () => {
     createWalkInBooking,
     checkAvailability,
     cancelBooking,
+    approveBooking,
     completeBooking
   };
 });

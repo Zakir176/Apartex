@@ -137,6 +137,13 @@ const routes = [
     component: () => import('@/views/OwnerTodayView.vue'),
     meta: { requiresAuth: true, role: 'owner' }
   },
+  // Public QR booking verification — no auth required, linked from printed receipts
+  {
+    path: '/bookings/verify/:id',
+    name: 'BookingVerify',
+    component: () => import('@/views/BookingVerifyView.vue'),
+    meta: { allowGuest: true }
+  },
   // Catch-all 404 route
   {
     path: '/:pathMatch(.*)*',

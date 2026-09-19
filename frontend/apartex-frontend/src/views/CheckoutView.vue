@@ -56,7 +56,7 @@
         <!-- LEFT COLUMN: GUEST DETAILS & PAYMENT -->
         <div class="lg:col-span-3 flex flex-col gap-6">
           <div class="flex items-center gap-3">
-            <button @click="router.back()" class="w-9 h-9 rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer border-0">
+            <button @click="router.back()" class="w-9 h-9 rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer">
               <i class="pi pi-arrow-left text-xs"></i>
             </button>
             <div>
@@ -99,38 +99,17 @@
               </div>
             </div>
             
-            <div class="bg-blue-50/80 border border-blue-100 rounded-2xl p-4 flex gap-3 items-start">
-              <i class="pi pi-info-circle text-blue-500 mt-0.5 text-base"></i>
+            <div class="flex items-start gap-3 bg-accent-light border border-accent/20 rounded-xl p-4">
+              <i class="pi pi-shield-check text-accent mt-0.5"></i>
               <div>
-                <p class="text-xs font-bold text-blue-900 mb-0.5">Simulated Payment Gateway</p>
-                <p class="text-[11px] font-medium text-blue-700 m-0 leading-relaxed">This is a sandbox test environment. No real charges will be deducted from your account.</p>
+                <p class="text-sm font-semibold text-gray-900 mb-0.5">No payment required</p>
+                <p class="text-xs text-gray-500 leading-relaxed">Apartex is currently free to use. Your booking is confirmed instantly with no charges.</p>
               </div>
             </div>
 
-            <div class="flex flex-col gap-4">
-              <div>
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">Name on Card</label>
-                <input v-model="form.name" class="input-base !py-2.5 !text-xs w-full" placeholder="John Doe" />
-              </div>
-
-              <div>
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">Card Number</label>
-                <div class="relative">
-                  <InputMask v-model="form.cardNumber" mask="9999-9999-9999-9999" placeholder="4000-0000-0000-0000" class="input-base !py-2.5 !text-xs w-full !pl-3" />
-                  <i class="pi pi-credit-card absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                </div>
-              </div>
-
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">Expiry Date</label>
-                  <InputMask v-model="form.expiry" mask="99/99" placeholder="MM/YY" class="input-base !py-2.5 !text-xs w-full" />
-                </div>
-                <div>
-                  <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-1">CVV Security Code</label>
-                  <InputMask v-model="form.cvv" mask="999" placeholder="123" class="input-base !py-2.5 !text-xs w-full" />
-                </div>
-              </div>
+            <div>
+              <label class="label-base">Full Name</label>
+              <input v-model="form.name" class="input-base" placeholder="Your full name" />
             </div>
 
             <div v-if="bookingError" class="p-4 rounded-2xl bg-rose-50 border border-rose-100 flex items-start gap-3">
@@ -138,14 +117,14 @@
               <p class="text-xs font-bold text-rose-700 m-0 leading-relaxed">{{ bookingError }}</p>
             </div>
 
-            <button 
-              @click="processPayment" 
-              :disabled="!isFormValid"
-              class="btn-accent shadow-accent w-full justify-center mt-4 gap-2 text-xs font-black py-3.5 rounded-full cursor-pointer transition-transform active:scale-98"
-              :class="{ 'opacity-50 cursor-not-allowed': !isFormValid }"
+            <button
+              @click="processPayment"
+              :disabled="!isFormValid || loading"
+              class="btn-accent w-full justify-center gap-2 py-3 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <i class="pi pi-lock text-xs"></i>
-              <span>Confirm & Pay {{ formattedFinalTotal }}</span>
+              <i v-if="loading" class="pi pi-spin pi-spinner text-sm"></i>
+              <i v-else class="pi pi-check text-sm"></i>
+              <span>{{ loading ? 'Confirming...' : 'Confirm Booking' }}</span>
             </button>
           </div>
         </div>
@@ -237,7 +216,6 @@ import { useBookingsStore } from '@/stores/bookings';
 import { useAuthStore } from '@/stores/auth';
 import { useCurrencyStore } from '@/stores/currency';
 
-import InputMask from 'primevue/inputmask';
 import ProgressSpinner from 'primevue/progressspinner';
 
 const router = useRouter();
@@ -280,10 +258,7 @@ const form = ref({
 });
 
 const isFormValid = computed(() => {
-  return form.value.name.length > 2 && 
-         form.value.cardNumber && form.value.cardNumber.replace(/_|-/g, '').length === 16 &&
-         form.value.expiry && form.value.expiry.replace(/_|\//g, '').length === 4 &&
-         form.value.cvv && form.value.cvv.replace(/_/g, '').length === 3;
+  return form.value.name.trim().length > 2;
 });
 
 const processPayment = () => {

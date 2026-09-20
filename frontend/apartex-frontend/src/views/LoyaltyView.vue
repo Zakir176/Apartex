@@ -2,10 +2,10 @@
   <div class="max-w-[1200px] mx-auto px-6 py-12">
     <!-- Header -->
     <div class="text-center mb-16 max-w-2xl mx-auto">
-      <div class="w-16 h-16 bg-orange-50 text-accent rounded-full flex items-center justify-center mx-auto mb-6">
+      <div class="w-16 h-16 bg-accent-light text-accent rounded-xl flex items-center justify-center mx-auto mb-6">
         <i class="pi pi-star-fill text-3xl"></i>
       </div>
-      <h1 class="text-4xl md:text-5xl font-black text-slate-800 mb-4 tracking-tight">Apartex Elite</h1>
+      <h1 class="text-4xl md:text-5xl font-semibold text-slate-800 mb-4 tracking-tight">Apartex Elite</h1>
       <p class="text-lg text-slate-500 font-medium">Earn points on every booking and unlock exclusive premium rewards tailored for our best guests.</p>
     </div>
 
@@ -24,10 +24,10 @@
           <!-- Current Tier -->
           <div class="text-center md:text-left flex flex-col items-center md:items-start">
             <span class="text-white/80 font-bold uppercase tracking-widest text-xs mb-2">Current Status</span>
-            <div class="px-5 py-2 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white font-extrabold text-xl mb-4 uppercase tracking-wider inline-block">
+            <div class="px-5 py-2 rounded-lg bg-white/20 backdrop-blur-md border border-white/30 text-white font-semibold text-xl mb-4 uppercase tracking-wider inline-block">
               {{ loyaltyStatus.current_tier }}
             </div>
-            <div class="text-5xl font-black tracking-tight flex items-baseline gap-2">
+            <div class="text-5xl font-semibold tracking-tight flex items-baseline gap-2">
               {{ loyaltyStatus.points }} <span class="text-xl text-white/80 font-bold">pts</span>
             </div>
           </div>
@@ -55,7 +55,7 @@
           <!-- Next Tier Info -->
           <div v-if="loyaltyStatus.bookings_required > 0" class="text-center md:text-right flex flex-col items-center md:items-end">
             <span class="text-white/80 font-bold uppercase tracking-widest text-xs mb-2">Next Milestone</span>
-            <h3 class="text-2xl font-extrabold mb-1">{{ loyaltyStatus.next_tier }}</h3>
+            <h3 class="text-2xl font-semibold mb-1">{{ loyaltyStatus.next_tier }}</h3>
             <p class="text-sm text-white/90 font-medium mb-3">Unlocks at {{ loyaltyStatus.bookings_required }} bookings</p>
             <div class="px-4 py-1.5 rounded-lg bg-black/20 text-sm font-bold backdrop-blur-md">
               {{ loyaltyStatus.bookings_needed }} booking(s) to go
@@ -75,7 +75,7 @@
         </div>
         <div class="relative z-10 flex flex-col md:flex-row gap-8 items-center justify-between">
           <div>
-            <h2 class="text-2xl font-black mb-2 flex items-center gap-3">
+            <h2 class="text-2xl font-semibold mb-2 flex items-center gap-3">
               <i class="pi pi-gift text-accent"></i> Refer a Friend
             </h2>
             <p class="text-slate-300 font-medium max-w-md">
@@ -85,8 +85,8 @@
           <div class="w-full md:w-auto bg-slate-950/50 border border-slate-700/50 rounded-xl p-4 flex flex-col gap-2">
             <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Your Code</span>
             <div class="flex items-center gap-4">
-              <span class="font-mono text-2xl font-black text-white tracking-widest">{{ authStore.user.referral_code }}</span>
-              <button @click="copyReferralCode" class="w-10 h-10 rounded-lg bg-accent text-white flex items-center justify-center hover:bg-orange-600 transition-colors shadow-lg" title="Copy Code">
+              <span class="font-mono text-2xl font-semibold text-white tracking-widest">{{ authStore.user.referral_code }}</span>
+              <button @click="copyReferralCode" class="w-10 h-10 rounded-lg bg-accent text-white flex items-center justify-center hover:bg-accent-hover transition-colors shadow-lg" title="Copy Code">
                 <i :class="copied ? 'pi pi-check' : 'pi pi-copy'"></i>
               </button>
             </div>
@@ -97,7 +97,7 @@
 
     <!-- Tiers Info -->
     <div class="mb-16">
-      <h2 class="text-2xl font-black text-slate-800 mb-6">Program Tiers</h2>
+      <h2 class="text-2xl font-semibold text-slate-800 mb-6">Program Tiers</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div v-for="tier in loyaltyTiers" :key="tier.name" 
              class="card-base p-6 flex flex-col relative border-2 transition-colors duration-300"
@@ -107,7 +107,7 @@
             <i class="pi pi-check text-xs font-bold"></i>
           </div>
 
-          <div class="px-4 py-1.5 rounded-full inline-block text-xs font-black uppercase tracking-wider mb-4 w-max"
+          <div class="px-4 py-1.5 rounded-lg inline-block text-xs font-semibold uppercase tracking-wider mb-4 w-max"
                :class="getTierBadgeClasses(tier.name)">
             {{ tier.name }}
           </div>
@@ -128,13 +128,13 @@
 
     <!-- Available Rewards -->
     <div class="mb-16">
-      <h2 class="text-2xl font-black text-slate-800 mb-6">Redeem Rewards</h2>
+      <h2 class="text-2xl font-semibold text-slate-800 mb-6">Redeem Rewards</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div v-for="reward in availableRewards" :key="reward.id" class="card-base p-6 flex flex-col justify-between group">
           <div>
             <div class="flex justify-between items-start mb-4">
               <h3 class="text-lg font-bold text-slate-800 pr-2">{{ reward.name }}</h3>
-              <span class="px-3 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-black tracking-wider flex-shrink-0">
+              <span class="px-3 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold tracking-wider flex-shrink-0">
                 {{ reward.points_required }} PTS
               </span>
             </div>
@@ -150,7 +150,7 @@
             <i class="pi pi-spinner pi-spin" v-if="redeemingId === reward.id"></i>
             <span v-else>Redeem Now</span>
           </button>
-          <button v-else disabled class="w-full px-5 py-3 rounded-full text-sm font-bold bg-slate-100 text-slate-400 cursor-not-allowed">
+          <button v-else disabled class="w-full px-5 py-3 rounded-lg text-sm font-bold bg-slate-100 text-slate-400 cursor-not-allowed">
             Need {{ reward.points_required - (loyaltyStatus?.points || 0) }} more points
           </button>
         </div>
@@ -159,7 +159,7 @@
 
     <!-- My Rewards -->
     <div>
-      <h2 class="text-2xl font-black text-slate-800 mb-6">My Redeemed Rewards</h2>
+      <h2 class="text-2xl font-semibold text-slate-800 mb-6">My Redeemed Rewards</h2>
       
       <div v-if="userRewards.length === 0" class="card-base p-10 text-center flex flex-col items-center">
         <div class="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-4 text-slate-300">
@@ -171,14 +171,14 @@
       
       <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div v-for="reward in userRewards" :key="reward.id" class="card-base p-5 flex flex-col justify-between border-l-4"
-             :class="reward.used ? 'border-l-slate-300 opacity-60' : 'border-l-green-500'">
+             :class="reward.used ? 'border-l-slate-300 opacity-60' : 'border-l-accent'">
           <div class="flex justify-between items-start mb-3">
             <div>
               <h3 class="text-base font-bold text-slate-800 mb-1">{{ reward.name }}</h3>
               <p class="text-xs font-medium text-slate-500">Redeemed: {{ formatDate(reward.redeemed_at) }}</p>
             </div>
             <span v-if="reward.used" class="px-2 py-1 bg-slate-100 text-slate-500 rounded text-[10px] font-bold uppercase tracking-wider">Used</span>
-            <span v-else class="px-2 py-1 bg-green-50 text-green-600 rounded text-[10px] font-bold uppercase tracking-wider">Active</span>
+            <span v-else class="px-2 py-1 bg-accent-light text-accent rounded text-[10px] font-bold uppercase tracking-wider">Active</span>
           </div>
           
           <div v-if="!reward.used" class="mt-4 p-3 bg-slate-50 border border-surface-border rounded-lg flex justify-between items-center">
@@ -234,11 +234,11 @@ const formatDate = (dateString) => {
 
 const getTierGradient = (tier) => {
   switch(tier?.toLowerCase()) {
-    case 'bronze': return 'bg-gradient-to-br from-amber-700 to-orange-900';
+    case 'bronze': return 'bg-gradient-to-br from-amber-700 to-amber-900';
     case 'silver': return 'bg-gradient-to-br from-slate-400 to-slate-600';
     case 'gold': return 'bg-gradient-to-br from-yellow-400 to-yellow-600';
     case 'platinum': return 'bg-gradient-to-br from-slate-700 to-slate-900';
-    default: return 'bg-gradient-to-br from-accent to-orange-600';
+    default: return 'bg-gradient-to-br from-accent to-accent-hover';
   }
 };
 

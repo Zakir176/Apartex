@@ -7,23 +7,23 @@
 ## ✨ Project Showcase
 
 ### 🌟 Public Landing Page & Guest Discovery
-![Apartex Animated Public Landing Page Hero](docs/screenshots/hero.png)
-*State-of-the-art public landing page featuring animated mesh gradients, live trust counters, and zero-markup guarantees.*
+![Apartex Public Landing Page Hero](docs/screenshots/hero.png)
+*State-of-the-art public landing page featuring animated trust counters, destination search bar, and popular location tags.*
 
 <div align="center">
-  <img src="docs/screenshots/landing_features.png" width="48%" />
   <img src="docs/screenshots/home_app.png" width="48%" />
+  <img src="docs/screenshots/checkout.png" width="48%" />
 </div>
 
-*Left: Platform value pillars & comparison matrix ("Why Apartex"). Right: Interactive guest stay search & discovery engine.*
+*Left: Interactive apartment discovery engine & room filter grid. Right: Frictionless guest checkout with free-stay confirmation.*
 
-### 🏢 Executive Host Portal & Referral Engine
+### 🏢 Front Office POS Desk & Host Portal
 <div align="center">
   <img src="docs/screenshots/owner_overview.png" width="48%" />
   <img src="docs/screenshots/owner_apartments.png" width="48%" />
 </div>
 
-*Left: Executive Host Overview with live KPI stats & upcoming check-ins. Right: Property portfolio management & drag-and-drop photo upload wizard.*
+*Left: Live Front Office POS Desk with real-time date availability checking & printable QR verification receipt generator. Right: Executive property portfolio management.*
 
 <div align="center">
   <img src="docs/screenshots/profile_rewards.png" width="48%" />
@@ -44,6 +44,8 @@
 
 ### 📊 For Property Owners
 - **🏠 Listing Management**: Create and manage detailed property profiles with image support.
+- **🛎️ Walk-in POS Desk**: Record instant offline walk-in or phone guest arrivals with real-time date availability checking & overlap prevention.
+- **📄 Printable QR Receipts**: Generate official branded PDF receipts featuring scannable QR verification codes for guest check-ins.
 - **📈 Advanced Analytics**: Track revenue, occupancy rates, and booking trends at a glance.
 - **💰 Payout Tracking**: Transparent history of earnings and payout statuses.
 - **🛡️ Secure Access**: Role-based authentication ensuring data privacy.

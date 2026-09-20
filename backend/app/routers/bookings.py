@@ -545,4 +545,31 @@ def get_property_booked_dates(
         {"check_in": str(b.check_in), "check_out": str(b.check_out)}
         for b in bookings
     ]
+
+
+@router.get("/verify/{booking_id}")
+def verify_booking(booking_id: int, db: Session = Depends(get_db)):
+    """
+    Public endpoint. Returns booking confirmation details for QR code scanning.
+    No authentication required — only returns safe, non-sensitive fields.
+    """
+    booking = db.query(Booking).filter(Booking.id == booking_id).first()
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+
+    property = db.query(Property).filter(Property.id == booking.property_id).first()
+
+    return {
+        "booking_id": booking.id,
+        "reference": f"APX-{str(booking.id).zfill(6)}",
+        "status": booking.status,
+        "property_name": property.title if property else f"Property #{booking.property_id}",
+        "property_city": property.city if property else "",
+        "check_in": str(booking.check_in),
+        "check_out": str(booking.check_out),
+        "guests": booking.guests,
+        "is_walk_in": booking.is_walk_in,
+        "created_at": str(booking.created_at),
+    }
+
 

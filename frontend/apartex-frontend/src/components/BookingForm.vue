@@ -15,7 +15,7 @@
           v-model="dates"
           selectionMode="range"
           :minDate="minDate"
-          placeholder="Check-in — Check-out"
+          placeholder="Select check-in → check-out"
           iconDisplay="input"
           inputClass="w-full border border-surface-border rounded-md px-4 py-3 text-sm text-slate-800 outline-none focus:border-accent focus:ring-2 focus:ring-accent-light"
           :manualInput="false"
@@ -165,7 +165,11 @@ const disabledDates = computed(() => {
 });
 
 const isValidRange = computed(() => {
-  return dates.value && dates.value[0] && dates.value[1];
+  return dates.value &&
+    Array.isArray(dates.value) &&
+    dates.value[0] instanceof Date &&
+    dates.value[1] instanceof Date &&
+    dates.value[1] > dates.value[0];
 });
 
 const isOverlapping = computed(() => {

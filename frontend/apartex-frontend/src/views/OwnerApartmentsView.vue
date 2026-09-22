@@ -24,7 +24,7 @@
 
       <div class="bg-white rounded-2xl p-6 border border-surface-border shadow-sm">
         <span class="block text-slate-400 text-xs font-black uppercase mb-2 tracking-wider">Avg Nightly Rate</span>
-        <span class="text-3xl font-black text-accent tracking-tight">${{ averageNightlyRate }}</span>
+        <span class="text-3xl font-black text-accent tracking-tight">K {{ averageNightlyRate?.toLocaleString() }}</span>
         <p class="text-xs text-slate-500 font-medium mt-1">Across all active listings</p>
       </div>
 
@@ -78,7 +78,7 @@
             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
           />
           <div class="absolute top-3 right-3 px-3 py-1 bg-slate-900/90 backdrop-blur-md text-white rounded-full font-black text-xs shadow-md">
-            ${{ apt.price_per_night }}<span class="font-medium text-white/70 text-[10px] ml-0.5">/ nt</span>
+            K {{ apt.price_per_night?.toLocaleString() }}<span class="font-medium text-white/70 text-[10px] ml-0.5">/ nt</span>
           </div>
 
           <div class="absolute top-3 left-3 px-2.5 py-1 bg-emerald-500/90 backdrop-blur-md text-white rounded-full font-black text-[10px] uppercase tracking-wider shadow-sm flex items-center gap-1">
@@ -163,8 +163,19 @@
 
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="label-base">Nightly Price ($ USD)</label>
-            <InputNumber v-model="form.price_per_night" mode="currency" currency="USD" locale="en-US" :min="1" inputClass="input-base !w-full" class="w-full" />
+            <label class="label-base">Nightly Price (K ZMW)</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-500">K</span>
+              <input
+                v-model.number="form.price_per_night"
+                type="number"
+                min="1"
+                step="50"
+                class="input-base pl-8"
+                placeholder="e.g. 500"
+              />
+            </div>
+            <p class="text-xs text-gray-400 mt-1">Enter price in Zambian Kwacha (ZMW). Guests can view in their preferred currency.</p>
           </div>
 
           <div>
@@ -175,6 +186,70 @@
               <option value="Ndola">Ndola</option>
               <option value="Kitwe">Kitwe</option>
             </select>
+          </div>
+        </div>
+
+        <!-- Location Pin -->
+        <div class="flex flex-col gap-2">
+          <label class="label-base">Pin Location on Map</label>
+          <p class="text-xs text-gray-400 -mt-1">Click the map to drop a pin on your property's exact location. Guests will see this on the listing.</p>
+          <LocationPicker
+            v-model:lat="form.latitude"
+            v-model:lng="form.longitude"
+            :address="form.address"
+            :city="form.city"
+          />
+        </div>
+
+        <!-- Amenities -->
+        <div class="flex flex-col gap-3">
+          <label class="label-base">Amenities & Facilities</label>
+          <p class="text-xs text-gray-400 -mt-1">Select all that apply. These will show with icons on your listing.</p>
+
+          <!-- Predefined grid -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <button
+              v-for="amenity in PREDEFINED_AMENITIES"
+              :key="amenity.label"
+              type="button"
+              @click="toggleAmenity(amenity.label)"
+              class="flex items-center gap-2 px-3 py-2.5 rounded-lg border text-xs font-medium transition-all duration-150 text-left cursor-pointer"
+              :class="selectedAmenities.includes(amenity.label)
+                ? 'bg-accent text-white border-accent'
+                : 'bg-white text-gray-600 border-surface-border hover:border-accent/40'"
+            >
+              <i :class="amenity.icon" class="text-xs shrink-0"></i>
+              <span class="truncate">{{ amenity.label }}</span>
+            </button>
+          </div>
+
+          <!-- Custom amenity -->
+          <div class="flex gap-2 mt-1">
+            <input
+              v-model="customAmenity"
+              class="input-base flex-1"
+              placeholder="Add custom amenity (e.g. River View, Private Chef)"
+              @keydown.enter.prevent="addCustomAmenity"
+            />
+            <button
+              type="button"
+              @click="addCustomAmenity"
+              class="btn-accent px-4 shrink-0 border-0 cursor-pointer"
+            >
+              <i class="pi pi-plus text-xs"></i>
+            </button>
+          </div>
+
+          <!-- Selected summary -->
+          <div v-if="selectedAmenities.length > 0" class="flex flex-wrap gap-1.5">
+            <span
+              v-for="a in selectedAmenities"
+              :key="a"
+              class="flex items-center gap-1 text-xs font-medium bg-accent-light text-accent px-2.5 py-1 rounded-md"
+            >
+              {{ a }}
+              <button type="button" @click="toggleAmenity(a)" class="ml-1 text-accent/60 hover:text-accent border-0 bg-transparent cursor-pointer p-0">×</button>
+            </span>
           </div>
         </div>
 
@@ -313,13 +388,72 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useApartmentsStore } from '@/stores/apartments';
 import { uploadImage } from '@/api/uploads';
+import LocationPicker from '@/components/LocationPicker.vue';
 
 // PrimeVue components
 import Dialog from 'primevue/dialog';
 import InputNumber from 'primevue/inputnumber';
+
+const PREDEFINED_AMENITIES = [
+  { label: 'WiFi', icon: 'pi pi-wifi' },
+  { label: 'Air Conditioning', icon: 'pi pi-sun' },
+  { label: 'Parking', icon: 'pi pi-car' },
+  { label: 'Swimming Pool', icon: 'pi pi-wave-pulse' },
+  { label: 'Generator / Backup Power', icon: 'pi pi-bolt' },
+  { label: 'Security / CCTV', icon: 'pi pi-shield' },
+  { label: 'Kitchen', icon: 'pi pi-home' },
+  { label: 'Laundry', icon: 'pi pi-refresh' },
+  { label: 'Restaurant / Bar', icon: 'pi pi-star' },
+  { label: 'Gym', icon: 'pi pi-heart' },
+  { label: 'TV / DSTV', icon: 'pi pi-desktop' },
+  { label: 'Hot Water', icon: 'pi pi-droplet' },
+  { label: 'Game Drives', icon: 'pi pi-map' },
+  { label: 'Airport Transfer', icon: 'pi pi-send' },
+  { label: 'Breakfast Included', icon: 'pi pi-clock' },
+  { label: 'Ensuite Bathroom', icon: 'pi pi-home' },
+  { label: 'Balcony / Veranda', icon: 'pi pi-external-link' },
+  { label: 'Wheelchair Accessible', icon: 'pi pi-user' },
+  { label: 'Pet Friendly', icon: 'pi pi-heart-fill' },
+  { label: 'Conference Room', icon: 'pi pi-users' },
+];
+
+const selectedAmenities = ref([]);
+const customAmenity = ref('');
+
+function toggleAmenity(label) {
+  const idx = selectedAmenities.value.indexOf(label);
+  if (idx === -1) {
+    selectedAmenities.value.push(label);
+  } else {
+    selectedAmenities.value.splice(idx, 1);
+  }
+  form.value.amenities = JSON.stringify(selectedAmenities.value);
+}
+
+function addCustomAmenity() {
+  const val = customAmenity.value.trim();
+  if (val && !selectedAmenities.value.includes(val)) {
+    selectedAmenities.value.push(val);
+    form.value.amenities = JSON.stringify(selectedAmenities.value);
+  }
+  customAmenity.value = '';
+}
+
+// When editing existing property, pre-populate selected amenities
+watch(() => form.value.amenities, (val) => {
+  if (val && typeof val === 'string') {
+    try {
+      selectedAmenities.value = JSON.parse(val);
+    } catch {
+      selectedAmenities.value = [];
+    }
+  } else if (Array.isArray(val)) {
+    selectedAmenities.value = [...val];
+  }
+}, { immediate: true });
 
 const apartmentsStore = useApartmentsStore();
 
@@ -346,12 +480,15 @@ const imagePresets = [
 const form = ref({
   title: '',
   description: '',
-  price_per_night: 120,
+  price_per_night: 500,
   city: 'Lusaka',
   capacity: 2,
   bedrooms: 1,
   bathrooms: 1,
-  image_url: ''
+  image_url: '',
+  latitude: null,
+  longitude: null,
+  amenities: '[]'
 });
 
 onMounted(async () => {
@@ -424,17 +561,21 @@ function openCreateModal() {
   editingId.value = null;
   uploadMode.value = 'file';
   uploadError.value = '';
+  selectedAmenities.value = [];
   form.value = {
     title: '',
     address: '',
     description: '',
-    price_per_night: 120,
+    price_per_night: 500,
     city: 'Lusaka',
     capacity: 2,
     bedrooms: 1,
     bathrooms: 1,
     property_type: 'apartment',
-    image_url: ''
+    image_url: '',
+    latitude: null,
+    longitude: null,
+    amenities: '[]'
   };
   showModal.value = true;
 }
@@ -444,6 +585,19 @@ function startEdit(apt) {
   uploadMode.value = 'file';
   uploadError.value = '';
   form.value = { ...apt };
+  if (apt.amenities) {
+    if (typeof apt.amenities === 'string') {
+      try {
+        selectedAmenities.value = JSON.parse(apt.amenities);
+      } catch {
+        selectedAmenities.value = [];
+      }
+    } else if (Array.isArray(apt.amenities)) {
+      selectedAmenities.value = [...apt.amenities];
+    }
+  } else {
+    selectedAmenities.value = [];
+  }
   showModal.value = true;
 }
 
@@ -458,11 +612,14 @@ async function saveProperty() {
     ...form.value,
     address: form.value.address || `${form.value.title}, ${form.value.city}`,
     property_type: form.value.property_type || 'apartment',
-    // Coerce numerics — PrimeVue InputNumber can emit null when cleared
+    // Coerce numerics — InputNumber or text input can emit null when cleared
     price_per_night: parseFloat(form.value.price_per_night) || 100,
     capacity: parseInt(form.value.capacity) || 2,
     bedrooms: parseInt(form.value.bedrooms) || 1,
     bathrooms: parseInt(form.value.bathrooms) || 1,
+    latitude: form.value.latitude,
+    longitude: form.value.longitude,
+    amenities: JSON.stringify(selectedAmenities.value)
   };
 
   try {

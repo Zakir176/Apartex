@@ -40,6 +40,8 @@ import Button from 'primevue/button';
 import axios from 'axios';
 
 const props = defineProps({
+  lat: Number,
+  lng: Number,
   modelValue: {
     type: Object,
     default: () => ({ lat: null, lng: null })
@@ -48,10 +50,10 @@ const props = defineProps({
   city: String
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'update:lat', 'update:lng']);
 
-const lat = ref(props.modelValue.lat);
-const lng = ref(props.modelValue.lng);
+const lat = ref(props.lat ?? props.modelValue?.lat ?? null);
+const lng = ref(props.lng ?? props.modelValue?.lng ?? null);
 const center = ref([lat.value || -15.3875, lng.value || 28.3228]);
 const loading = ref(false);
 
@@ -63,12 +65,22 @@ const cityCoordinates = {
 };
 
 watch(() => props.modelValue, (newVal) => {
-  lat.value = newVal.lat;
-  lng.value = newVal.lng;
+  if (newVal) {
+    lat.value = newVal.lat;
+    lng.value = newVal.lng;
+    if (lat.value && lng.value) {
+      center.value = [lat.value, lng.value];
+    }
+  }
+}, { deep: true });
+
+watch(() => [props.lat, props.lng], ([newLat, newLng]) => {
+  if (newLat !== undefined) lat.value = newLat;
+  if (newLng !== undefined) lng.value = newLng;
   if (lat.value && lng.value) {
     center.value = [lat.value, lng.value];
   }
-}, { deep: true });
+});
 
 const handleMapClick = (event) => {
   lat.value = event.latlng.lat;
@@ -85,6 +97,8 @@ const updateFromInputs = () => {
 
 const emitUpdate = () => {
   emit('update:modelValue', { lat: lat.value, lng: lng.value });
+  emit('update:lat', lat.value);
+  emit('update:lng', lng.value);
 };
 
 const geocodeAddress = async () => {

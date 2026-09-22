@@ -23,7 +23,7 @@
       <!-- Price -->
       <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
         <p class="text-white font-semibold text-sm">
-          ${{ apartment.price_per_night }}<span class="text-white/70 font-normal text-xs"> / night</span>
+          {{ currencyStore.formatPrice(apartment.price_per_night) }}<span class="text-white/70 font-normal text-xs"> / night</span>
         </p>
       </div>
 

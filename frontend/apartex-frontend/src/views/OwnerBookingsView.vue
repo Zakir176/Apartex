@@ -36,6 +36,13 @@
       </button>
     </div>
 
+    <!-- Approve Error Banner -->
+    <div v-if="approveError" class="mb-4 flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-xs font-semibold">
+      <i class="pi pi-exclamation-circle text-red-500 shrink-0"></i>
+      <span class="flex-1">{{ approveError }}</span>
+      <button @click="approveError = ''" class="text-red-400 hover:text-red-600 transition-colors cursor-pointer"><i class="pi pi-times text-xs"></i></button>
+    </div>
+
     <!-- Bookings Table -->
     <div class="bg-white rounded-3xl border border-surface-border overflow-hidden shadow-sm">
       <DataTable 
@@ -107,9 +114,12 @@
               <button 
                 v-if="slotProps.data.status === 'pending'"
                 @click="approveBooking(slotProps.data.id)"
-                class="px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg text-xs font-black transition-colors inline-flex items-center gap-1 border border-emerald-200"
+                :disabled="approvingId === slotProps.data.id"
+                class="px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg text-xs font-black transition-colors inline-flex items-center gap-1 border border-emerald-200 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                <i class="pi pi-check text-[10px]"></i> Approve
+                <i v-if="approvingId === slotProps.data.id" class="pi pi-spin pi-spinner text-[10px]"></i>
+                <i v-else class="pi pi-check text-[10px]"></i>
+                {{ approvingId === slotProps.data.id ? 'Approving...' : 'Approve' }}
               </button>
 
               <button 
@@ -193,6 +203,8 @@ const currencyStore = useCurrencyStore();
 const activeStatusFilter = ref('all');
 const guestModal = ref(false);
 const selectedBooking = ref(null);
+const approvingId = ref(null);
+const approveError = ref('');
 
 const filterTabs = [
   { id: 'all', label: 'All Bookings' },
@@ -225,10 +237,15 @@ function openGuestModal(booking) {
 }
 
 async function approveBooking(id) {
+  approvingId.value = id;
+  approveError.value = '';
   try {
-    const booking = bookingsStore.bookings.find(b => b.id === id);
-    if (booking) booking.status = 'confirmed';
-  } catch (e) {}
+    await bookingsStore.approveBooking(id);
+  } catch (e) {
+    approveError.value = e.response?.data?.detail || bookingsStore.error || 'Failed to approve booking. Please try again.';
+  } finally {
+    approvingId.value = null;
+  }
 }
 
 const formatDate = (dateString) => {

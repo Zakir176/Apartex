@@ -33,6 +33,7 @@
 
     <!-- Payout Statistics -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <!-- Available Balance -->
       <div class="bg-white rounded-2xl p-6 border border-surface-border shadow-sm flex flex-col justify-between">
         <div class="flex justify-between items-center mb-3">
           <span class="text-slate-400 text-xs font-black uppercase tracking-wider">Available Balance</span>
@@ -40,10 +41,12 @@
             <i class="pi pi-wallet text-lg"></i>
           </div>
         </div>
-        <div class="text-3xl font-black text-slate-900 tracking-tight">$1,250.00</div>
-        <p class="text-xs text-slate-500 font-medium mt-1">Ready for immediate withdrawal</p>
+        <Skeleton v-if="dashboardStore.loading" height="2rem" width="60%" class="rounded-lg" />
+        <div v-else class="text-3xl font-black text-slate-900 tracking-tight">{{ formatCurrency(availableBalance) }}</div>
+        <p class="text-xs text-slate-500 font-medium mt-1">Revenue from confirmed bookings</p>
       </div>
 
+      <!-- Pending Settlement -->
       <div class="bg-white rounded-2xl p-6 border border-surface-border shadow-sm flex flex-col justify-between">
         <div class="flex justify-between items-center mb-3">
           <span class="text-slate-400 text-xs font-black uppercase tracking-wider">Pending Settlement</span>
@@ -51,10 +54,12 @@
             <i class="pi pi-clock text-lg"></i>
           </div>
         </div>
-        <div class="text-3xl font-black text-amber-500 tracking-tight">$450.00</div>
-        <p class="text-xs text-slate-500 font-medium mt-1">Held during guest stays</p>
+        <Skeleton v-if="dashboardStore.loading" height="2rem" width="60%" class="rounded-lg" />
+        <div v-else class="text-3xl font-black text-amber-500 tracking-tight">{{ formatCurrency(pendingSettlement) }}</div>
+        <p class="text-xs text-slate-500 font-medium mt-1">Held during active guest stays</p>
       </div>
       
+      <!-- Total Transferred -->
       <div class="bg-white rounded-2xl p-6 border border-surface-border shadow-sm flex flex-col justify-between">
         <div class="flex justify-between items-center mb-3">
           <span class="text-slate-400 text-xs font-black uppercase tracking-wider">Total Transferred</span>
@@ -62,7 +67,8 @@
             <i class="pi pi-check-circle text-lg"></i>
           </div>
         </div>
-        <div class="text-3xl font-black text-emerald-600 tracking-tight">{{ formatCurrency(totalWithdrawn) }}</div>
+        <Skeleton v-if="loading" height="2rem" width="60%" class="rounded-lg" />
+        <div v-else class="text-3xl font-black text-emerald-600 tracking-tight">{{ formatCurrency(totalWithdrawn) }}</div>
         <p class="text-xs text-slate-500 font-medium mt-1">Lifetime payout volume</p>
       </div>
     </div>
@@ -175,6 +181,7 @@
 import { onMounted, ref, computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useCurrencyStore } from '@/stores/currency';
+import { useDashboardStore } from '@/stores/dashboard';
 import { fetchOwnerPayouts, requestPayout, exportFinancialReportCSV } from '@/api/dashboard.js';
 
 // PrimeVue components
@@ -182,15 +189,26 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Tag from 'primevue/tag';
 import Dialog from 'primevue/dialog';
+import Skeleton from 'primevue/skeleton';
 
 const auth = useAuthStore();
 const currencyStore = useCurrencyStore();
+const dashboardStore = useDashboardStore();
 const payouts = ref([]);
 const loading = ref(false);
 const downloadingCsv = ref(false);
 const showModal = ref(false);
 const amount = ref(500);
 const details = ref('');
+
+// Real computed values from overview API
+const availableBalance = computed(() => {
+  return dashboardStore.overview?.revenue_summary?.total_revenue ?? 0;
+});
+
+const pendingSettlement = computed(() => {
+  return dashboardStore.overview?.revenue_summary?.pending_payouts ?? 0;
+});
 
 const totalWithdrawn = computed(() => {
   return payouts.value
@@ -244,7 +262,12 @@ async function handleRequestPayout() {
   }
 }
 
-onMounted(loadPayouts);
+onMounted(async () => {
+  await Promise.all([
+    loadPayouts(),
+    dashboardStore.loadOverview(),
+  ]);
+});
 
 const formatDate = (dateString) => {
   if (!dateString) return '-';

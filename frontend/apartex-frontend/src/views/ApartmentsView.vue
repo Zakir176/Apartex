@@ -6,19 +6,19 @@
       <div class="flex flex-col lg:flex-row lg:items-center justify-between mb-8 gap-4">
         <div>
           <div class="flex items-center gap-2 mb-2">
-            <span class="text-xs font-black text-accent uppercase tracking-widest bg-orange-50 px-3 py-1 rounded-full border border-orange-100">
+            <span class="text-xs font-semibold text-accent uppercase tracking-widest bg-accent-light px-3 py-1 rounded-md border border-accent/20">
               <i class="pi pi-compass text-[10px] mr-1"></i> Stay Directory & Interactive Map
             </span>
           </div>
-          <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">Explore Stays</h1>
+          <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">Explore Stays</h1>
           <p class="text-slate-500 font-medium text-xs sm:text-sm mt-1">Handpicked luxury apartments, villas, and boutique stays across Zambia.</p>
         </div>
 
         <!-- View Mode Switcher -->
-        <div class="flex items-center gap-2 bg-white p-1.5 rounded-full border border-slate-200 shadow-sm self-start lg:self-center">
+        <div class="flex items-center gap-2 bg-white p-1.5 rounded-lg border border-slate-200 shadow-sm self-start lg:self-center">
           <button
             @click="viewMode = 'grid'"
-            class="px-4 py-2 rounded-full text-xs font-black transition-all duration-200 flex items-center gap-2 cursor-pointer border-0"
+            class="px-4 py-2 rounded-md text-xs font-semibold transition-all duration-200 flex items-center gap-2 cursor-pointer border-0"
             :class="viewMode === 'grid' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 bg-transparent'"
           >
             <i class="pi pi-th-large text-xs"></i>
@@ -26,7 +26,7 @@
           </button>
           <button
             @click="viewMode = 'split'"
-            class="px-4 py-2 rounded-full text-xs font-black transition-all duration-200 flex items-center gap-2 cursor-pointer border-0"
+            class="px-4 py-2 rounded-md text-xs font-semibold transition-all duration-200 flex items-center gap-2 cursor-pointer border-0"
             :class="viewMode === 'split' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 bg-transparent'"
           >
             <i class="pi pi-map text-xs"></i>
@@ -38,27 +38,27 @@
       <!-- DYNAMIC STATS STRIP (Matching Owner Portfolio Framing) -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs">
-          <span class="block text-slate-400 text-[10px] sm:text-xs font-black uppercase tracking-wider mb-1">Available Stays</span>
-          <span class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">{{ filteredApartments.length }}</span>
+          <span class="block text-slate-400 text-[10px] sm:text-xs font-semibold uppercase tracking-wider mb-1">Available Stays</span>
+          <span class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">{{ filteredApartments.length }}</span>
           <p class="text-[11px] text-slate-500 font-medium mt-0.5">Matching active criteria</p>
         </div>
 
         <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs">
-          <span class="block text-slate-400 text-[10px] sm:text-xs font-black uppercase tracking-wider mb-1">Avg Nightly Rate</span>
-          <span class="text-2xl sm:text-3xl font-black text-accent tracking-tight">${{ averagePrice }}</span>
+          <span class="block text-slate-400 text-[10px] sm:text-xs font-semibold uppercase tracking-wider mb-1">Avg Nightly Rate</span>
+          <span class="text-2xl sm:text-3xl font-bold text-accent tracking-tight">${{ averagePrice }}</span>
           <p class="text-[11px] text-slate-500 font-medium mt-0.5">Across listed properties</p>
         </div>
 
         <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs">
-          <span class="block text-slate-400 text-[10px] sm:text-xs font-black uppercase tracking-wider mb-1">Regions & Cities</span>
-          <span class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">{{ uniqueCitiesCount }} <span class="text-xs font-normal text-slate-400">Cities</span></span>
+          <span class="block text-slate-400 text-[10px] sm:text-xs font-semibold uppercase tracking-wider mb-1">Regions & Cities</span>
+          <span class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">{{ uniqueCitiesCount }} <span class="text-xs font-normal text-slate-400">Cities</span></span>
           <p class="text-[11px] text-slate-500 font-medium mt-0.5">Prime Zambian hubs</p>
         </div>
 
         <div class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-xs">
-          <span class="block text-slate-400 text-[10px] sm:text-xs font-black uppercase tracking-wider mb-1">Guaranteed Quality</span>
-          <span class="text-2xl sm:text-3xl font-black text-emerald-600 tracking-tight">100%</span>
-          <p class="text-[11px] text-emerald-600 font-bold mt-0.5">Verified & Direct Booking</p>
+          <span class="block text-slate-400 text-[10px] sm:text-xs font-semibold uppercase tracking-wider mb-1">Guaranteed Quality</span>
+          <span class="text-2xl sm:text-3xl font-bold text-accent tracking-tight">100%</span>
+          <p class="text-[11px] text-accent font-bold mt-0.5">Verified & Direct Booking</p>
         </div>
       </div>
 
@@ -109,11 +109,11 @@
           <!-- Price & More Filters Drawer Toggle Button -->
           <button
             @click="showFiltersModal = true"
-            class="px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-white text-xs font-black text-slate-700 flex items-center gap-2 whitespace-nowrap cursor-pointer transition-colors shadow-2xs"
+            class="px-4 py-2.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-white text-xs font-semibold text-slate-700 flex items-center gap-2 whitespace-nowrap cursor-pointer transition-colors shadow-2xs"
           >
             <i class="pi pi-sliders-h text-accent text-xs"></i>
             <span>Price & Filters</span>
-            <span v-if="activeFilterCount > 0" class="w-4 h-4 rounded-full bg-accent text-white text-[10px] font-black flex items-center justify-center">
+            <span v-if="activeFilterCount > 0" class="w-4 h-4 rounded-md bg-accent text-white text-[10px] font-semibold flex items-center justify-center">
               {{ activeFilterCount }}
             </span>
           </button>
@@ -143,12 +143,12 @@
 
       <!-- EMPTY STATE -->
       <div v-else-if="filteredApartments.length === 0" class="bg-white border border-slate-200 rounded-3xl p-8 sm:p-14 text-center max-w-md mx-auto my-8 sm:my-12 shadow-sm">
-        <div class="w-16 h-16 rounded-full bg-orange-50 text-accent flex items-center justify-center text-2xl mx-auto mb-4 border border-orange-100">
+        <div class="w-16 h-16 rounded-full bg-accent-light text-accent flex items-center justify-center text-2xl mx-auto mb-4 border border-accent/20">
           <i class="pi pi-search"></i>
         </div>
-        <h2 class="text-xl font-black text-slate-900 mb-2">No Stays Match Criteria</h2>
+        <h2 class="text-xl font-semibold text-slate-900 mb-2">No Stays Match Criteria</h2>
         <p class="text-xs text-slate-500 mb-6 font-medium leading-relaxed">We couldn't find any stays matching your selected search query and filters.</p>
-        <button class="btn-accent px-6 py-3 rounded-full text-xs font-black" @click="clearFilters">Reset All Filters</button>
+        <button class="btn-accent px-6 py-3 rounded-lg text-xs font-semibold" @click="clearFilters">Reset All Filters</button>
       </div>
 
       <!-- VIEW MODE 1: STANDARD GRID VIEW -->
@@ -220,8 +220,8 @@
         <!-- Price Range Slider -->
         <div>
           <div class="flex justify-between items-center mb-2">
-            <label class="text-xs font-black uppercase text-slate-800 tracking-wider">Max Price Per Night</label>
-            <span class="text-sm font-black text-accent">${{ filters.price_range[1] }} / nt</span>
+            <label class="text-xs font-semibold uppercase text-slate-800 tracking-wider">Max Price Per Night</label>
+            <span class="text-sm font-semibold text-accent">${{ filters.price_range[1] }} / nt</span>
           </div>
           <input
             type="range"
@@ -240,14 +240,14 @@
 
         <!-- Guest Capacity -->
         <div>
-          <label class="text-xs font-black uppercase text-slate-800 tracking-wider mb-2 block">Min Capacity (Guests)</label>
+          <label class="text-xs font-semibold uppercase text-slate-800 tracking-wider mb-2 block">Min Capacity (Guests)</label>
           <div class="flex gap-2">
             <button
               v-for="cap in [1, 2, 4, 6, 8]"
               :key="cap"
               @click="filters.min_capacity = cap"
               class="flex-1 py-2 rounded-xl text-xs font-bold border cursor-pointer transition-all"
-              :class="filters.min_capacity === cap ? 'bg-slate-900 text-white border-slate-900 font-black' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'"
+              :class="filters.min_capacity === cap ? 'bg-slate-900 text-white border-slate-900 font-semibold' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'"
             >
               {{ cap }}+
             </button>
@@ -256,14 +256,14 @@
 
         <!-- Bedrooms -->
         <div>
-          <label class="text-xs font-black uppercase text-slate-800 tracking-wider mb-2 block">Min Bedrooms</label>
+          <label class="text-xs font-semibold uppercase text-slate-800 tracking-wider mb-2 block">Min Bedrooms</label>
           <div class="flex gap-2">
             <button
               v-for="bed in [0, 1, 2, 3, 4]"
               :key="bed"
               @click="filters.min_bedrooms = bed"
               class="flex-1 py-2 rounded-xl text-xs font-bold border cursor-pointer transition-all"
-              :class="filters.min_bedrooms === bed ? 'bg-slate-900 text-white border-slate-900 font-black' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'"
+              :class="filters.min_bedrooms === bed ? 'bg-slate-900 text-white border-slate-900 font-semibold' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'"
             >
               {{ bed === 0 ? 'Any' : bed + '+' }}
             </button>
@@ -275,13 +275,13 @@
         <div class="flex items-center justify-between gap-3 pt-3 border-t border-slate-100">
           <button
             @click="clearFilters"
-            class="px-4 py-2.5 rounded-full text-xs font-bold text-slate-500 hover:text-slate-900 border-0 bg-transparent cursor-pointer"
+            class="px-4 py-2.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-900 border-0 bg-transparent cursor-pointer"
           >
             Clear Filters
           </button>
           <button
             @click="applyFilters"
-            class="btn-accent px-6 py-2.5 rounded-full text-xs font-black"
+            class="btn-accent px-6 py-2.5 rounded-lg text-xs font-semibold"
           >
             Apply Filters ({{ filteredApartments.length }})
           </button>

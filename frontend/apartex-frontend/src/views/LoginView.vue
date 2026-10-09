@@ -9,7 +9,7 @@
       >
         <!-- Brand above animation -->
         <div
-          class="text-accent font-black text-2xl tracking-tight flex items-center gap-2 mb-2"
+          class="text-accent font-semibold text-2xl tracking-tight flex items-center gap-2 mb-2"
           v-motion
           :initial="{ opacity: 0, y: -12 }"
           :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }"
@@ -49,12 +49,12 @@
         <!-- Brand -->
         <div
           @click="router.push('/')"
-          class="text-accent font-black text-2xl mb-4 tracking-tight flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+          class="text-accent font-semibold text-2xl mb-4 tracking-tight flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
         >
           <i class="pi pi-building text-xl"></i> APARTEX
         </div>
 
-        <h1 class="text-3xl font-extrabold text-slate-800 mb-6">Welcome back</h1>
+        <h1 class="text-3xl font-semibold text-slate-800 mb-6">Welcome back</h1>
 
         <!-- Role selector -->
         <div class="text-left mb-6">
@@ -63,7 +63,7 @@
             <button
               type="button"
               @click="targetRole = 'renter'"
-              class="py-2.5 px-4 rounded-lg text-xs sm:text-sm font-extrabold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer border-none"
+              class="py-2.5 px-4 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer border-none"
               :class="targetRole === 'renter' ? 'bg-navy text-white shadow-md' : 'text-slate-500 hover:text-slate-900 bg-transparent'"
             >
               <i class="pi pi-user text-sm"></i> Guest
@@ -71,7 +71,7 @@
             <button
               type="button"
               @click="targetRole = 'owner'"
-              class="py-2.5 px-4 rounded-lg text-xs sm:text-sm font-extrabold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer border-none"
+              class="py-2.5 px-4 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer border-none"
               :class="targetRole === 'owner' ? 'bg-navy text-white shadow-md' : 'text-slate-500 hover:text-slate-900 bg-transparent'"
             >
               <i class="pi pi-building text-sm"></i> Host / Owner
@@ -111,7 +111,7 @@
               class="w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-200 shrink-0"
               :class="rememberMe ? 'bg-accent border-accent text-white shadow-sm' : 'bg-white border-slate-300 hover:border-slate-400'"
             >
-              <i v-if="rememberMe" class="pi pi-check text-xs font-black"></i>
+              <i v-if="rememberMe" class="pi pi-check text-xs font-semibold"></i>
             </div>
             <span class="text-sm font-bold text-slate-700 ml-2.5">Remember my session</span>
           </div>

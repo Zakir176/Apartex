@@ -7,18 +7,18 @@
       :enter="{ opacity: 1, y: 0, transition: { duration: 400 } }"
     >
       <!-- Decorative element -->
-      <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-accent to-orange-400"></div>
+      <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-accent to-accent-hover"></div>
 
       <div
         @click="router.push('/')"
-        class="text-accent font-black text-2xl mb-4 tracking-tight flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+        class="text-accent font-semibold text-2xl mb-4 tracking-tight flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
         v-motion
         :initial="{ opacity: 0, y: -16 }"
         :enter="{ opacity: 1, y: 0, transition: { duration: 300 } }"
       >
         <i class="pi pi-building text-xl"></i> APARTEX
       </div>
-      <h1 class="text-3xl font-extrabold text-slate-800 mb-6">Create your account</h1>
+      <h1 class="text-3xl font-semibold text-slate-800 mb-6">Create your account</h1>
       
       <div class="text-left mb-6">
         <label class="label-base">I want to be a</label>
@@ -26,7 +26,7 @@
           <button
             type="button"
             @click="targetRole = 'renter'"
-            class="py-2.5 px-4 rounded-lg text-xs sm:text-sm font-extrabold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer border-none"
+            class="py-2.5 px-4 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer border-none"
             :class="targetRole === 'renter' ? 'bg-navy text-white shadow-md' : 'text-slate-500 hover:text-slate-900 bg-transparent'"
           >
             <i class="pi pi-user text-xs"></i> Guest
@@ -34,7 +34,7 @@
           <button
             type="button"
             @click="targetRole = 'owner'"
-            class="py-2.5 px-4 rounded-lg text-xs sm:text-sm font-extrabold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer border-none"
+            class="py-2.5 px-4 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer border-none"
             :class="targetRole === 'owner' ? 'bg-navy text-white shadow-md' : 'text-slate-500 hover:text-slate-900 bg-transparent'"
           >
             <i class="pi pi-building text-xs"></i> Host / Owner
@@ -73,7 +73,7 @@
             <button 
               type="button" 
               @click="showReferralInput = true" 
-              class="text-xs font-extrabold text-accent hover:underline border-none bg-transparent cursor-pointer p-0 inline-flex items-center gap-1"
+              class="text-xs font-semibold text-accent hover:underline border-none bg-transparent cursor-pointer p-0 inline-flex items-center gap-1"
             >
               <i class="pi pi-tag text-[11px]"></i>
               <span>Have a referral code?</span>
@@ -125,7 +125,7 @@
             class="w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-200 shrink-0"
             :class="acceptTerms ? 'bg-accent border-accent text-white shadow-sm' : 'bg-white border-slate-300 hover:border-slate-400'"
           >
-            <i v-if="acceptTerms" class="pi pi-check text-xs font-black"></i>
+            <i v-if="acceptTerms" class="pi pi-check text-xs font-semibold"></i>
           </div>
           <span class="text-sm font-bold text-slate-700 ml-2.5">
             I agree to the <a href="#" @click.stop class="text-accent no-underline hover:underline">Membership Terms</a>

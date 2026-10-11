@@ -18,17 +18,17 @@
             </div>
             <button 
               @click="$refs.avatarInput.click()"
-              class="absolute bottom-1 right-1 w-10 h-10 rounded-full bg-accent text-white shadow-lg flex items-center justify-center hover:bg-orange-600 transition-colors transform hover:scale-105 active:scale-95 border-none cursor-pointer"
+              class="absolute bottom-1 right-1 w-10 h-10 rounded-full bg-accent text-white shadow-lg flex items-center justify-center hover:bg-accent-hover transition-colors transform hover:scale-105 active:scale-95 border-none cursor-pointer"
             >
               <i class="pi pi-camera"></i>
             </button>
             <input type="file" ref="avatarInput" hidden accept="image/*" @change="handleAvatarUpload" />
           </div>
           
-          <h2 class="text-2xl font-black text-slate-800 mb-2">{{ authStore.user?.full_name || 'Anonymous User' }}</h2>
+          <h2 class="text-2xl font-semibold text-slate-800 mb-2">{{ authStore.user?.full_name || 'Anonymous User' }}</h2>
           <span 
-            class="px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider mb-6 inline-block"
-            :class="authStore.user?.role === 'owner' ? 'bg-accent-light text-accent border border-orange-200' : 'bg-navy-50 text-navy border border-navy-100'"
+            class="px-4 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider mb-6 inline-block"
+            :class="authStore.user?.role === 'owner' ? 'bg-accent-light text-accent border border-accent/20' : 'bg-navy-50 text-navy border border-navy-100'"
           >
             <i :class="authStore.user?.role === 'owner' ? 'pi pi-building' : 'pi pi-user'" class="mr-1 text-[10px]"></i>
             {{ authStore.user?.role === 'owner' ? 'Host / Owner' : 'Guest / Renter' }}
@@ -37,14 +37,14 @@
           <div class="w-full pt-6 border-t border-surface-border flex flex-col gap-4 text-left">
             <div class="flex justify-between items-center text-sm">
               <span class="text-slate-500 font-medium">Loyalty Balance</span>
-              <span class="font-black text-accent flex items-center gap-1">
+              <span class="font-semibold text-accent flex items-center gap-1">
                 <i class="pi pi-star-fill text-xs text-amber-500"></i>
                 {{ authStore.user?.loyalty_points || 500 }} pts
               </span>
             </div>
             <div class="flex justify-between items-center text-sm">
               <span class="text-slate-500 font-medium">Account Status</span>
-              <div class="flex items-center gap-1.5 text-emerald-600 font-bold bg-emerald-50 px-2.5 py-1 rounded-full text-xs border border-emerald-200">
+              <div class="flex items-center gap-1.5 text-accent font-bold bg-accent-light px-2.5 py-1 rounded-lg text-xs border border-accent/20">
                 <i class="pi pi-verified text-xs"></i> Active
               </div>
             </div>
@@ -53,17 +53,17 @@
 
         <!-- Personal Referral Share Card -->
         <div class="bg-gradient-to-br from-navy to-slate-900 text-white rounded-3xl p-6 shadow-md border border-navy-700">
-          <div class="flex items-center gap-2 text-accent text-xs font-black uppercase tracking-wider mb-2">
+          <div class="flex items-center gap-2 text-accent text-xs font-semibold uppercase tracking-wider mb-2">
             <i class="pi pi-gift text-sm"></i>
             <span>Referral Program</span>
           </div>
-          <h3 class="text-lg font-black text-white mb-1">Invite Friends & Earn</h3>
+          <h3 class="text-lg font-semibold text-white mb-1">Invite Friends & Earn</h3>
           <p class="text-xs text-slate-300 font-medium mb-4 leading-relaxed">
             Share your unique code with friends. Earn <strong>500 bonus points</strong> on every referral stay!
           </p>
 
           <div class="bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/10 flex items-center justify-between gap-2">
-            <span class="font-mono text-sm font-black text-amber-400 tracking-wider">
+            <span class="font-mono text-sm font-semibold text-amber-400 tracking-wider">
               {{ authStore.user?.referral_code || 'AP-884920' }}
             </span>
             <button 
@@ -106,7 +106,7 @@
               </div>
 
               <div class="pt-6 flex justify-end">
-                <button type="submit" :disabled="saving" class="btn-accent shadow-accent inline-flex items-center gap-2 px-8 py-3 text-sm font-black">
+                <button type="submit" :disabled="saving" class="btn-accent shadow-accent inline-flex items-center gap-2 px-8 py-3 text-sm font-semibold">
                   <i class="pi pi-check" v-if="!saving"></i>
                   <i class="pi pi-spinner pi-spin" v-else></i>
                   <span>Save Profile Updates</span>
@@ -119,7 +119,7 @@
         <!-- Apply Friend's Referral Code Card -->
         <div class="card-base p-6 md:p-8 shadow-sm">
           <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 rounded-xl bg-orange-50 text-accent flex items-center justify-center">
+            <div class="w-10 h-10 rounded-xl bg-accent-light text-accent flex items-center justify-center">
               <i class="pi pi-tag text-lg"></i>
             </div>
             <div>
@@ -138,14 +138,14 @@
             <button 
               type="submit" 
               :disabled="redeeming || !claimCode"
-              class="btn-accent text-xs font-black px-6 py-3 rounded-full shrink-0 w-full sm:w-auto"
+              class="btn-accent text-xs font-semibold px-6 py-3 rounded-lg shrink-0 w-full sm:w-auto"
             >
               <i v-if="redeeming" class="pi pi-spinner pi-spin mr-1"></i>
               <span>Claim Bonus Points</span>
             </button>
           </form>
 
-          <p v-if="claimSuccess" class="text-xs font-bold text-emerald-600 mt-2 flex items-center gap-1">
+          <p v-if="claimSuccess" class="text-xs font-bold text-accent mt-2 flex items-center gap-1">
             <i class="pi pi-check-circle"></i> {{ claimSuccess }}
           </p>
           <p v-if="claimError" class="text-xs font-bold text-rose-600 mt-2 flex items-center gap-1">
@@ -167,7 +167,7 @@
               <p class="font-bold text-sm text-slate-800">Password Security</p>
               <p class="text-xs font-medium text-slate-500">Request a secure password reset link to your email.</p>
             </div>
-            <button type="button" @click="confirmPasswordReset" class="px-5 py-2.5 rounded-full border border-surface-border text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors inline-flex items-center gap-2 cursor-pointer bg-white">
+            <button type="button" @click="confirmPasswordReset" class="px-5 py-2.5 rounded-lg border border-surface-border text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors inline-flex items-center gap-2 cursor-pointer bg-white">
               <i class="pi pi-key"></i>
               <span>Reset Password</span>
             </button>

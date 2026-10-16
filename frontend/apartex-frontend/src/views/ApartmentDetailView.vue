@@ -484,8 +484,16 @@ const allGalleryPhotos = computed(() => {
 });
 
 const displayAmenities = computed(() => {
-  if (apartment.value?.amenities && apartment.value.amenities.length > 0) {
-    return apartment.value.amenities;
+  if (apartment.value?.amenities) {
+    let ams = apartment.value.amenities;
+    if (typeof ams === 'string') {
+      try {
+        ams = JSON.parse(ams);
+      } catch {
+        ams = [ams];
+      }
+    }
+    if (Array.isArray(ams) && ams.length > 0) return ams;
   }
   return ['High-Speed WiFi', 'Continuous Solar Power', 'Air Conditioning', 'Private Swimming Pool', 'Secure Parking', 'Fully Equipped Kitchen'];
 });
@@ -613,17 +621,31 @@ function handleRoomBook(room) {
   });
 }
 
-const getAmenityIcon = (label) => {
-  const l = label.toLowerCase();
-  if (l.includes('wifi')) return 'pi pi-wifi';
-  if (l.includes('park')) return 'pi pi-car';
-  if (l.includes('kitchen')) return 'pi pi-apple';
-  if (l.includes('pool')) return 'pi pi-water';
-  if (l.includes('solar') || l.includes('power')) return 'pi pi-sun';
-  if (l.includes('air') || l.includes('ac')) return 'pi pi-box';
-  if (l.includes('gym')) return 'pi pi-user';
-  return 'pi pi-check';
-};
+function getAmenityIcon(amenity) {
+  const name = (amenity || '').toLowerCase();
+  if (name.includes('wifi') || name.includes('internet')) return 'pi pi-wifi';
+  if (name.includes('air') || name.includes('ac') || name.includes('conditioning')) return 'pi pi-sun';
+  if (name.includes('park') || name.includes('car') || name.includes('garage')) return 'pi pi-car';
+  if (name.includes('pool') || name.includes('swim')) return 'pi pi-wave-pulse';
+  if (name.includes('generator') || name.includes('power') || name.includes('backup') || name.includes('electric')) return 'pi pi-bolt';
+  if (name.includes('security') || name.includes('cctv') || name.includes('guard') || name.includes('gated')) return 'pi pi-shield';
+  if (name.includes('kitchen') || name.includes('cook')) return 'pi pi-home';
+  if (name.includes('laundry') || name.includes('wash')) return 'pi pi-refresh';
+  if (name.includes('restaurant') || name.includes('dining') || name.includes('food') || name.includes('bar')) return 'pi pi-star';
+  if (name.includes('gym') || name.includes('fitness')) return 'pi pi-heart';
+  if (name.includes('tv') || name.includes('dstv') || name.includes('television')) return 'pi pi-desktop';
+  if (name.includes('hot water') || name.includes('water')) return 'pi pi-droplet';
+  if (name.includes('game') || name.includes('safari') || name.includes('drive')) return 'pi pi-map';
+  if (name.includes('airport') || name.includes('transfer') || name.includes('shuttle')) return 'pi pi-send';
+  if (name.includes('breakfast') || name.includes('meal') || name.includes('board')) return 'pi pi-clock';
+  if (name.includes('ensuite') || name.includes('bathroom') || name.includes('bath')) return 'pi pi-home';
+  if (name.includes('balcony') || name.includes('veranda') || name.includes('patio') || name.includes('view')) return 'pi pi-external-link';
+  if (name.includes('wheelchair') || name.includes('accessible')) return 'pi pi-user';
+  if (name.includes('pet') || name.includes('dog') || name.includes('cat')) return 'pi pi-heart-fill';
+  if (name.includes('conference') || name.includes('meeting') || name.includes('boardroom')) return 'pi pi-users';
+  if (name.includes('spa') || name.includes('massage')) return 'pi pi-sparkles';
+  return 'pi pi-check-circle';
+}
 </script>
 
 <style scoped>

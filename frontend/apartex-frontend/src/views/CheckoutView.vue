@@ -237,7 +237,10 @@ const guestForm = ref({
   specialRequests: ''
 });
 
-const baseTotal = computed(() => parseFloat(route.query.total) || 0);
+const baseTotal = computed(() => {
+  const t = parseFloat(route.query.total);
+  return isNaN(t) ? 0 : t;
+});
 
 const maxPointsToApply = computed(() => {
   if (!authStore.user) return 0;

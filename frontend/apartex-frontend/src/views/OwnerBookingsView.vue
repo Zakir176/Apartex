@@ -3,15 +3,15 @@
     <!-- Header -->
     <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
       <div>
-        <span class="text-xs font-black uppercase tracking-wider text-accent mb-1 block">Reservations Hub</span>
-        <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">Guest Bookings</h1>
+        <span class="text-xs font-semibold uppercase tracking-wider text-accent mb-1 block">Reservations Hub</span>
+        <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">Guest Bookings</h1>
         <p class="text-slate-500 font-medium text-sm sm:text-base mt-1">Review, approve, and manage guest stay schedules across all your properties.</p>
       </div>
 
       <div class="flex items-center gap-3">
         <button 
           @click="loadBookings" 
-          class="px-4 py-2.5 rounded-full border border-surface-border text-xs font-black text-slate-600 bg-white hover:bg-slate-50 transition-colors inline-flex items-center gap-2 shadow-sm cursor-pointer"
+          class="px-4 py-2.5 rounded-lg border border-surface-border text-xs font-semibold text-slate-600 bg-white hover:bg-slate-50 transition-colors inline-flex items-center gap-2 shadow-sm cursor-pointer"
           :disabled="bookingsStore.loading"
         >
           <i class="pi pi-refresh text-xs" :class="{ 'pi-spin': bookingsStore.loading }"></i>
@@ -26,7 +26,7 @@
         v-for="tab in filterTabs" 
         :key="tab.id"
         @click="activeStatusFilter = tab.id"
-        class="px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer border-none"
+        class="px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer border-none"
         :class="activeStatusFilter === tab.id ? 'bg-navy text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 bg-transparent'"
       >
         {{ tab.label }}
@@ -63,13 +63,13 @@
         
         <Column field="id" header="Booking ID" sortable style="min-width: 6rem">
           <template #body="slotProps">
-            <span class="font-mono text-xs font-black text-slate-700">#BK-{{ slotProps.data.id }}</span>
+            <span class="font-mono text-xs font-semibold text-slate-700">#BK-{{ slotProps.data.id }}</span>
           </template>
         </Column>
 
         <Column field="apartment_id" header="Property" sortable>
           <template #body="slotProps">
-            <div class="flex items-center gap-2 font-black text-xs text-slate-800">
+            <div class="flex items-center gap-2 font-semibold text-xs text-slate-800">
               <div class="w-8 h-8 rounded-lg bg-accent-light text-accent flex items-center justify-center shrink-0">
                 <i class="pi pi-home text-xs"></i>
               </div>
@@ -89,7 +89,7 @@
 
         <Column field="guests" header="Guests" sortable align="center">
           <template #body="slotProps">
-            <div class="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-50 border border-surface-border rounded-lg text-xs font-black text-slate-600">
+            <div class="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-50 border border-surface-border rounded-lg text-xs font-semibold text-slate-600">
               <i class="pi pi-users text-slate-400 text-xs"></i>
               {{ slotProps.data.guests || 1 }}
             </div>
@@ -98,13 +98,13 @@
 
         <Column field="total_price" header="Total Price" sortable>
           <template #body="slotProps">
-            <span class="font-black text-sm text-emerald-600 tracking-tight">{{ formatCurrency(slotProps.data.total_price) }}</span>
+            <span class="font-semibold text-sm text-accent tracking-tight">{{ formatCurrency(slotProps.data.total_price) }}</span>
           </template>
         </Column>
 
         <Column field="status" header="Status" sortable>
           <template #body="slotProps">
-            <Tag :value="slotProps.data.status" :severity="getStatusSeverity(slotProps.data.status)" class="text-[10px] font-black uppercase tracking-wider" />
+            <Tag :value="slotProps.data.status" :severity="getStatusSeverity(slotProps.data.status)" class="text-[10px] font-semibold uppercase tracking-wider" />
           </template>
         </Column>
 
@@ -115,7 +115,7 @@
                 v-if="slotProps.data.status === 'pending'"
                 @click="approveBooking(slotProps.data.id)"
                 :disabled="approvingId === slotProps.data.id"
-                class="px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg text-xs font-black transition-colors inline-flex items-center gap-1 border border-emerald-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                class="px-3 py-1.5 bg-accent-light text-accent hover:bg-accent/20 rounded-lg text-xs font-semibold transition-colors inline-flex items-center gap-1 border border-accent/20 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <i v-if="approvingId === slotProps.data.id" class="pi pi-spin pi-spinner text-[10px]"></i>
                 <i v-else class="pi pi-check text-[10px]"></i>
@@ -125,7 +125,7 @@
               <button 
                 v-if="slotProps.data.status === 'confirmed'"
                 @click="bookingsStore.completeBooking(slotProps.data.id)"
-                class="px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-xs font-black transition-colors inline-flex items-center gap-1 border border-blue-200"
+                class="px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-xs font-semibold transition-colors inline-flex items-center gap-1 border border-blue-200"
               >
                 <i class="pi pi-check-circle text-[10px]"></i> Complete
               </button>
@@ -146,35 +146,35 @@
     <Dialog v-model:visible="guestModal" header="Reservation & Guest Details" :style="{ width: '480px', maxWidth: '95vw' }" :modal="true" contentClass="pt-2">
       <div v-if="selectedBooking" class="flex flex-col gap-4 py-3 text-xs text-slate-700 font-semibold">
         <div class="bg-slate-50 p-4 rounded-2xl border border-surface-border">
-          <p class="text-[10px] font-black uppercase text-slate-400">Reservation Reference</p>
-          <p class="text-sm font-black text-slate-900 mt-0.5">#BK-{{ selectedBooking.id }}</p>
+          <p class="text-[10px] font-semibold uppercase text-slate-400">Reservation Reference</p>
+          <p class="text-sm font-semibold text-slate-900 mt-0.5">#BK-{{ selectedBooking.id }}</p>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <p class="text-[10px] font-black uppercase text-slate-400">Check-in Date</p>
+            <p class="text-[10px] font-semibold uppercase text-slate-400">Check-in Date</p>
             <p class="font-bold text-slate-900 mt-0.5">{{ formatDate(selectedBooking.check_in) }}</p>
           </div>
           <div>
-            <p class="text-[10px] font-black uppercase text-slate-400">Check-out Date</p>
+            <p class="text-[10px] font-semibold uppercase text-slate-400">Check-out Date</p>
             <p class="font-bold text-slate-900 mt-0.5">{{ formatDate(selectedBooking.check_out) }}</p>
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <p class="text-[10px] font-black uppercase text-slate-400">Guests</p>
+            <p class="text-[10px] font-semibold uppercase text-slate-400">Guests</p>
             <p class="font-bold text-slate-900 mt-0.5">{{ selectedBooking.guests || 1 }} Guests</p>
           </div>
           <div>
-            <p class="text-[10px] font-black uppercase text-slate-400">Total Price</p>
-            <p class="font-black text-emerald-600 text-sm mt-0.5">{{ formatCurrency(selectedBooking.total_price) }}</p>
+            <p class="text-[10px] font-semibold uppercase text-slate-400">Total Price</p>
+            <p class="font-semibold text-accent text-sm mt-0.5">{{ formatCurrency(selectedBooking.total_price) }}</p>
           </div>
         </div>
 
         <div class="border-t border-surface-border pt-3">
-          <p class="text-[10px] font-black uppercase text-slate-400 mb-2">Host Concierge Contact</p>
-          <div class="flex items-center gap-2 p-3 bg-accent-light rounded-xl border border-orange-200">
+          <p class="text-[10px] font-semibold uppercase text-slate-400 mb-2">Host Concierge Contact</p>
+          <div class="flex items-center gap-2 p-3 bg-accent-light rounded-xl border border-accent/20">
             <i class="pi pi-phone text-accent"></i>
             <span>Guest support concierge ready for check-in coordination.</span>
           </div>

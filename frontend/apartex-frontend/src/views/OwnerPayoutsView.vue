@@ -3,8 +3,8 @@
     <!-- Header -->
     <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
       <div>
-        <span class="text-xs font-black uppercase tracking-wider text-accent mb-1 block">Host Settlement Portal</span>
-        <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">Finance & Payouts</h1>
+        <span class="text-xs font-semibold uppercase tracking-wider text-accent mb-1 block">Host Settlement Portal</span>
+        <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">Finance & Payouts</h1>
         <p class="text-slate-500 font-medium text-sm sm:text-base mt-1">Track guest payouts, manage withdrawal channels, and request fast settlements.</p>
       </div>
 
@@ -12,7 +12,7 @@
         <button 
           @click="downloadCsvReport" 
           :disabled="downloadingCsv"
-          class="btn-outline font-bold inline-flex items-center gap-2 text-xs px-5 py-3 rounded-full border-slate-300 hover:bg-slate-50 cursor-pointer"
+          class="btn-outline font-bold inline-flex items-center gap-2 text-xs px-5 py-3 rounded-lg border-slate-300 hover:bg-slate-50 cursor-pointer"
         >
           <i class="pi pi-download" v-if="!downloadingCsv"></i>
           <i class="pi pi-spinner pi-spin" v-else></i>
@@ -22,7 +22,7 @@
         <button 
           @click="openModal" 
           :disabled="loading" 
-          class="btn-accent shadow-accent font-black text-xs px-6 py-3 rounded-full inline-flex items-center gap-2 cursor-pointer"
+          class="btn-accent shadow-accent font-semibold text-xs px-6 py-3 rounded-lg inline-flex items-center gap-2 cursor-pointer"
         >
           <i class="pi pi-wallet" v-if="!loading"></i>
           <i class="pi pi-spinner pi-spin" v-else></i>
@@ -36,39 +36,39 @@
       <!-- Available Balance -->
       <div class="bg-white rounded-2xl p-6 border border-surface-border shadow-sm flex flex-col justify-between">
         <div class="flex justify-between items-center mb-3">
-          <span class="text-slate-400 text-xs font-black uppercase tracking-wider">Available Balance</span>
+          <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Available Balance</span>
           <div class="w-10 h-10 rounded-xl bg-accent-light text-accent flex items-center justify-center">
             <i class="pi pi-wallet text-lg"></i>
           </div>
         </div>
         <Skeleton v-if="dashboardStore.loading" height="2rem" width="60%" class="rounded-lg" />
-        <div v-else class="text-3xl font-black text-slate-900 tracking-tight">{{ formatCurrency(availableBalance) }}</div>
+        <div v-else class="text-3xl font-semibold text-slate-900 tracking-tight">{{ formatCurrency(availableBalance) }}</div>
         <p class="text-xs text-slate-500 font-medium mt-1">Revenue from confirmed bookings</p>
       </div>
 
       <!-- Pending Settlement -->
       <div class="bg-white rounded-2xl p-6 border border-surface-border shadow-sm flex flex-col justify-between">
         <div class="flex justify-between items-center mb-3">
-          <span class="text-slate-400 text-xs font-black uppercase tracking-wider">Pending Settlement</span>
+          <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Pending Settlement</span>
           <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
             <i class="pi pi-clock text-lg"></i>
           </div>
         </div>
         <Skeleton v-if="dashboardStore.loading" height="2rem" width="60%" class="rounded-lg" />
-        <div v-else class="text-3xl font-black text-amber-500 tracking-tight">{{ formatCurrency(pendingSettlement) }}</div>
+        <div v-else class="text-3xl font-semibold text-amber-500 tracking-tight">{{ formatCurrency(pendingSettlement) }}</div>
         <p class="text-xs text-slate-500 font-medium mt-1">Held during active guest stays</p>
       </div>
       
       <!-- Total Transferred -->
       <div class="bg-white rounded-2xl p-6 border border-surface-border shadow-sm flex flex-col justify-between">
         <div class="flex justify-between items-center mb-3">
-          <span class="text-slate-400 text-xs font-black uppercase tracking-wider">Total Transferred</span>
-          <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+          <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Total Transferred</span>
+          <div class="w-10 h-10 rounded-xl bg-accent-light text-accent flex items-center justify-center">
             <i class="pi pi-check-circle text-lg"></i>
           </div>
         </div>
         <Skeleton v-if="loading" height="2rem" width="60%" class="rounded-lg" />
-        <div v-else class="text-3xl font-black text-emerald-600 tracking-tight">{{ formatCurrency(totalWithdrawn) }}</div>
+        <div v-else class="text-3xl font-semibold text-accent tracking-tight">{{ formatCurrency(totalWithdrawn) }}</div>
         <p class="text-xs text-slate-500 font-medium mt-1">Lifetime payout volume</p>
       </div>
     </div>
@@ -76,31 +76,31 @@
     <!-- Supported Withdrawal Channels -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
       <div class="bg-white rounded-2xl p-5 border border-surface-border shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-amber-400 text-slate-900 font-black text-xs flex items-center justify-center shrink-0">
+        <div class="w-12 h-12 rounded-xl bg-amber-400 text-slate-900 font-semibold text-xs flex items-center justify-center shrink-0">
           MTN
         </div>
         <div>
-          <h4 class="font-black text-xs text-slate-900">MTN Mobile Money</h4>
+          <h4 class="font-semibold text-xs text-slate-900">MTN Mobile Money</h4>
           <p class="text-[11px] text-slate-500 font-medium mt-0.5">Instant local currency transfer across Zambia.</p>
         </div>
       </div>
 
       <div class="bg-white rounded-2xl p-5 border border-surface-border shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-rose-600 text-white font-black text-xs flex items-center justify-center shrink-0">
+        <div class="w-12 h-12 rounded-xl bg-rose-600 text-white font-semibold text-xs flex items-center justify-center shrink-0">
           AIRTEL
         </div>
         <div>
-          <h4 class="font-black text-xs text-slate-900">Airtel Money</h4>
+          <h4 class="font-semibold text-xs text-slate-900">Airtel Money</h4>
           <p class="text-[11px] text-slate-500 font-medium mt-0.5">0% fee instant mobile wallet settlement.</p>
         </div>
       </div>
 
       <div class="bg-white rounded-2xl p-5 border border-surface-border shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-navy text-white font-black text-xs flex items-center justify-center shrink-0">
+        <div class="w-12 h-12 rounded-xl bg-navy text-white font-semibold text-xs flex items-center justify-center shrink-0">
           BANK
         </div>
         <div>
-          <h4 class="font-black text-xs text-slate-900">Bank Transfer</h4>
+          <h4 class="font-semibold text-xs text-slate-900">Bank Transfer</h4>
           <p class="text-[11px] text-slate-500 font-medium mt-0.5">Standard SWIFT / EFT bank deposit.</p>
         </div>
       </div>
@@ -109,7 +109,7 @@
     <!-- Payout History Table -->
     <div class="bg-white rounded-3xl border border-surface-border overflow-hidden shadow-sm">
       <div class="p-6 border-b border-surface-border flex items-center justify-between">
-        <h3 class="text-base font-black text-slate-900">Transaction & Payout History</h3>
+        <h3 class="text-base font-semibold text-slate-900">Transaction & Payout History</h3>
         <span class="text-xs text-slate-400 font-bold">Updated Live</span>
       </div>
       
@@ -130,19 +130,19 @@
         
         <Column field="id" header="Transaction ID" sortable>
           <template #body="slotProps">
-            <span class="font-mono text-xs font-black text-slate-700">#TXN-{{ slotProps.data.id }}</span>
+            <span class="font-mono text-xs font-semibold text-slate-700">#TXN-{{ slotProps.data.id }}</span>
           </template>
         </Column>
 
         <Column field="amount" header="Amount" sortable>
           <template #body="slotProps">
-            <span class="font-black text-sm text-slate-900 tracking-tight">{{ formatCurrency(slotProps.data.amount) }}</span>
+            <span class="font-semibold text-sm text-slate-900 tracking-tight">{{ formatCurrency(slotProps.data.amount) }}</span>
           </template>
         </Column>
 
         <Column field="status" header="Status" sortable>
           <template #body="slotProps">
-            <Tag :value="slotProps.data.status" :severity="getStatusSeverity(slotProps.data.status)" class="text-[10px] font-black uppercase tracking-wider" />
+            <Tag :value="slotProps.data.status" :severity="getStatusSeverity(slotProps.data.status)" class="text-[10px] font-semibold uppercase tracking-wider" />
           </template>
         </Column>
 
@@ -168,8 +168,8 @@
       </div>
       <template #footer>
         <div class="flex gap-2 justify-end pt-3">
-          <button @click="showModal = false" class="px-4 py-2 rounded-full text-xs font-bold text-slate-500">Cancel</button>
-          <button @click="handleRequestPayout" class="btn-accent text-xs font-black px-5 py-2 rounded-full">Submit Request</button>
+          <button @click="showModal = false" class="px-4 py-2 rounded-lg text-xs font-bold text-slate-500">Cancel</button>
+          <button @click="handleRequestPayout" class="btn-accent text-xs font-semibold px-5 py-2 rounded-lg">Submit Request</button>
         </div>
       </template>
     </Dialog>
